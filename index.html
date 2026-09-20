@@ -12,7 +12,7 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     body { background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
     
-    .card { background: #ffffff; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); width: 100%; max-width: 850px; padding: 25px; }
+    .card { background: #ffffff; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); width: 100%; max-width: 900px; padding: 25px; }
     .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #eef2f5; padding-bottom: 15px; }
     
     .logo-sekolah { width: 90px; height: auto; margin-bottom: 10px; }
@@ -49,11 +49,20 @@
     .screen { display: none; }
     .screen.active { display: block; }
 
-    .table-container { margin-top: 20px; overflow-x: auto; }
+    /* STYLE NAVIGASI TAB MENU WAKA */
+    .nav-tabs { display: flex; gap: 8px; border-bottom: 2px solid #e0e0e0; margin-bottom: 20px; flex-wrap: wrap; }
+    .nav-tab-btn { padding: 10px 16px; border: none; background: #f1f3f4; color: #5f6368; border-radius: 8px 8px 0 0; font-weight: 600; font-size: 13px; cursor: pointer; transition: 0.2s; }
+    .nav-tab-btn:hover { background: #e8f0fe; color: #1a73e8; }
+    .nav-tab-btn.active { background: #1a73e8; color: white; }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    .table-container { margin-top: 15px; overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 10px; }
     th, td { border: 1px solid #e0e0e0; padding: 10px; text-align: left; }
     th { background-color: #f8fafc; color: #333; }
-    .section-title { font-size: 16px; font-weight: bold; color: #1a73e8; margin-top: 20px; margin-bottom: 10px; border-left: 4px solid #1a73e8; padding-left: 8px; }
+    .section-title { font-size: 15px; font-weight: bold; color: #1a73e8; margin-top: 15px; margin-bottom: 10px; border-left: 4px solid #1a73e8; padding-left: 8px; }
     
     .box-import { background: #eef6ff; border: 1px dashed #1a73e8; padding: 15px; border-radius: 8px; margin-top: 10px; }
   </style>
@@ -98,71 +107,103 @@
       <!-- PANEL KHUSUS WAKA KURIKULUM -->
       <div id="panel-waka" style="display: none;">
         
-        <!-- FITUR 1: TAMBAH AKUN SATUAN -->
-        <div class="section-title">Tambah Akun Satuan</div>
-        <form onsubmit="tambahUserSatuan(event)">
-          <div class="grid-2">
-            <div class="form-group">
-              <label>Nama Lengkap</label>
-              <input type="text" id="input-nama" class="form-control" placeholder="Nama Lengkap" required>
-            </div>
-            <div class="form-group">
-              <label>Role / Hak Akses</label>
-              <select id="input-role" class="form-control" required>
-                <option value="waka">Waka Kurikulum</option>
-                <option value="walikelas">Wali Kelas</option>
-                <option value="gurumapel">Guru Mapel</option>
-                <option value="siswa">Siswa</option>
-                <option value="walimurid">Wali Murid</option>
-              </select>
-            </div>
-          </div>
-          <div class="grid-2">
-            <div class="form-group">
-              <label>Username</label>
-              <input type="text" id="input-username" class="form-control" placeholder="Username" required>
-            </div>
-            <div class="form-group">
-              <label>Password</label>
-              <input type="text" id="input-password" class="form-control" placeholder="Password" required>
-            </div>
-          </div>
-          <button type="submit" class="btn-submit" id="btn-tambah-user">+ Simpan Akun Baru</button>
-        </form>
-
-        <!-- FITUR 2: IMPORT DATA MASSAL (EXCEL/CSV) -->
-        <div class="section-title">Import Data Akun Massal (Excel/CSV)</div>
-        <div class="box-import">
-          <p style="font-size: 12px; color: #555; margin-bottom: 10px;">
-            Unduh template terlebih dahulu untuk memperoleh format yang sesuai dan opsi role dalam bentuk dropdown.
-          </p>
-          <button type="button" class="btn-info" onclick="downloadTemplateExcel()">📥 Download Template Excel (.xlsx)</button>
-          
-          <div class="form-group" style="margin-top: 10px;">
-            <label style="font-size: 12px;">Pilih File Template Yang Sudah Diisi:</label>
-            <input type="file" id="file-excel" class="form-control" accept=".xlsx, .xls, .csv">
-          </div>
-          <button type="button" class="btn-success" id="btn-import" onclick="prosesImportExcel()">📤 Unggah & Import Data ke Database</button>
-          <div id="status-import" style="font-size: 13px; font-weight: bold; margin-top: 8px; color: #1a73e8;"></div>
+        <!-- MENU TAB NAVIGASI -->
+        <div class="nav-tabs">
+          <button class="nav-tab-btn active" onclick="bukaTabWaka('tab-user', this)">👥 Manajemen User</button>
+          <button class="nav-tab-btn" onclick="bukaTabWaka('tab-akademik', this)">📚 Data Akademik</button>
+          <button class="nav-tab-btn" onclick="bukaTabWaka('tab-monitoring', this)">📊 Monitoring & Rapor</button>
         </div>
 
-        <!-- FITUR 3: TABEL DAFTAR PENGGUNA -->
-        <div class="section-title">Daftar Akun Pengguna</div>
-        <div class="table-container">
-          <table>
-            <thead>
-              <tr>
-                <th>No</th>
-                <th>Nama</th>
-                <th>Username</th>
-                <th>Role</th>
-                <th>Aksi</th>
-              </tr>
-            </thead>
-            <tbody id="tabel-users-body">
-              <tr><td colspan="5" style="text-align:center;">Memuat data...</td></tr>
-            </tbody>
-          </table>
+        <!-- TAB 1: MANAJEMEN USER -->
+        <div class="tab-content active" id="tab-user">
+          
+          <div class="section-title">Tambah Akun Satuan</div>
+          <form onsubmit="tambahUserSatuan(event)">
+            <div class="grid-2">
+              <div class="form-group">
+                <label>Nama Lengkap</label>
+                <input type="text" id="input-nama" class="form-control" placeholder="Nama Lengkap" required>
+              </div>
+              <div class="form-group">
+                <label>Role / Hak Akses</label>
+                <select id="input-role" class="form-control" required>
+                  <option value="waka">Waka Kurikulum</option>
+                  <option value="walikelas">Wali Kelas</option>
+                  <option value="gurumapel">Guru Mapel</option>
+                  <option value="siswa">Siswa</option>
+                  <option value="walimurid">Wali Murid</option>
+                </select>
+              </div>
+            </div>
+            <div class="grid-2">
+              <div class="form-group">
+                <label>Username</label>
+                <input type="text" id="input-username" class="form-control" placeholder="Username" required>
+              </div>
+              <div class="form-group">
+                <label>Password</label>
+                <input type="text" id="input-password" class="form-control" placeholder="Password" required>
+              </div>
+            </div>
+            <button type="submit" class="btn-submit" id="btn-tambah-user">+ Simpan Akun Baru</button>
+          </form>
+
+          <div class="section-title">Import Data Akun Massal (Excel/CSV)</div>
+          <div class="box-import">
+            <p style="font-size: 12px; color: #555; margin-bottom: 10px;">
+              Unduh template terlebih dahulu untuk memperoleh format yang sesuai dan opsi role dalam bentuk dropdown.
+            </p>
+            <button type="button" class="btn-info" onclick="downloadTemplateExcel()">📥 Download Template Excel (.xlsx)</button>
+            
+            <div class="form-group" style="margin-top: 10px;">
+              <label style="font-size: 12px;">Pilih File Template Yang Sudah Diisi:</label>
+              <input type="file" id="file-excel" class="form-control" accept=".xlsx, .xls, .csv">
+            </div>
+            <button type="button" class="btn-success" id="btn-import" onclick="prosesImportExcel()">📤 Unggah & Import Data ke Database</button>
+            <div id="status-import" style="font-size: 13px; font-weight: bold; margin-top: 8px; color: #1a73e8;"></div>
+          </div>
+
+          <div class="section-title">Daftar Akun Pengguna</div>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>No</th>
+                  <th>Nama</th>
+                  <th>Username</th>
+                  <th>Role</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="tabel-users-body">
+                <tr><td colspan="5" style="text-align:center;">Memuat data...</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+
+        <!-- TAB 2: DATA AKADEMIK -->
+        <div class="tab-content" id="tab-akademik">
+          <div class="section-title">Pengaturan Mata Pelajaran & Plotting</div>
+          <p style="font-size: 13px; color: #666; margin-bottom: 15px;">
+            Fitur ini digunakan untuk menginput daftar mata pelajaran dan menentukan Guru Mapel serta Wali Kelas.
+          </p>
+          <div style="background: #f8fafc; padding: 20px; border-radius: 8px; text-align: center; color: #1a73e8; border: 1px dashed #1a73e8;">
+            🛠️ <b>Menu Data Akademik Siap Dikonstruksi</b><br>
+            <span style="font-size: 12px; color: #555;">(Kita akan menambahkan form input Mapel & Plotting Wali Kelas pada tahap berikutnya)</span>
+          </div>
+        </div>
+
+        <!-- TAB 3: MONITORING & RAPOR -->
+        <div class="tab-content" id="tab-monitoring">
+          <div class="section-title">Monitoring & Rekap Rapor</div>
+          <p style="font-size: 13px; color: #666; margin-bottom: 15px;">
+            Memantau status pengisian nilai oleh guru dan status validasi rapor oleh wali murid.
+          </p>
+          <div style="background: #f8fafc; padding: 20px; border-radius: 8px; text-align: center; color: #1a73e8; border: 1px dashed #1a73e8;">
+            📊 <b>Panel Monitoring Siap Dikonstruksi</b>
+          </div>
         </div>
 
       </div>
@@ -194,24 +235,33 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
+    // FUNGSI PINDAH TAB WAKA
+    window.bukaTabWaka = function(tabId, btnElement) {
+      const contents = document.querySelectorAll('#panel-waka .tab-content');
+      contents.forEach(c => c.classList.remove('active'));
+
+      const buttons = document.querySelectorAll('#panel-waka .nav-tab-btn');
+      buttons.forEach(b => b.classList.remove('active'));
+
+      document.getElementById(tabId).classList.add('active');
+      btnElement.classList.add('active');
+    };
+
     window.togglePasswordVisibility = function() {
       const passwordInput = document.getElementById("password");
       passwordInput.type = passwordInput.type === "password" ? "text" : "password";
     };
 
-    // FUNGSI DOWNLOAD TEMPLATE EXCEL DENGAN DROPDOWN ROLE
+    // Download Template Excel
     window.downloadTemplateExcel = function() {
-      // Data sampel untuk template
       const templateData = [
         { nama: "Ahmad Subarjo", username: "ahmad123", password: "pass123", role: "siswa" },
         { nama: "Budi Pekerti", username: "budi123", password: "pass123", role: "walikelas" },
         { nama: "Siti Aminah", username: "siti123", password: "pass123", role: "gurumapel" }
       ];
 
-      // Buat workbook & worksheet baru
       const ws = XLSX.utils.json_to_sheet(templateData);
 
-      // Tambahkan konfigurasi Data Validation (Dropdown) pada Kolom D (Role) dari baris 2 hingga 100
       ws['!dataValidation'] = [
         {
           sqref: "D2:D100",
@@ -221,18 +271,15 @@
         }
       ];
 
-      // Atur lebar kolom agar rapi
       ws['!cols'] = [
-        { wch: 25 }, // nama
-        { wch: 18 }, // username
-        { wch: 18 }, // password
-        { wch: 15 }  // role
+        { wch: 25 },
+        { wch: 18 },
+        { wch: 18 },
+        { wch: 15 }
       ];
 
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "Template Akun");
-
-      // Unduh File Excel
       XLSX.writeFile(wb, "Template_Import_Akun_DIPSA.xlsx");
     };
 
@@ -319,7 +366,7 @@
       }
     };
 
-    // PROSES IMPORT DATA MASSAL DARI EXCEL/CSV (BATCH WRITE FIRESTORE)
+    // Proses Import Excel
     window.prosesImportExcel = function() {
       const fileInput = document.getElementById("file-excel");
       const statusDiv = document.getElementById("status-import");
