@@ -4,14 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Rapor Digital Dipsa</title>
+  
+  <!-- CDN SheetJS untuk Membaca File Excel/CSV -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     body { background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
     
-    .card { background: #ffffff; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); width: 100%; max-width: 800px; padding: 25px; }
+    .card { background: #ffffff; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); width: 100%; max-width: 850px; padding: 25px; }
     .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #eef2f5; padding-bottom: 15px; }
     
-    /* Style Logo Sekolah */
     .logo-sekolah { width: 90px; height: auto; margin-bottom: 10px; }
 
     .header h2 { color: #1a73e8; font-size: 22px; text-transform: uppercase; }
@@ -22,7 +25,6 @@
     .form-control { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; outline: none; }
     .form-control:focus { border-color: #1a73e8; box-shadow: 0 0 0 3px rgba(26,115,232,0.2); }
 
-    /* Style Container Password & Toggle Mata */
     .password-wrapper { position: relative; width: 100%; }
     .password-wrapper input { padding-right: 40px; }
     .toggle-password { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #666; font-size: 16px; user-select: none; }
@@ -32,6 +34,8 @@
 
     .btn-submit { width: 100%; background: #1a73e8; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; font-size: 14px; cursor: pointer; transition: 0.2s; }
     .btn-submit:hover { background: #1557b0; }
+    .btn-success { background: #28a745; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; font-size: 14px; cursor: pointer; transition: 0.2s; width: 100%; }
+    .btn-success:hover { background: #218838; }
     .btn-logout { background: #dc3545; margin-top: 20px; }
     .btn-logout:hover { background: #c82333; }
     .btn-danger { background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; }
@@ -43,12 +47,13 @@
     .screen { display: none; }
     .screen.active { display: block; }
 
-    /* Style Tabel */
     .table-container { margin-top: 20px; overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 10px; }
     th, td { border: 1px solid #e0e0e0; padding: 10px; text-align: left; }
     th { background-color: #f8fafc; color: #333; }
     .section-title { font-size: 16px; font-weight: bold; color: #1a73e8; margin-top: 20px; margin-bottom: 10px; border-left: 4px solid #1a73e8; padding-left: 8px; }
+    
+    .box-import { background: #eef6ff; border: 1px dashed #1a73e8; padding: 15px; border-radius: 8px; margin-top: 10px; }
   </style>
 </head>
 <body>
@@ -91,6 +96,7 @@
       <!-- PANEL KHUSUS WAKA KURIKULUM -->
       <div id="panel-waka" style="display: none;">
         
+        <!-- FITUR 1: TAMBAH AKUN SATUAN -->
         <div class="section-title">Tambah Akun Satuan</div>
         <form onsubmit="tambahUserSatuan(event)">
           <div class="grid-2">
@@ -122,6 +128,20 @@
           <button type="submit" class="btn-submit" id="btn-tambah-user">+ Simpan Akun Baru</button>
         </form>
 
+        <!-- FITUR 2: IMPORT DATA MASSAL (EXCEL/CSV) -->
+        <div class="section-title">Import Data Akun Massal (Excel/CSV)</div>
+        <div class="box-import">
+          <p style="font-size: 12px; color: #555; margin-bottom: 8px;">
+            *Pilih file Excel (.xlsx) atau CSV yang memiliki kolom: <b>nama</b>, <b>username</b>, <b>password</b>, dan <b>role</b> pada baris pertama.
+          </p>
+          <div class="form-group">
+            <input type="file" id="file-excel" class="form-control" accept=".xlsx, .xls, .csv">
+          </div>
+          <button type="button" class="btn-success" id="btn-import" onclick="prosesImportExcel()">📤 Unggah & Import Data ke Database</button>
+          <div id="status-import" style="font-size: 13px; font-weight: bold; margin-top: 8px; color: #1a73e8;"></div>
+        </div>
+
+        <!-- FITUR 3: TABEL DAFTAR PENGGUNA -->
         <div class="section-title">Daftar Akun Pengguna</div>
         <div class="table-container">
           <table>
@@ -155,7 +175,7 @@
   <!-- LOAD FIREBASE SDK (MODULE) -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, query, where, getDocs, addDoc, deleteDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, collection, query, where, getDocs, addDoc, deleteDoc, doc, onSnapshot, writeBatch } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDnPyMzuu4Qo2mZhORxZh3aTUm-TAFmzzU",
@@ -169,14 +189,9 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // Toggle Password Visibility
     window.togglePasswordVisibility = function() {
       const passwordInput = document.getElementById("password");
-      if (passwordInput.type === "password") {
-        passwordInput.type = "text";
-      } else {
-        passwordInput.type = "password";
-      }
+      passwordInput.type = passwordInput.type === "password" ? "text" : "password";
     };
 
     // Proses Login
@@ -235,7 +250,7 @@
       }
     }
 
-    // Fitur Tambah Akun Satuan (Realtime ke Firestore)
+    // Tambah Akun Satuan
     window.tambahUserSatuan = async function(e) {
       e.preventDefault();
       const btn = document.getElementById("btn-tambah-user");
@@ -262,7 +277,89 @@
       }
     };
 
-    // Fitur Baca Tabel Users (Realtime Update)
+    // PROSES IMPORT DATA MASSAL DARI EXCEL/CSV (BATCH WRITE FIRESTORE)
+    window.prosesImportExcel = function() {
+      const fileInput = document.getElementById("file-excel");
+      const statusDiv = document.getElementById("status-import");
+      const btn = document.getElementById("btn-import");
+
+      if (!fileInput.files.length) {
+        alert("Silakan pilih file Excel/CSV terlebih dahulu!");
+        return;
+      }
+
+      const file = fileInput.files[0];
+      const reader = new FileReader();
+
+      btn.disabled = true;
+      statusDiv.innerText = "Membaca file Excel...";
+
+      reader.onload = async function(e) {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const firstSheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[firstSheetName];
+          
+          // Konversi baris excel ke format Array JSON
+          const jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+          if (jsonData.length === 0) {
+            alert("File Excel kosong!");
+            btn.disabled = false;
+            statusDiv.innerText = "";
+            return;
+          }
+
+          statusDiv.innerText = `Mengunggah ${jsonData.length} data ke Firestore...`;
+
+          // Kirim data ke Firestore menggunakan batch (biar cepat)
+          let batch = writeBatch(db);
+          let count = 0;
+
+          for (let i = 0; i < jsonData.length; i++) {
+            const row = jsonData[i];
+            
+            // Validasi kelengkapan data
+            if (row.nama && row.username && row.password && row.role) {
+              const docRef = doc(collection(db, "users"));
+              batch.set(docRef, {
+                nama: String(row.nama),
+                username: String(row.username),
+                password: String(row.password),
+                role: String(row.role).toLowerCase()
+              });
+
+              count++;
+
+              // Firestore membatasi maksimal 500 dokumen per batch
+              if (count % 400 === 0) {
+                await batch.commit();
+                batch = writeBatch(db);
+              }
+            }
+          }
+
+          if (count > 0) {
+            await batch.commit();
+            alert(`Berhasil mengimpor ${count} akun ke database!`);
+            fileInput.value = "";
+          } else {
+            alert("Format kolom Excel tidak sesuai! Pastikan nama kolom: nama, username, password, role");
+          }
+
+        } catch (err) {
+          alert("Gagal memproses file: " + err.message);
+        } finally {
+          btn.disabled = false;
+          statusDiv.innerText = "";
+        }
+      };
+
+      reader.readAsArrayBuffer(file);
+    };
+
+    // Baca Tabel Users Realtime
     function muatTabelUsersRealtime() {
       const tbody = document.getElementById("tabel-users-body");
       
@@ -294,7 +391,7 @@
       });
     }
 
-    // Fitur Hapus Akun
+    // Hapus Akun
     window.hapusUser = async function(docId, nama) {
       if(confirm(`Apakah Anda yakin ingin menghapus akun ${nama}?`)) {
         try {
