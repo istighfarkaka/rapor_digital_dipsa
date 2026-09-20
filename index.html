@@ -3,20 +3,30 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DIPSA - Portal CBT & Rapor Digital</title>
+  <title>Rapor Digital Dipsa</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     body { background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
     
     .card { background: #ffffff; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); width: 100%; max-width: 800px; padding: 25px; }
     .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #eef2f5; padding-bottom: 15px; }
-    .header h2 { color: #1a73e8; font-size: 22px; }
+    
+    /* Style Logo Sekolah */
+    .logo-sekolah { width: 90px; height: auto; margin-bottom: 10px; }
+
+    .header h2 { color: #1a73e8; font-size: 22px; text-transform: uppercase; }
     .header p { color: #666; font-size: 13px; margin-top: 5px; }
 
     .form-group { margin-bottom: 15px; }
     .form-group label { display: block; font-size: 13px; font-weight: 600; color: #444; margin-bottom: 5px; }
     .form-control { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; outline: none; }
     .form-control:focus { border-color: #1a73e8; box-shadow: 0 0 0 3px rgba(26,115,232,0.2); }
+
+    /* Style Container Password & Toggle Mata */
+    .password-wrapper { position: relative; width: 100%; }
+    .password-wrapper input { padding-right: 40px; }
+    .toggle-password { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #666; font-size: 16px; user-select: none; }
+    .toggle-password:hover { color: #1a73e8; }
 
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
 
@@ -48,7 +58,8 @@
     <!-- HALAMAN LOGIN -->
     <div class="screen active" id="screen-login">
       <div class="header">
-        <h2>DIPSA EXAM & RAPOR</h2>
+        <img src="https://blogger.googleusercontent.com/img/a/AVvXsEhGC7yqna5IBWq3UP5ANl6N61wf-krRp8igTPpLzQdxSYj4EA96cNhWdCnCZYAxaeT_O8Bkxe_PBLtetYGzGMTkSdQ1PcIKeMg2UOsJtt1wqrvvu7j_z2NwC5G9ulu1YlQxiZ3yTf54NBzTewN7Nxzl5N6eniNxzhTaR_fVUMq5EKPlx75Aad5ARBDIdYNF" alt="Logo Sekolah" class="logo-sekolah">
+        <h2>Rapor Digital Dipsa</h2>
         <p>Silakan login untuk mengakses portal</p>
       </div>
       <form id="form-login" onsubmit="prosesLogin(event)">
@@ -58,7 +69,10 @@
         </div>
         <div class="form-group">
           <label>Password</label>
-          <input type="password" id="password" class="form-control" placeholder="Masukkan Password" required>
+          <div class="password-wrapper">
+            <input type="password" id="password" class="form-control" placeholder="Masukkan Password" required>
+            <span class="toggle-password" onclick="togglePasswordVisibility()">👁️</span>
+          </div>
         </div>
         <button type="submit" class="btn-submit" id="btn-login">Masuk Aplikasi</button>
       </form>
@@ -154,6 +168,16 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+
+    // Toggle Password Visibility
+    window.togglePasswordVisibility = function() {
+      const passwordInput = document.getElementById("password");
+      if (passwordInput.type === "password") {
+        passwordInput.type = "text";
+      } else {
+        passwordInput.type = "password";
+      }
+    };
 
     // Proses Login
     window.prosesLogin = async function(e) {
