@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DIPSA - Portal CBT & Rapor Digital</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+    
+    .card { background: #ffffff; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); width: 100%; max-width: 450px; padding: 25px; }
+    .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #eef2f5; padding-bottom: 15px; }
+    .header h2 { color: #1a73e8; font-size: 22px; }
+    .header p { color: #666; font-size: 13px; margin-top: 5px; }
+
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; font-size: 13px; font-weight: 600; color: #444; margin-bottom: 5px; }
+    .form-control { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; outline: none; }
+    .form-control:focus { border-color: #1a73e8; box-shadow: 0 0 0 3px rgba(26,115,232,0.2); }
+
+    .btn-submit { width: 100%; background: #1a73e8; color: white; border: none; padding: 12px; border-radius: 6px; font-weight: bold; font-size: 15px; cursor: pointer; transition: 0.2s; }
+    .btn-submit:hover { background: #1557b0; }
+    .btn-logout { background: #dc3545; margin-top: 20px; }
+    .btn-logout:hover { background: #c82333; }
+
+    .badge-role { display: inline-block; background: #e8f0fe; color: #1a73e8; padding: 4px 12px; border-radius: 20px; font-weight: bold; font-size: 12px; text-transform: uppercase; margin-bottom: 10px; }
+    .info-box { background: #f8fafc; border-left: 4px solid #1a73e8; padding: 12px; margin-top: 15px; border-radius: 4px; font-size: 14px; color: #333; }
+    .loading { text-align: center; color: #1a73e8; font-weight: bold; font-size: 14px; margin-top: 10px; display: none; }
+    .error-msg { color: #dc3545; font-size: 13px; text-align: center; margin-top: 10px; }
+    
+    .screen { display: none; }
+    .screen.active { display: block; }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    
+    <!-- HALAMAN LOGIN -->
+    <div class="screen active" id="screen-login">
+      <div class="header">
+        <h2>DIPSA EXAM & RAPOR</h2>
+        <p>Silakan login untuk mengakses portal</p>
+      </div>
+      <form id="form-login" onsubmit="prosesLogin(event)">
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" id="username" class="form-control" placeholder="Masukkan Username" required autocomplete="off">
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="password" class="form-control" placeholder="Masukkan Password" required>
+        </div>
+        <button type="submit" class="btn-submit" id="btn-login">Masuk Aplikasi</button>
+      </form>
+      <div class="loading" id="loading-login">Memeriksa data di Firestore...</div>
+      <div class="error-msg" id="err-login"></div>
+    </div>
+
+    <!-- HALAMAN DASHBOARD SESUAI ROLE -->
+    <div class="screen" id="screen-dashboard">
+      <div class="header">
+        <span class="badge-role" id="dash-role">ROLE</span>
+        <h2 id="dash-nama">Nama User</h2>
+        <p>Selamat Datang di Panel Sistem</p>
+      </div>
+
+      <div class="info-box" id="dash-hak-akses">
+        Memuat hak akses...
+      </div>
+
+      <button type="button" class="btn-submit btn-logout" onclick="logout()">Keluar (Logout)</button>
+    </div>
+
+  </div>
+
+  <!-- LOAD FIREBASE SDK (MODULE) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    // Konfigurasi Firebase Proyek Rapor Anda
+    const firebaseConfig = {
+      apiKey: "AIzaSyDnPyMzuu4Qo2mZhORxZh3aTUm-TAFmzzU",
+      authDomain: "rapor-c7c48.firebaseapp.com",
+      projectId: "rapor-c7c48",
+      storageBucket: "rapor-c7c48.firebasestorage.app",
+      messagingSenderId: "1059367167032",
+      appId: "1:1059367167032:web:eaa4527d3ed3f05ae3b2cd"
+    };
+
+    // Inisialisasi Firebase & Firestore
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Fungsi Login
+    window.prosesLogin = async function(e) {
+      e.preventDefault();
+      
+      const usernameInput = document.getElementById("username").value.trim();
+      const passwordInput = document.getElementById("password").value.trim();
+      
+      const loading = document.getElementById("loading-login");
+      const err = document.getElementById("err-login");
+      const btn = document.getElementById("btn-login");
+
+      loading.style.display = "block";
+      err.innerText = "";
+      btn.disabled = true;
+
+      try {
+        // Cari user di koleksi 'users' berdasarkan username & password
+        const q = query(
+          collection(db, "users"), 
+          where("username", "==", usernameInput),
+          where("password", "==", passwordInput)
+        );
+        
+        const querySnapshot = await getDocs(q);
+
+        loading.style.display = "none";
+        btn.disabled = false;
+
+        if (!querySnapshot.empty) {
+          let userData = null;
+          querySnapshot.forEach((doc) => {
+            userData = doc.data();
+          });
+
+          tampilkanDashboard(userData);
+        } else {
+          err.innerText = "Username atau Password salah!";
+        }
+      } catch (error) {
+        loading.style.display = "none";
+        btn.disabled = false;
+        err.innerText = "Gagal terhubung ke database: " + error.message;
+      }
+    };
+
+    function tampilkanDashboard(user) {
+      document.getElementById("screen-login").classList.remove("active");
+      document.getElementById("screen-dashboard").classList.add("active");
+
+      document.getElementById("dash-nama").innerText = user.nama;
+      document.getElementById("dash-role").innerText = "Akses: " + user.role;
+
+      let deskripsiFitur = "";
+
+      // Logika Pembagian Fitur Berdasarkan Role
+      switch(user.role.toLowerCase()) {
+        case "waka":
+          deskripsiFitur = "<strong>Menu Waka Kurikulum:</strong><br>• Input Nama Guru & Mapel<br>• Plotting Wali Kelas<br>• Monitoring Rapor Sekolah";
+          break;
+        case "walikelas":
+          deskripsiFitur = "<strong>Menu Wali Kelas:</strong><br>• Input Kehadiran & Ekskul<br>• Catatan Perkembangan Siswa<br>• Cetak Rapor Kelas Binaan";
+          break;
+        case "gurumapel":
+          deskripsiFitur = "<strong>Menu Guru Mapel:</strong><br>• Input Nilai Akhir Mapel<br>• Input Tujuan Pembelajaran (TP)<br>• Ketercapaian Kompetensi";
+          break;
+        case "siswa":
+          deskripsiFitur = "<strong>Menu Siswa:</strong><br>• Akses Ujian CBT<br>• Lihat Hasil Nilai & Rapor Digital";
+          break;
+        case "walimurid":
+          deskripsiFitur = "<strong>Menu Wali Murid:</strong><br>• Lihat Rapor Putra/Putri<br>• Tombol Validasi & Persetujuan Rapor";
+          break;
+        default:
+          deskripsiFitur = "Role tidak dikenali.";
+      }
+
+      document.getElementById("dash-hak-akses").innerHTML = deskripsiFitur;
+    }
+
+    window.logout = function() {
+      document.getElementById("form-login").reset();
+      document.getElementById("err-login").innerText = "";
+      document.getElementById("screen-dashboard").classList.remove("active");
+      document.getElementById("screen-login").classList.add("active");
+    };
+  </script>
+</body>
+</html>
