@@ -12,7 +12,7 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     body { background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
     
-    .card { background: #ffffff; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); width: 100%; max-width: 900px; padding: 25px; }
+    .card { background: #ffffff; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); width: 100%; max-width: 950px; padding: 25px; }
     .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #eef2f5; padding-bottom: 15px; }
     
     .logo-sekolah { width: 90px; height: auto; margin-bottom: 10px; }
@@ -22,7 +22,7 @@
 
     .form-group { margin-bottom: 15px; }
     .form-group label { display: block; font-size: 13px; font-weight: 600; color: #444; margin-bottom: 5px; }
-    .form-control { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; outline: none; }
+    .form-control { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; outline: none; background-color: #fff; }
     .form-control:focus { border-color: #1a73e8; box-shadow: 0 0 0 3px rgba(26,115,232,0.2); }
 
     .password-wrapper { position: relative; width: 100%; }
@@ -31,6 +31,7 @@
     .toggle-password:hover { color: #1a73e8; }
 
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
 
     .btn-submit { width: 100%; background: #1a73e8; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; font-size: 14px; cursor: pointer; transition: 0.2s; }
     .btn-submit:hover { background: #1557b0; }
@@ -49,7 +50,6 @@
     .screen { display: none; }
     .screen.active { display: block; }
 
-    /* STYLE NAVIGASI TAB MENU WAKA */
     .nav-tabs { display: flex; gap: 8px; border-bottom: 2px solid #e0e0e0; margin-bottom: 20px; flex-wrap: wrap; }
     .nav-tab-btn { padding: 10px 16px; border: none; background: #f1f3f4; color: #5f6368; border-radius: 8px 8px 0 0; font-weight: 600; font-size: 13px; cursor: pointer; transition: 0.2s; }
     .nav-tab-btn:hover { background: #e8f0fe; color: #1a73e8; }
@@ -59,12 +59,26 @@
     .tab-content.active { display: block; }
 
     .table-container { margin-top: 15px; overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 10px; background: #fff; }
     th, td { border: 1px solid #e0e0e0; padding: 10px; text-align: left; }
     th { background-color: #f8fafc; color: #333; }
-    .section-title { font-size: 15px; font-weight: bold; color: #1a73e8; margin-top: 15px; margin-bottom: 10px; border-left: 4px solid #1a73e8; padding-left: 8px; }
     
     .box-import { background: #eef6ff; border: 1px dashed #1a73e8; padding: 15px; border-radius: 8px; margin-top: 10px; }
+
+    /* DESAIN KARTU BERWARNA UNTUK 3 POIN DATA AKADEMIK */
+    .section-card { border-radius: 10px; padding: 20px; margin-bottom: 25px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+    
+    /* Poin 1: Kelas (Tema Hijau Soft) */
+    .card-kelas { background-color: #f0fdf4; border: 1px solid #bbf7d0; }
+    .card-kelas .section-title { color: #166534; border-left: 4px solid #16a34a; font-size: 16px; font-weight: bold; padding-left: 8px; margin-bottom: 12px; }
+
+    /* Poin 2: Mapel (Tema Biru Soft) */
+    .card-mapel { background-color: #eff6ff; border: 1px solid #bfdbfe; }
+    .card-mapel .section-title { color: #1e40af; border-left: 4px solid #2563eb; font-size: 16px; font-weight: bold; padding-left: 8px; margin-bottom: 12px; }
+
+    /* Poin 3: Wali Kelas (Tema Kuning/Amber Soft) */
+    .card-walikelas { background-color: #fffbeb; border: 1px solid #fde68a; }
+    .card-walikelas .section-title { color: #92400e; border-left: 4px solid #d97706; font-size: 16px; font-weight: bold; padding-left: 8px; margin-bottom: 12px; }
   </style>
 </head>
 <body>
@@ -107,17 +121,151 @@
       <!-- PANEL KHUSUS WAKA KURIKULUM -->
       <div id="panel-waka" style="display: none;">
         
-        <!-- MENU TAB NAVIGASI -->
+        <!-- NAVIGASI TAB WAKA (DATA AKADEMIK DI PALING KIRI & AKTIF BAWAAN) -->
         <div class="nav-tabs">
-          <button class="nav-tab-btn active" onclick="bukaTabWaka('tab-user', this)">👥 Manajemen User</button>
-          <button class="nav-tab-btn" onclick="bukaTabWaka('tab-akademik', this)">📚 Data Akademik</button>
+          <button class="nav-tab-btn active" onclick="bukaTabWaka('tab-akademik', this)">📚 Data Akademik & Kelas</button>
+          <button class="nav-tab-btn" onclick="bukaTabWaka('tab-user', this)">👥 Manajemen User</button>
           <button class="nav-tab-btn" onclick="bukaTabWaka('tab-monitoring', this)">📊 Monitoring & Rapor</button>
         </div>
 
-        <!-- TAB 1: MANAJEMEN USER -->
-        <div class="tab-content active" id="tab-user">
+        <!-- TAB 1: DATA AKADEMIK & KELAS (PALING KIRI) -->
+        <div class="tab-content active" id="tab-akademik">
           
-          <div class="section-title">Tambah Akun Satuan</div>
+          <!-- KARTU POIN 1: MASTER KELAS (WARNA HIJAU SOFT) -->
+          <div class="section-card card-kelas">
+            <div class="section-title">1) Pengaturan Data Kelas & Jurusan</div>
+            <form onsubmit="tambahDataKelas(event)">
+              <div class="grid-3">
+                <div class="form-group">
+                  <label>Tingkat Kelas</label>
+                  <select id="input-tingkat-kelas" class="form-control" required>
+                    <option value="X">Kelas X</option>
+                    <option value="XI">Kelas XI</option>
+                    <option value="XII">Kelas XII</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Kode Jurusan</label>
+                  <input type="text" id="input-jurusan-kelas" class="form-control" placeholder="Contoh: MP / TSM / DKV" required>
+                </div>
+                <div class="form-group">
+                  <label>Nomor Rombel (Opsional)</label>
+                  <input type="text" id="input-rombel-kelas" class="form-control" placeholder="Contoh: 1 / 2 (Kosongi jika 1 rombel)">
+                </div>
+              </div>
+              <button type="submit" class="btn-submit" style="background-color: #16a34a;" id="btn-tambah-kelas">+ Simpan Kelas Baru</button>
+            </form>
+
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>No</th>
+                    <th>Nama Kelas Resmi</th>
+                    <th>Tingkat</th>
+                    <th>Jurusan</th>
+                    <th>Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="tabel-kelas-body">
+                  <tr><td colspan="5" style="text-align:center;">Memuat data kelas...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- KARTU POIN 2: INPUT MAPEL (WARNA BIRU SOFT) -->
+          <div class="section-card card-mapel">
+            <div class="section-title">2) Pengaturan Mata Pelajaran (Mapel)</div>
+            <form onsubmit="tambahMapel(event)">
+              <div class="grid-3">
+                <div class="form-group">
+                  <label>Kode Mapel</label>
+                  <input type="text" id="input-kode-mapel" class="form-control" placeholder="Contoh: MTK / KJN-TSM" required>
+                </div>
+                <div class="form-group">
+                  <label>Nama Mata Pelajaran</label>
+                  <input type="text" id="input-nama-mapel" class="form-control" placeholder="Contoh: Pemeliharaan Mesin Sepeda Motor" required>
+                </div>
+                <div class="form-group">
+                  <label>Sasaran Pelajaran / Kelas</label>
+                  <select id="input-tingkat-mapel" class="form-control" required>
+                    <optgroup label="Mapel Umum / Tingkatan">
+                      <option value="Semua Tingkat (Umum)">Semua Tingkat & Jurusan (Umum)</option>
+                      <option value="Kelas X (Semua Jurusan)">Khusus Kelas X (Semua Jurusan)</option>
+                      <option value="Kelas XI (Semua Jurusan)">Khusus Kelas XI (Semua Jurusan)</option>
+                      <option value="Kelas XII (Semua Jurusan)">Khusus Kelas XII (Semua Jurusan)</option>
+                    </optgroup>
+                    <optgroup label="Mapel Kejuruan (Per Kelas Spesifik)" id="group-mapel-spesifik">
+                      <!-- Opsi Kelas Manual Hasil Inputan Waka Muncul di Sini -->
+                    </optgroup>
+                  </select>
+                </div>
+              </div>
+              <button type="submit" class="btn-submit" style="background-color: #2563eb;" id="btn-tambah-mapel">+ Tambah Mata Pelajaran</button>
+            </form>
+
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>No</th>
+                    <th>Kode Mapel</th>
+                    <th>Nama Mata Pelajaran</th>
+                    <th>Sasaran Kelas / Tingkat</th>
+                    <th>Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="tabel-mapel-body">
+                  <tr><td colspan="5" style="text-align:center;">Memuat data mapel...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- KARTU POIN 3: PLOTTING WALI KELAS (WARNA AMBER/KUNING SOFT) -->
+          <div class="section-card card-walikelas">
+            <div class="section-title">3) Plotting Wali Kelas</div>
+            <form onsubmit="simpanPlottingWali(event)">
+              <div class="grid-2">
+                <div class="form-group">
+                  <label>Pilih Wali Kelas (Role: Wali Kelas)</label>
+                  <select id="select-wali-kelas" class="form-control" required>
+                    <option value="">-- Pilih Guru Wali Kelas --</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Pilih Kelas Binaan</label>
+                  <select id="select-kelas-binaan" class="form-control" required>
+                    <option value="">-- Pilih Kelas --</option>
+                  </select>
+                </div>
+              </div>
+              <button type="submit" class="btn-submit" style="background-color: #d97706;" id="btn-simpan-wali">+ Tetapkan Wali Kelas</button>
+            </form>
+
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>No</th>
+                    <th>Nama Wali Kelas</th>
+                    <th>Kelas Binaan</th>
+                    <th>Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="tabel-walikelas-body">
+                  <tr><td colspan="4" style="text-align:center;">Memuat data wali kelas...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- TAB 2: MANAJEMEN USER -->
+        <div class="tab-content" id="tab-user">
+          <div style="font-size: 16px; font-weight: bold; color: #1a73e8; margin-bottom: 10px; border-left: 4px solid #1a73e8; padding-left: 8px;">Tambah Akun Satuan</div>
           <form onsubmit="tambahUserSatuan(event)">
             <div class="grid-2">
               <div class="form-group">
@@ -126,7 +274,7 @@
               </div>
               <div class="form-group">
                 <label>Role / Hak Akses</label>
-                <select id="input-role" class="form-control" required>
+                <select id="input-role" class="form-control" onchange="toggleFieldKelasSiswa()" required>
                   <option value="waka">Waka Kurikulum</option>
                   <option value="walikelas">Wali Kelas</option>
                   <option value="gurumapel">Guru Mapel</option>
@@ -135,7 +283,7 @@
                 </select>
               </div>
             </div>
-            <div class="grid-2">
+            <div class="grid-3">
               <div class="form-group">
                 <label>Username</label>
                 <input type="text" id="input-username" class="form-control" placeholder="Username" required>
@@ -144,14 +292,20 @@
                 <label>Password</label>
                 <input type="text" id="input-password" class="form-control" placeholder="Password" required>
               </div>
+              <div class="form-group" id="container-input-kelas" style="display: none;">
+                <label>Kelas (Khusus Siswa)</label>
+                <select id="input-kelas-siswa" class="form-control">
+                  <option value="">-- Pilih Kelas --</option>
+                </select>
+              </div>
             </div>
             <button type="submit" class="btn-submit" id="btn-tambah-user">+ Simpan Akun Baru</button>
           </form>
 
-          <div class="section-title">Import Data Akun Massal (Excel/CSV)</div>
+          <div style="font-size: 16px; font-weight: bold; color: #1a73e8; margin-top: 25px; margin-bottom: 10px; border-left: 4px solid #1a73e8; padding-left: 8px;">Import Data Akun Massal (Excel/CSV)</div>
           <div class="box-import">
             <p style="font-size: 12px; color: #555; margin-bottom: 10px;">
-              Unduh template terlebih dahulu untuk memperoleh format yang sesuai dan opsi role dalam bentuk dropdown.
+              Unduh template untuk memperoleh format kolom resmi (termasuk dropdown pilihan <b>role</b> dan <b>kelas</b>).
             </p>
             <button type="button" class="btn-info" onclick="downloadTemplateExcel()">📥 Download Template Excel (.xlsx)</button>
             
@@ -163,7 +317,7 @@
             <div id="status-import" style="font-size: 13px; font-weight: bold; margin-top: 8px; color: #1a73e8;"></div>
           </div>
 
-          <div class="section-title">Daftar Akun Pengguna</div>
+          <div style="font-size: 16px; font-weight: bold; color: #1a73e8; margin-top: 25px; margin-bottom: 10px; border-left: 4px solid #1a73e8; padding-left: 8px;">Daftar Akun Pengguna</div>
           <div class="table-container">
             <table>
               <thead>
@@ -172,37 +326,114 @@
                   <th>Nama</th>
                   <th>Username</th>
                   <th>Role</th>
+                  <th>Kelas</th>
                   <th>Aksi</th>
                 </tr>
               </thead>
               <tbody id="tabel-users-body">
-                <tr><td colspan="5" style="text-align:center;">Memuat data...</td></tr>
+                <tr><td colspan="6" style="text-align:center;">Memuat data...</td></tr>
               </tbody>
             </table>
-          </div>
-
-        </div>
-
-        <!-- TAB 2: DATA AKADEMIK -->
-        <div class="tab-content" id="tab-akademik">
-          <div class="section-title">Pengaturan Mata Pelajaran & Plotting</div>
-          <p style="font-size: 13px; color: #666; margin-bottom: 15px;">
-            Fitur ini digunakan untuk menginput daftar mata pelajaran dan menentukan Guru Mapel serta Wali Kelas.
-          </p>
-          <div style="background: #f8fafc; padding: 20px; border-radius: 8px; text-align: center; color: #1a73e8; border: 1px dashed #1a73e8;">
-            🛠️ <b>Menu Data Akademik Siap Dikonstruksi</b><br>
-            <span style="font-size: 12px; color: #555;">(Kita akan menambahkan form input Mapel & Plotting Wali Kelas pada tahap berikutnya)</span>
           </div>
         </div>
 
         <!-- TAB 3: MONITORING & RAPOR -->
         <div class="tab-content" id="tab-monitoring">
-          <div class="section-title">Monitoring & Rekap Rapor</div>
+          <div style="font-size: 16px; font-weight: bold; color: #1a73e8; margin-bottom: 10px; border-left: 4px solid #1a73e8; padding-left: 8px;">Monitoring & Rekap Rapor</div>
           <p style="font-size: 13px; color: #666; margin-bottom: 15px;">
             Memantau status pengisian nilai oleh guru dan status validasi rapor oleh wali murid.
           </p>
           <div style="background: #f8fafc; padding: 20px; border-radius: 8px; text-align: center; color: #1a73e8; border: 1px dashed #1a73e8;">
             📊 <b>Panel Monitoring Siap Dikonstruksi</b>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- PANEL KHUSUS GURU MAPEL -->
+      <div id="panel-gurumapel" style="display: none;">
+        <div class="nav-tabs">
+          <button class="nav-tab-btn active" onclick="bukaTabGuru('tab-tp', this)">🎯 Tujuan Pembelajaran (TP)</button>
+          <button class="nav-tab-btn" onclick="bukaTabGuru('tab-nilai', this)">📝 Input Nilai & Capaian</button>
+        </div>
+
+        <!-- TAB 1 GURU: TP -->
+        <div class="tab-content active" id="tab-tp">
+          <div style="font-size: 16px; font-weight: bold; color: #1a73e8; margin-bottom: 10px; border-left: 4px solid #1a73e8; padding-left: 8px;">Kelola Tujuan Pembelajaran (TP)</div>
+          <form onsubmit="tambahTP(event)">
+            <div class="grid-2">
+              <div class="form-group">
+                <label>Pilih Mata Pelajaran</label>
+                <select id="guru-select-mapel-tp" class="form-control" required>
+                  <option value="">-- Memuat Mapel --</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Kode TP / Ringkasan</label>
+                <input type="text" id="input-kode-tp" class="form-control" placeholder="Contoh: TP 1" required>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Deskripsi Tujuan Pembelajaran (TP)</label>
+              <textarea id="input-deskripsi-tp" class="form-control" rows="2" placeholder="Contoh: Memahami konsep dasar..." required></textarea>
+            </div>
+            <button type="submit" class="btn-submit" id="btn-tambah-tp">+ Simpan Tujuan Pembelajaran</button>
+          </form>
+
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>No</th>
+                  <th>Mata Pelajaran</th>
+                  <th>Kode TP</th>
+                  <th>Deskripsi TP</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="tabel-tp-body">
+                <tr><td colspan="5" style="text-align:center;">Memuat data TP...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- TAB 2 GURU: INPUT NILAI -->
+        <div class="tab-content" id="tab-nilai">
+          <div style="font-size: 16px; font-weight: bold; color: #1a73e8; margin-bottom: 10px; border-left: 4px solid #1a73e8; padding-left: 8px;">Input Nilai Rapor Siswa Per Kelas</div>
+          
+          <div class="grid-2">
+            <div class="form-group">
+              <label>Pilih Mata Pelajaran</label>
+              <select id="guru-select-mapel-nilai" class="form-control" onchange="muatSiswaUntukNilai()">
+                <option value="">-- Pilih Mapel --</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Pilih Kelas Siswa</label>
+              <select id="guru-select-kelas-nilai" class="form-control" onchange="muatSiswaUntukNilai()">
+                <option value="">-- Pilih Kelas --</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>No</th>
+                  <th>Nama Siswa</th>
+                  <th>Kelas</th>
+                  <th>Nilai Akhir (0-100)</th>
+                  <th>Capaian Tertinggi</th>
+                  <th>Capaian Perlu Peningkatan</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="tabel-nilai-body">
+                <tr><td colspan="7" style="text-align:center;">Silakan pilih Mapel & Kelas terlebih dahulu.</td></tr>
+              </tbody>
+            </table>
           </div>
         </div>
 
@@ -221,7 +452,7 @@
   <!-- LOAD FIREBASE SDK (MODULE) -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, query, where, getDocs, addDoc, deleteDoc, doc, onSnapshot, writeBatch } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, collection, query, where, getDocs, addDoc, deleteDoc, doc, setDoc, onSnapshot, writeBatch } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDnPyMzuu4Qo2mZhORxZh3aTUm-TAFmzzU",
@@ -235,14 +466,20 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // FUNGSI PINDAH TAB WAKA
+    let currentUser = null;
+    let daftarKelasGlobal = [];
+
+    // NAVIGASI TAB
     window.bukaTabWaka = function(tabId, btnElement) {
-      const contents = document.querySelectorAll('#panel-waka .tab-content');
-      contents.forEach(c => c.classList.remove('active'));
+      document.querySelectorAll('#panel-waka .tab-content').forEach(c => c.classList.remove('active'));
+      document.querySelectorAll('#panel-waka .nav-tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      btnElement.classList.add('active');
+    };
 
-      const buttons = document.querySelectorAll('#panel-waka .nav-tab-btn');
-      buttons.forEach(b => b.classList.remove('active'));
-
+    window.bukaTabGuru = function(tabId, btnElement) {
+      document.querySelectorAll('#panel-gurumapel .tab-content').forEach(c => c.classList.remove('active'));
+      document.querySelectorAll('#panel-gurumapel .nav-tab-btn').forEach(b => b.classList.remove('active'));
       document.getElementById(tabId).classList.add('active');
       btnElement.classList.add('active');
     };
@@ -252,31 +489,27 @@
       passwordInput.type = passwordInput.type === "password" ? "text" : "password";
     };
 
+    window.toggleFieldKelasSiswa = function() {
+      const role = document.getElementById("input-role").value;
+      const container = document.getElementById("container-input-kelas");
+      container.style.display = role === "siswa" ? "block" : "none";
+    };
+
     // Download Template Excel
     window.downloadTemplateExcel = function() {
       const templateData = [
-        { nama: "Ahmad Subarjo", username: "ahmad123", password: "pass123", role: "siswa" },
-        { nama: "Budi Pekerti", username: "budi123", password: "pass123", role: "walikelas" },
-        { nama: "Siti Aminah", username: "siti123", password: "pass123", role: "gurumapel" }
+        { nama: "Ahmad Subarjo", username: "ahmad123", password: "pass123", role: "siswa", kelas: daftarKelasGlobal[0] || "X MP 1" },
+        { nama: "Budi Pekerti", username: "budi123", password: "pass123", role: "walikelas", kelas: "" }
       ];
 
       const ws = XLSX.utils.json_to_sheet(templateData);
+      const strKelas = daftarKelasGlobal.length > 0 ? daftarKelasGlobal.join(",") : "X MP 1,X TSM 1,X DKV 1";
 
       ws['!dataValidation'] = [
-        {
-          sqref: "D2:D100",
-          type: "list",
-          allowBlank: false,
-          formula1: '"waka,walikelas,gurumapel,siswa,walimurid"'
-        }
+        { sqref: "D2:D100", type: "list", allowBlank: false, formula1: '"waka,walikelas,gurumapel,siswa,walimurid"' },
+        { sqref: "E2:E100", type: "list", allowBlank: true, formula1: `"${strKelas}"` }
       ];
-
-      ws['!cols'] = [
-        { wch: 25 },
-        { wch: 18 },
-        { wch: 18 },
-        { wch: 15 }
-      ];
+      ws['!cols'] = [ { wch: 25 }, { wch: 18 }, { wch: 18 }, { wch: 15 }, { wch: 15 } ];
 
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "Template Akun");
@@ -308,9 +541,8 @@
         btn.disabled = false;
 
         if (!querySnapshot.empty) {
-          let userData = null;
-          querySnapshot.forEach((doc) => { userData = doc.data(); });
-          tampilkanDashboard(userData);
+          querySnapshot.forEach((doc) => { currentUser = doc.data(); });
+          tampilkanDashboard(currentUser);
         } else {
           err.innerText = "Username atau Password salah!";
         }
@@ -328,164 +560,378 @@
       document.getElementById("dash-nama").innerText = user.nama;
       document.getElementById("dash-role").innerText = "Akses: " + user.role;
 
-      if(user.role.toLowerCase() === "waka") {
+      document.getElementById("panel-waka").style.display = "none";
+      document.getElementById("panel-gurumapel").style.display = "none";
+      document.getElementById("panel-role-lain").style.display = "none";
+
+      const r = user.role.toLowerCase();
+
+      // Load Master Kelas
+      muatMasterKelasRealtime();
+
+      if (r === "waka") {
         document.getElementById("panel-waka").style.display = "block";
-        document.getElementById("panel-role-lain").style.display = "none";
         muatTabelUsersRealtime();
+        muatTabelMapelRealtime();
+        muatOpsiDropdownWaliKelas();
+        muatTabelWaliKelasRealtime();
+      } else if (r === "gurumapel") {
+        document.getElementById("panel-gurumapel").style.display = "block";
+        muatDropdownMapelGuru();
+        muatTabelTPRealtime();
       } else {
-        document.getElementById("panel-waka").style.display = "none";
         document.getElementById("panel-role-lain").style.display = "block";
         document.getElementById("dash-hak-akses").innerText = "Selamat datang " + user.nama + ". Fitur sedang disiapkan.";
       }
     }
 
-    // Tambah Akun Satuan
+    /* --- MASTER KELAS LOGIC --- */
+    window.tambahDataKelas = async function(e) {
+      e.preventDefault();
+      const tingkat = document.getElementById("input-tingkat-kelas").value;
+      const jurusan = document.getElementById("input-jurusan-kelas").value.trim().toUpperCase();
+      const rombel = document.getElementById("input-rombel-kelas").value.trim();
+
+      const namaKelas = rombel ? `${tingkat} ${jurusan} ${rombel}` : `${tingkat} ${jurusan}`;
+
+      try {
+        await addDoc(collection(db, "master_kelas"), {
+          nama_kelas: namaKelas,
+          tingkat: tingkat,
+          jurusan: jurusan
+        });
+        alert(`Kelas ${namaKelas} berhasil ditambahkan!`);
+        document.getElementById("input-jurusan-kelas").value = "";
+        document.getElementById("input-rombel-kelas").value = "";
+      } catch (err) { alert("Gagal simpan kelas: " + err.message); }
+    };
+
+    function muatMasterKelasRealtime() {
+      onSnapshot(collection(db, "master_kelas"), (snapshot) => {
+        const tbody = document.getElementById("tabel-kelas-body");
+        const selectSiswa = document.getElementById("input-kelas-siswa");
+        const selectWali = document.getElementById("select-kelas-binaan");
+        const selectGuruNilai = document.getElementById("guru-select-kelas-nilai");
+        const groupMapelSpesifik = document.getElementById("group-mapel-spesifik");
+
+        tbody.innerHTML = "";
+        selectSiswa.innerHTML = '<option value="">-- Pilih Kelas --</option>';
+        selectWali.innerHTML = '<option value="">-- Pilih Kelas --</option>';
+        if(selectGuruNilai) selectGuruNilai.innerHTML = '<option value="">-- Pilih Kelas --</option>';
+        if(groupMapelSpesifik) groupMapelSpesifik.innerHTML = "";
+
+        daftarKelasGlobal = [];
+        let no = 1;
+
+        snapshot.forEach((docSnap) => {
+          const k = docSnap.data();
+          daftarKelasGlobal.push(k.nama_kelas);
+
+          tbody.innerHTML += `<tr><td>${no++}</td><td><b>${k.nama_kelas}</b></td><td>${k.tingkat}</td><td>${k.jurusan}</td><td><button class="btn-danger" onclick="hapusKelas('${docSnap.id}', '${k.nama_kelas}')">Hapus</button></td></tr>`;
+          
+          const opt = `<option value="${k.nama_kelas}">${k.nama_kelas}</option>`;
+          selectSiswa.innerHTML += opt;
+          selectWali.innerHTML += opt;
+          if(selectGuruNilai) selectGuruNilai.innerHTML += opt;
+          if(groupMapelSpesifik) groupMapelSpesifik.innerHTML += `<option value="${k.nama_kelas}">Khusus Kelas ${k.nama_kelas}</option>`;
+        });
+
+        if(no === 1) tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Belum ada data kelas. Silakan input kelas terlebih dahulu.</td></tr>';
+      });
+    }
+
+    window.hapusKelas = async function(docId, namaKelas) {
+      if(confirm(`Hapus kelas ${namaKelas}?`)) await deleteDoc(doc(db, "master_kelas", docId));
+    };
+
+    /* --- WAKA USER LOGIC --- */
     window.tambahUserSatuan = async function(e) {
       e.preventDefault();
       const btn = document.getElementById("btn-tambah-user");
       btn.disabled = true;
-      btn.innerText = "Menyimpan...";
+
+      const role = document.getElementById("input-role").value;
+      const kelas = role === "siswa" ? document.getElementById("input-kelas-siswa").value : "";
 
       try {
         await addDoc(collection(db, "users"), {
           nama: document.getElementById("input-nama").value,
-          role: document.getElementById("input-role").value,
+          role: role,
           username: document.getElementById("input-username").value,
-          password: document.getElementById("input-password").value
+          password: document.getElementById("input-password").value,
+          kelas: kelas
         });
-
         alert("Akun berhasil ditambahkan!");
         document.getElementById("input-nama").value = "";
         document.getElementById("input-username").value = "";
         document.getElementById("input-password").value = "";
-      } catch (err) {
-        alert("Gagal menambahkan akun: " + err.message);
-      } finally {
-        btn.disabled = false;
-        btn.innerText = "+ Simpan Akun Baru";
-      }
+      } catch (err) { alert("Gagal: " + err.message); } 
+      finally { btn.disabled = false; }
     };
 
-    // Proses Import Excel
     window.prosesImportExcel = function() {
       const fileInput = document.getElementById("file-excel");
       const statusDiv = document.getElementById("status-import");
       const btn = document.getElementById("btn-import");
+      if (!fileInput.files.length) { alert("Silakan pilih file!"); return; }
 
-      if (!fileInput.files.length) {
-        alert("Silakan pilih file Excel/CSV terlebih dahulu!");
-        return;
-      }
-
-      const file = fileInput.files[0];
       const reader = new FileReader();
-
       btn.disabled = true;
-      statusDiv.innerText = "Membaca file Excel...";
+      statusDiv.innerText = "Membaca file...";
 
       reader.onload = async function(e) {
         try {
           const data = new Uint8Array(e.target.result);
           const workbook = XLSX.read(data, { type: 'array' });
-          const firstSheetName = workbook.SheetNames[0];
-          const worksheet = workbook.Sheets[firstSheetName];
-          
-          const jsonData = XLSX.utils.sheet_to_json(worksheet);
-
-          if (jsonData.length === 0) {
-            alert("File Excel kosong!");
-            btn.disabled = false;
-            statusDiv.innerText = "";
-            return;
-          }
-
-          statusDiv.innerText = `Mengunggah ${jsonData.length} data ke Firestore...`;
+          const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
 
           let batch = writeBatch(db);
           let count = 0;
 
-          for (let i = 0; i < jsonData.length; i++) {
-            const row = jsonData[i];
-            
+          for (let row of jsonData) {
             if (row.nama && row.username && row.password && row.role) {
-              const docRef = doc(collection(db, "users"));
-              batch.set(docRef, {
+              batch.set(doc(collection(db, "users")), {
                 nama: String(row.nama),
                 username: String(row.username),
                 password: String(row.password),
-                role: String(row.role).toLowerCase()
+                role: String(row.role).toLowerCase(),
+                kelas: row.kelas ? String(row.kelas) : ""
               });
-
               count++;
-
-              if (count % 400 === 0) {
-                await batch.commit();
-                batch = writeBatch(db);
-              }
+              if (count % 400 === 0) { await batch.commit(); batch = writeBatch(db); }
             }
           }
-
-          if (count > 0) {
-            await batch.commit();
-            alert(`Berhasil mengimpor ${count} akun ke database!`);
-            fileInput.value = "";
-          } else {
-            alert("Format kolom Excel tidak sesuai! Pastikan nama kolom: nama, username, password, role");
-          }
-
-        } catch (err) {
-          alert("Gagal memproses file: " + err.message);
-        } finally {
-          btn.disabled = false;
-          statusDiv.innerText = "";
-        }
+          if (count > 0) { await batch.commit(); alert(`Berhasil mengimpor ${count} akun!`); fileInput.value = ""; }
+        } catch (err) { alert("Gagal: " + err.message); } 
+        finally { btn.disabled = false; statusDiv.innerText = ""; }
       };
-
-      reader.readAsArrayBuffer(file);
+      reader.readAsArrayBuffer(fileInput.files[0]);
     };
 
-    // Baca Tabel Users Realtime
     function muatTabelUsersRealtime() {
-      const tbody = document.getElementById("tabel-users-body");
-      
       onSnapshot(collection(db, "users"), (snapshot) => {
+        const tbody = document.getElementById("tabel-users-body");
         tbody.innerHTML = "";
         let no = 1;
-
-        if(snapshot.empty) {
-          tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Belum ada data akun.</td></tr>';
-          return;
-        }
-
-        snapshot.forEach((docSnapshot) => {
-          const u = docSnapshot.data();
-          const docId = docSnapshot.id;
-
-          const tr = document.createElement("tr");
-          tr.innerHTML = `
-            <td>${no++}</td>
-            <td>${u.nama}</td>
-            <td>${u.username}</td>
-            <td><span class="badge-role">${u.role}</span></td>
-            <td>
-              <button class="btn-danger" onclick="hapusUser('${docId}', '${u.nama}')">Hapus</button>
-            </td>
-          `;
-          tbody.appendChild(tr);
+        snapshot.forEach((docSnap) => {
+          const u = docSnap.data();
+          tbody.innerHTML += `<tr><td>${no++}</td><td>${u.nama}</td><td>${u.username}</td><td><span class="badge-role">${u.role}</span></td><td><b>${u.kelas || '-'}</b></td><td><button class="btn-danger" onclick="hapusUser('${docSnap.id}', '${u.nama}')">Hapus</button></td></tr>`;
         });
       });
     }
 
-    // Hapus Akun
     window.hapusUser = async function(docId, nama) {
-      if(confirm(`Apakah Anda yakin ingin menghapus akun ${nama}?`)) {
-        try {
-          await deleteDoc(doc(db, "users", docId));
-          alert("Akun berhasil dihapus!");
-        } catch (err) {
-          alert("Gagal menghapus akun: " + err.message);
-        }
+      if(confirm(`Hapus akun ${nama}?`)) await deleteDoc(doc(db, "users", docId));
+    };
+
+    window.tambahMapel = async function(e) {
+      e.preventDefault();
+      await addDoc(collection(db, "mapel"), {
+        kode: document.getElementById("input-kode-mapel").value,
+        nama: document.getElementById("input-nama-mapel").value,
+        tingkat: document.getElementById("input-tingkat-mapel").value
+      });
+      alert("Mapel disimpan!");
+      document.getElementById("input-kode-mapel").value = "";
+      document.getElementById("input-nama-mapel").value = "";
+    };
+
+    function muatTabelMapelRealtime() {
+      onSnapshot(collection(db, "mapel"), (snapshot) => {
+        const tbody = document.getElementById("tabel-mapel-body");
+        tbody.innerHTML = "";
+        let no = 1;
+        snapshot.forEach((docSnap) => {
+          const m = docSnap.data();
+          tbody.innerHTML += `<tr><td>${no++}</td><td><b>${m.kode}</b></td><td>${m.nama}</td><td>${m.tingkat}</td><td><button class="btn-danger" onclick="hapusMapel('${docSnap.id}', '${m.nama}')">Hapus</button></td></tr>`;
+        });
+      });
+    }
+
+    window.hapusMapel = async function(docId, nama) {
+      if(confirm(`Hapus mapel ${nama}?`)) await deleteDoc(doc(db, "mapel", docId));
+    };
+
+    function muatOpsiDropdownWaliKelas() {
+      onSnapshot(query(collection(db, "users"), where("role", "==", "walikelas")), (snapshot) => {
+        const select = document.getElementById("select-wali-kelas");
+        select.innerHTML = '<option value="">-- Pilih Guru Wali Kelas --</option>';
+        snapshot.forEach((docSnap) => {
+          const u = docSnap.data();
+          select.innerHTML += `<option value="${u.nama}">${u.nama} (${u.username})</option>`;
+        });
+      });
+    }
+
+    window.simpanPlottingWali = async function(e) {
+      e.preventDefault();
+      await addDoc(collection(db, "plotting_walikelas"), {
+        nama_walikelas: document.getElementById("select-wali-kelas").value,
+        kelas: document.getElementById("select-kelas-binaan").value
+      });
+      alert("Penetapan disimpan!");
+    };
+
+    function muatTabelWaliKelasRealtime() {
+      onSnapshot(collection(db, "plotting_walikelas"), (snapshot) => {
+        const tbody = document.getElementById("tabel-walikelas-body");
+        tbody.innerHTML = "";
+        let no = 1;
+        snapshot.forEach((docSnap) => {
+          const w = docSnap.data();
+          tbody.innerHTML += `<tr><td>${no++}</td><td><b>${w.nama_walikelas}</b></td><td>${w.kelas}</td><td><button class="btn-danger" onclick="hapusPlottingWali('${docSnap.id}')">Hapus</button></td></tr>`;
+        });
+      });
+    }
+
+    window.hapusPlottingWali = async function(docId) {
+      if(confirm("Hapus penugasan wali kelas?")) await deleteDoc(doc(db, "plotting_walikelas", docId));
+    };
+
+    /* --- GURU MAPEL LOGIC --- */
+    function muatDropdownMapelGuru() {
+      onSnapshot(collection(db, "mapel"), (snapshot) => {
+        const sel1 = document.getElementById("guru-select-mapel-tp");
+        const sel2 = document.getElementById("guru-select-mapel-nilai");
+        sel1.innerHTML = '<option value="">-- Pilih Mapel --</option>';
+        sel2.innerHTML = '<option value="">-- Pilih Mapel --</option>';
+
+        snapshot.forEach((docSnap) => {
+          const m = docSnap.data();
+          const opt = `<option value="${m.nama}">${m.nama} (${m.kode})</option>`;
+          sel1.innerHTML += opt;
+          sel2.innerHTML += opt;
+        });
+      });
+    }
+
+    window.tambahTP = async function(e) {
+      e.preventDefault();
+      const mapel = document.getElementById("guru-select-mapel-tp").value;
+      const kode = document.getElementById("input-kode-tp").value;
+      const deskripsi = document.getElementById("input-deskripsi-tp").value;
+
+      try {
+        await addDoc(collection(db, "tp_mapel"), {
+          guru: currentUser.nama,
+          mapel: mapel,
+          kode_tp: kode,
+          deskripsi: deskripsi
+        });
+        alert("Tujuan Pembelajaran disimpan!");
+        document.getElementById("input-kode-tp").value = "";
+        document.getElementById("input-deskripsi-tp").value = "";
+      } catch(err) { alert("Gagal simpan TP: " + err.message); }
+    };
+
+    function muatTabelTPRealtime() {
+      onSnapshot(collection(db, "tp_mapel"), (snapshot) => {
+        const tbody = document.getElementById("tabel-tp-body");
+        tbody.innerHTML = "";
+        let no = 1;
+
+        snapshot.forEach((docSnap) => {
+          const tp = docSnap.data();
+          if(tp.guru === currentUser.nama) {
+            tbody.innerHTML += `<tr><td>${no++}</td><td>${tp.mapel}</td><td><b>${tp.kode_tp}</b></td><td>${tp.deskripsi}</td><td><button class="btn-danger" onclick="hapusTP('${docSnap.id}')">Hapus</button></td></tr>`;
+          }
+        });
+        if(no === 1) tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Belum ada TP yang dibuat.</td></tr>';
+      });
+    }
+
+    window.hapusTP = async function(docId) {
+      if(confirm("Hapus TP ini?")) await deleteDoc(doc(db, "tp_mapel", docId));
+    };
+
+    window.muatSiswaUntukNilai = async function() {
+      const mapel = document.getElementById("guru-select-mapel-nilai").value;
+      const kelas = document.getElementById("guru-select-kelas-nilai").value;
+      const tbody = document.getElementById("tabel-nilai-body");
+
+      if(!mapel || !kelas) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">Silakan pilih Mapel & Kelas terlebih dahulu.</td></tr>';
+        return;
       }
+
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">Memuat data siswa & nilai...</td></tr>';
+
+      // 1. Ambil Opsi TP
+      const tpList = [];
+      const tpQuery = query(collection(db, "tp_mapel"), where("mapel", "==", mapel));
+      const tpSnap = await getDocs(tpQuery);
+      tpSnap.forEach(d => tpList.push(d.data()));
+
+      let tpHighOptions = '<option value="">-- Pilih Capaian Tinggi --</option>';
+      let tpLowOptions = '<option value="">-- Pilih Capaian Peningkatan --</option>';
+      tpList.forEach(t => {
+        tpHighOptions += `<option value="${t.deskripsi}">${t.kode_tp}: ${t.deskripsi}</option>`;
+        tpLowOptions += `<option value="${t.deskripsi}">${t.kode_tp}: ${t.deskripsi}</option>`;
+      });
+
+      // 2. Filter Siswa Berdasarkan KELAS
+      const qSiswa = query(
+        collection(db, "users"), 
+        where("role", "==", "siswa"),
+        where("kelas", "==", kelas)
+      );
+      const siswaSnap = await getDocs(qSiswa);
+
+      // 3. Ambil Nilai Tersimpan
+      const qNilai = query(collection(db, "nilai_mapel"), where("mapel", "==", mapel), where("kelas", "==", kelas));
+      const nilaiSnap = await getDocs(qNilai);
+      const nilaiData = {};
+      nilaiSnap.forEach(d => { nilaiData[d.data().nama_siswa] = d.data(); });
+
+      tbody.innerHTML = "";
+      let no = 1;
+
+      siswaSnap.forEach(docSnap => {
+        const s = docSnap.data();
+        const existing = nilaiData[s.nama] || { nilai: "", tp_tinggi: "", tp_rendah: "" };
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${no++}</td>
+          <td><b>${s.nama}</b></td>
+          <td>${s.kelas}</td>
+          <td><input type="number" id="nilai-${no}" class="form-control" value="${existing.nilai}" placeholder="0-100" min="0" max="100" style="width: 80px;"></td>
+          <td><select id="tphigh-${no}" class="form-control">${tpHighOptions}</select></td>
+          <td><select id="tplow-${no}" class="form-control">${tpLowOptions}</select></td>
+          <td><button class="btn-submit" style="padding: 5px 10px; font-size: 12px;" onclick="simpanNilaiSiswa('${s.nama}', ${no})">Simpan</button></td>
+        `;
+        tbody.appendChild(tr);
+
+        if(existing.tp_tinggi) document.getElementById(`tphigh-${no}`).value = existing.tp_tinggi;
+        if(existing.tp_rendah) document.getElementById(`tplow-${no}`).value = existing.tp_rendah;
+      });
+
+      if(no === 1) tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;">Belum ada siswa terdaftar pada kelas <b>${kelas}</b>.</td></tr>`;
+    };
+
+    window.simpanNilaiSiswa = async function(namaSiswa, indexRow) {
+      const mapel = document.getElementById("guru-select-mapel-nilai").value;
+      const kelas = document.getElementById("guru-select-kelas-nilai").value;
+      const nilai = document.getElementById(`nilai-${indexRow}`).value;
+      const tpTinggi = document.getElementById(`tphigh-${indexRow}`).value;
+      const tpRendah = document.getElementById(`tplow-${indexRow}`).value;
+
+      if(!nilai) { alert("Isi nilai akhir terlebih dahulu!"); return; }
+
+      const docId = `${mapel}_${kelas}_${namaSiswa}`.replace(/\s+/g, '_');
+
+      try {
+        await setDoc(doc(db, "nilai_mapel", docId), {
+          mapel: mapel,
+          kelas: kelas,
+          nama_siswa: namaSiswa,
+          nilai: Number(nilai),
+          tp_tinggi: tpTinggi,
+          tp_rendah: tpRendah,
+          guru: currentUser.nama
+        });
+        alert(`Nilai ${namaSiswa} (${kelas}) berhasil disimpan!`);
+      } catch(err) { alert("Gagal menyimpan nilai: " + err.message); }
     };
 
     window.logout = function() {
