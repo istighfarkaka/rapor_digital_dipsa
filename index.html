@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Rapor Digital Dipsa</title>
   
-  <!-- CDN SheetJS untuk Membaca File Excel/CSV -->
+  <!-- CDN SheetJS untuk Membaca & Membuat File Excel/CSV -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
   <style>
@@ -36,6 +36,8 @@
     .btn-submit:hover { background: #1557b0; }
     .btn-success { background: #28a745; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; font-size: 14px; cursor: pointer; transition: 0.2s; width: 100%; }
     .btn-success:hover { background: #218838; }
+    .btn-info { background: #17a2b8; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; font-size: 13px; cursor: pointer; transition: 0.2s; width: 100%; margin-bottom: 10px; }
+    .btn-info:hover { background: #138496; }
     .btn-logout { background: #dc3545; margin-top: 20px; }
     .btn-logout:hover { background: #c82333; }
     .btn-danger { background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; }
@@ -131,10 +133,13 @@
         <!-- FITUR 2: IMPORT DATA MASSAL (EXCEL/CSV) -->
         <div class="section-title">Import Data Akun Massal (Excel/CSV)</div>
         <div class="box-import">
-          <p style="font-size: 12px; color: #555; margin-bottom: 8px;">
-            *Pilih file Excel (.xlsx) atau CSV yang memiliki kolom: <b>nama</b>, <b>username</b>, <b>password</b>, dan <b>role</b> pada baris pertama.
+          <p style="font-size: 12px; color: #555; margin-bottom: 10px;">
+            Unduh template terlebih dahulu untuk memperoleh format yang sesuai dan opsi role dalam bentuk dropdown.
           </p>
-          <div class="form-group">
+          <button type="button" class="btn-info" onclick="downloadTemplateExcel()">📥 Download Template Excel (.xlsx)</button>
+          
+          <div class="form-group" style="margin-top: 10px;">
+            <label style="font-size: 12px;">Pilih File Template Yang Sudah Diisi:</label>
             <input type="file" id="file-excel" class="form-control" accept=".xlsx, .xls, .csv">
           </div>
           <button type="button" class="btn-success" id="btn-import" onclick="prosesImportExcel()">📤 Unggah & Import Data ke Database</button>
@@ -192,6 +197,43 @@
     window.togglePasswordVisibility = function() {
       const passwordInput = document.getElementById("password");
       passwordInput.type = passwordInput.type === "password" ? "text" : "password";
+    };
+
+    // FUNGSI DOWNLOAD TEMPLATE EXCEL DENGAN DROPDOWN ROLE
+    window.downloadTemplateExcel = function() {
+      // Data sampel untuk template
+      const templateData = [
+        { nama: "Ahmad Subarjo", username: "ahmad123", password: "pass123", role: "siswa" },
+        { nama: "Budi Pekerti", username: "budi123", password: "pass123", role: "walikelas" },
+        { nama: "Siti Aminah", username: "siti123", password: "pass123", role: "gurumapel" }
+      ];
+
+      // Buat workbook & worksheet baru
+      const ws = XLSX.utils.json_to_sheet(templateData);
+
+      // Tambahkan konfigurasi Data Validation (Dropdown) pada Kolom D (Role) dari baris 2 hingga 100
+      ws['!dataValidation'] = [
+        {
+          sqref: "D2:D100",
+          type: "list",
+          allowBlank: false,
+          formula1: '"waka,walikelas,gurumapel,siswa,walimurid"'
+        }
+      ];
+
+      // Atur lebar kolom agar rapi
+      ws['!cols'] = [
+        { wch: 25 }, // nama
+        { wch: 18 }, // username
+        { wch: 18 }, // password
+        { wch: 15 }  // role
+      ];
+
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Template Akun");
+
+      // Unduh File Excel
+      XLSX.writeFile(wb, "Template_Import_Akun_DIPSA.xlsx");
     };
 
     // Proses Login
@@ -301,7 +343,6 @@
           const firstSheetName = workbook.SheetNames[0];
           const worksheet = workbook.Sheets[firstSheetName];
           
-          // Konversi baris excel ke format Array JSON
           const jsonData = XLSX.utils.sheet_to_json(worksheet);
 
           if (jsonData.length === 0) {
@@ -313,14 +354,12 @@
 
           statusDiv.innerText = `Mengunggah ${jsonData.length} data ke Firestore...`;
 
-          // Kirim data ke Firestore menggunakan batch (biar cepat)
           let batch = writeBatch(db);
           let count = 0;
 
           for (let i = 0; i < jsonData.length; i++) {
             const row = jsonData[i];
             
-            // Validasi kelengkapan data
             if (row.nama && row.username && row.password && row.role) {
               const docRef = doc(collection(db, "users"));
               batch.set(docRef, {
@@ -332,7 +371,6 @@
 
               count++;
 
-              // Firestore membatasi maksimal 500 dokumen per batch
               if (count % 400 === 0) {
                 await batch.commit();
                 batch = writeBatch(db);
