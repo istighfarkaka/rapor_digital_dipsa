@@ -8,28 +8,37 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     body { background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
     
-    .card { background: #ffffff; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); width: 100%; max-width: 450px; padding: 25px; }
+    .card { background: #ffffff; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); width: 100%; max-width: 800px; padding: 25px; }
     .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #eef2f5; padding-bottom: 15px; }
     .header h2 { color: #1a73e8; font-size: 22px; }
     .header p { color: #666; font-size: 13px; margin-top: 5px; }
 
     .form-group { margin-bottom: 15px; }
     .form-group label { display: block; font-size: 13px; font-weight: 600; color: #444; margin-bottom: 5px; }
-    .form-control { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; outline: none; }
+    .form-control { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; outline: none; }
     .form-control:focus { border-color: #1a73e8; box-shadow: 0 0 0 3px rgba(26,115,232,0.2); }
 
-    .btn-submit { width: 100%; background: #1a73e8; color: white; border: none; padding: 12px; border-radius: 6px; font-weight: bold; font-size: 15px; cursor: pointer; transition: 0.2s; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+
+    .btn-submit { width: 100%; background: #1a73e8; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; font-size: 14px; cursor: pointer; transition: 0.2s; }
     .btn-submit:hover { background: #1557b0; }
     .btn-logout { background: #dc3545; margin-top: 20px; }
     .btn-logout:hover { background: #c82333; }
+    .btn-danger { background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; }
 
     .badge-role { display: inline-block; background: #e8f0fe; color: #1a73e8; padding: 4px 12px; border-radius: 20px; font-weight: bold; font-size: 12px; text-transform: uppercase; margin-bottom: 10px; }
-    .info-box { background: #f8fafc; border-left: 4px solid #1a73e8; padding: 12px; margin-top: 15px; border-radius: 4px; font-size: 14px; color: #333; }
     .loading { text-align: center; color: #1a73e8; font-weight: bold; font-size: 14px; margin-top: 10px; display: none; }
     .error-msg { color: #dc3545; font-size: 13px; text-align: center; margin-top: 10px; }
     
     .screen { display: none; }
     .screen.active { display: block; }
+
+    /* Style Tabel */
+    .table-container { margin-top: 20px; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 10px; }
+    th, td { border: 1px solid #e0e0e0; padding: 10px; text-align: left; }
+    th { background-color: #f8fafc; color: #333; }
+    .section-title { font-size: 16px; font-weight: bold; color: #1a73e8; margin-top: 20px; margin-bottom: 10px; border-left: 4px solid #1a73e8; padding-left: 8px; }
   </style>
 </head>
 <body>
@@ -65,8 +74,63 @@
         <p>Selamat Datang di Panel Sistem</p>
       </div>
 
-      <div class="info-box" id="dash-hak-akses">
-        Memuat hak akses...
+      <!-- PANEL KHUSUS WAKA KURIKULUM -->
+      <div id="panel-waka" style="display: none;">
+        
+        <div class="section-title">Tambah Akun Satuan</div>
+        <form onsubmit="tambahUserSatuan(event)">
+          <div class="grid-2">
+            <div class="form-group">
+              <label>Nama Lengkap</label>
+              <input type="text" id="input-nama" class="form-control" placeholder="Nama Lengkap" required>
+            </div>
+            <div class="form-group">
+              <label>Role / Hak Akses</label>
+              <select id="input-role" class="form-control" required>
+                <option value="waka">Waka Kurikulum</option>
+                <option value="walikelas">Wali Kelas</option>
+                <option value="gurumapel">Guru Mapel</option>
+                <option value="siswa">Siswa</option>
+                <option value="walimurid">Wali Murid</option>
+              </select>
+            </div>
+          </div>
+          <div class="grid-2">
+            <div class="form-group">
+              <label>Username</label>
+              <input type="text" id="input-username" class="form-control" placeholder="Username" required>
+            </div>
+            <div class="form-group">
+              <label>Password</label>
+              <input type="text" id="input-password" class="form-control" placeholder="Password" required>
+            </div>
+          </div>
+          <button type="submit" class="btn-submit" id="btn-tambah-user">+ Simpan Akun Baru</button>
+        </form>
+
+        <div class="section-title">Daftar Akun Pengguna</div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>No</th>
+                <th>Nama</th>
+                <th>Username</th>
+                <th>Role</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="tabel-users-body">
+              <tr><td colspan="5" style="text-align:center;">Memuat data...</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
+      <!-- PANEL ROLE LAIN -->
+      <div id="panel-role-lain" style="display: none;">
+        <div id="dash-hak-akses"></div>
       </div>
 
       <button type="button" class="btn-submit btn-logout" onclick="logout()">Keluar (Logout)</button>
@@ -77,9 +141,8 @@
   <!-- LOAD FIREBASE SDK (MODULE) -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, collection, query, where, getDocs, addDoc, deleteDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    // Konfigurasi Firebase Proyek Rapor Anda
     const firebaseConfig = {
       apiKey: "AIzaSyDnPyMzuu4Qo2mZhORxZh3aTUm-TAFmzzU",
       authDomain: "rapor-c7c48.firebaseapp.com",
@@ -89,17 +152,14 @@
       appId: "1:1059367167032:web:eaa4527d3ed3f05ae3b2cd"
     };
 
-    // Inisialisasi Firebase & Firestore
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // Fungsi Login
+    // Proses Login
     window.prosesLogin = async function(e) {
       e.preventDefault();
-      
       const usernameInput = document.getElementById("username").value.trim();
       const passwordInput = document.getElementById("password").value.trim();
-      
       const loading = document.getElementById("loading-login");
       const err = document.getElementById("err-login");
       const btn = document.getElementById("btn-login");
@@ -109,13 +169,11 @@
       btn.disabled = true;
 
       try {
-        // Cari user di koleksi 'users' berdasarkan username & password
         const q = query(
           collection(db, "users"), 
           where("username", "==", usernameInput),
           where("password", "==", passwordInput)
         );
-        
         const querySnapshot = await getDocs(q);
 
         loading.style.display = "none";
@@ -123,10 +181,7 @@
 
         if (!querySnapshot.empty) {
           let userData = null;
-          querySnapshot.forEach((doc) => {
-            userData = doc.data();
-          });
-
+          querySnapshot.forEach((doc) => { userData = doc.data(); });
           tampilkanDashboard(userData);
         } else {
           err.innerText = "Username atau Password salah!";
@@ -145,31 +200,87 @@
       document.getElementById("dash-nama").innerText = user.nama;
       document.getElementById("dash-role").innerText = "Akses: " + user.role;
 
-      let deskripsiFitur = "";
-
-      // Logika Pembagian Fitur Berdasarkan Role
-      switch(user.role.toLowerCase()) {
-        case "waka":
-          deskripsiFitur = "<strong>Menu Waka Kurikulum:</strong><br>• Input Nama Guru & Mapel<br>• Plotting Wali Kelas<br>• Monitoring Rapor Sekolah";
-          break;
-        case "walikelas":
-          deskripsiFitur = "<strong>Menu Wali Kelas:</strong><br>• Input Kehadiran & Ekskul<br>• Catatan Perkembangan Siswa<br>• Cetak Rapor Kelas Binaan";
-          break;
-        case "gurumapel":
-          deskripsiFitur = "<strong>Menu Guru Mapel:</strong><br>• Input Nilai Akhir Mapel<br>• Input Tujuan Pembelajaran (TP)<br>• Ketercapaian Kompetensi";
-          break;
-        case "siswa":
-          deskripsiFitur = "<strong>Menu Siswa:</strong><br>• Akses Ujian CBT<br>• Lihat Hasil Nilai & Rapor Digital";
-          break;
-        case "walimurid":
-          deskripsiFitur = "<strong>Menu Wali Murid:</strong><br>• Lihat Rapor Putra/Putri<br>• Tombol Validasi & Persetujuan Rapor";
-          break;
-        default:
-          deskripsiFitur = "Role tidak dikenali.";
+      if(user.role.toLowerCase() === "waka") {
+        document.getElementById("panel-waka").style.display = "block";
+        document.getElementById("panel-role-lain").style.display = "none";
+        muatTabelUsersRealtime();
+      } else {
+        document.getElementById("panel-waka").style.display = "none";
+        document.getElementById("panel-role-lain").style.display = "block";
+        document.getElementById("dash-hak-akses").innerText = "Selamat datang " + user.nama + ". Fitur sedang disiapkan.";
       }
-
-      document.getElementById("dash-hak-akses").innerHTML = deskripsiFitur;
     }
+
+    // Fitur Tambah Akun Satuan (Realtime ke Firestore)
+    window.tambahUserSatuan = async function(e) {
+      e.preventDefault();
+      const btn = document.getElementById("btn-tambah-user");
+      btn.disabled = true;
+      btn.innerText = "Menyimpan...";
+
+      try {
+        await addDoc(collection(db, "users"), {
+          nama: document.getElementById("input-nama").value,
+          role: document.getElementById("input-role").value,
+          username: document.getElementById("input-username").value,
+          password: document.getElementById("input-password").value
+        });
+
+        alert("Akun berhasil ditambahkan!");
+        document.getElementById("input-nama").value = "";
+        document.getElementById("input-username").value = "";
+        document.getElementById("input-password").value = "";
+      } catch (err) {
+        alert("Gagal menambahkan akun: " + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerText = "+ Simpan Akun Baru";
+      }
+    };
+
+    // Fitur Baca Tabel Users (Realtime Update)
+    function muatTabelUsersRealtime() {
+      const tbody = document.getElementById("tabel-users-body");
+      
+      onSnapshot(collection(db, "users"), (snapshot) => {
+        tbody.innerHTML = "";
+        let no = 1;
+
+        if(snapshot.empty) {
+          tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Belum ada data akun.</td></tr>';
+          return;
+        }
+
+        snapshot.forEach((docSnapshot) => {
+          const u = docSnapshot.data();
+          const docId = docSnapshot.id;
+
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${no++}</td>
+            <td>${u.nama}</td>
+            <td>${u.username}</td>
+            <td><span class="badge-role">${u.role}</span></td>
+            <td>
+              <button class="btn-danger" onclick="hapusUser('${docId}', '${u.nama}')">Hapus</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      });
+    }
+
+    // Fitur Hapus Akun
+    window.hapusUser = async function(docId, nama) {
+      if(confirm(`Apakah Anda yakin ingin menghapus akun ${nama}?`)) {
+        try {
+          await deleteDoc(doc(db, "users", docId));
+          alert("Akun berhasil dihapus!");
+        } catch (err) {
+          alert("Gagal menghapus akun: " + err.message);
+        }
+      }
+    };
 
     window.logout = function() {
       document.getElementById("form-login").reset();
