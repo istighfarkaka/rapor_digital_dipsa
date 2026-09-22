@@ -146,6 +146,13 @@
     .rapor-meta-table td.colon { font-weight: bold; width: 15px; text-align: center; }
     .rapor-meta-table td.val { width: auto; }
 
+    /* STYLING TABEL RAPOR EKSTRA & TANGGAPAN */
+    .table-rapor-ekstra { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 20px; }
+    .table-rapor-ekstra th, .table-rapor-ekstra td { border: 1px solid #000; padding: 6px; }
+    .table-rapor-ekstra th { background: #e2e8f0; text-align: center; font-weight: bold; }
+
+    .box-tanggapan-ortu { border: 1px solid #000; padding: 10px; min-height: 70px; font-size: 12px; margin-bottom: 25px; }
+
     /* MODAL POPUP */
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 999; }
     .modal-box { background: #fff; width: 90%; max-width: 850px; max-height: 90vh; overflow-y: auto; padding: 25px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
@@ -154,7 +161,7 @@
     .close-btn { cursor: pointer; font-size: 20px; font-weight: bold; color: #888; }
     .close-btn:hover { color: #000; }
 
-    .modal-box-small { max-width: 480px; }
+    .modal-box-small { max-width: 520px; }
 
     @media print {
       body * { visibility: hidden; }
@@ -305,7 +312,7 @@
               <ul style="padding-left: 20px; font-size: 13px; color: #475569; line-height: 1.8;">
                 <li><b>Waka Kurikulum:</b> Mengatur Kelas, Mapel, Penugasan Wali Kelas, Leger Nilai, dan Monitoring Guru.</li>
                 <li><b>Guru Mapel:</b> Menginput Tujuan Pembelajaran (TP) serta mengisi Nilai Rapor & Capaian TP.</li>
-                <li><b>Wali Kelas:</b> Menginput Absensi Siswa, Catatan Wali Kelas, dan Mencetak Lembar Rapor Digital PDF.</li>
+                <li><b>Wali Kelas:</b> Menginput Absensi Siswa, Ekstrakurikuler, Catatan Wali Kelas, Tanggapan Orang Tua, dan Mencetak Lembar Rapor Digital PDF.</li>
                 <li><b>Siswa / Wali Murid:</b> Melihat rangkuman hasil belajar serta mencetak lembar Rapor Digital.</li>
               </ul>
             </div>
@@ -646,7 +653,7 @@
               </div>
 
               <p style="font-size: 13px; color: #666; margin-bottom: 15px;">
-                Berikut daftar siswa di kelas binaan Anda. Anda dapat menginputkan Kehadiran/Absensi, Catatan Wali Kelas, serta melakukan Preview & Cetak Lembar Rapor Digital.
+                Berikut daftar siswa di kelas binaan Anda. Anda dapat menginputkan Kehadiran/Absensi, Ekstrakurikuler, Catatan Wali Kelas, Tanggapan Orang Tua, serta melakukan Preview & Cetak Lembar Rapor Digital.
               </p>
 
               <div class="table-container">
@@ -655,13 +662,14 @@
                     <tr>
                       <th style="width:30px;">No</th>
                       <th>Nama Siswa</th>
-                      <th style="width:140px;">Absensi (S / I / A)</th>
+                      <th style="width:130px;">Absensi (S / I / A)</th>
+                      <th>Ekstrakurikuler</th>
                       <th>Catatan Wali Kelas</th>
                       <th style="width:160px;">Aksi Rapor</th>
                     </tr>
                   </thead>
                   <tbody id="tabel-walikelas-siswa-body">
-                    <tr><td colspan="5" style="text-align:center;">Memuat data siswa kelas binaan...</td></tr>
+                    <tr><td colspan="6" style="text-align:center;">Memuat data siswa kelas binaan...</td></tr>
                   </tbody>
                 </table>
               </div>
@@ -782,7 +790,13 @@
                   <div><b>Alpa:</b> <span id="view-siswa-alpa">0 Hari</span></div>
                 </div>
                 <div style="margin-top:10px; font-size:13px; border-top:1px dashed #cbd5e1; padding-top:8px;">
+                  <b>Ekstrakurikuler:</b> <span id="view-siswa-ekstra">-</span>
+                </div>
+                <div style="margin-top:8px; font-size:13px;">
                   <b>Catatan Wali Kelas:</b> <i id="view-siswa-catatan">-</i>
+                </div>
+                <div style="margin-top:8px; font-size:13px;">
+                  <b>Tanggapan Orang Tua:</b> <i id="view-siswa-tanggapan">-</i>
                 </div>
               </div>
 
@@ -810,11 +824,11 @@
     </div>
   </div>
 
-  <!-- MODAL EDIT CATATAN WALI -->
+  <!-- MODAL EDIT CATATAN WALI (DILENGKAPI EKSTRAKURIKULER & TANGGAPAN ORTU) -->
   <div class="modal-overlay" id="modal-edit-catatan-wali">
     <div class="modal-box modal-box-small">
       <div class="modal-header">
-        <h3>📝 Input Absensi & Catatan Wali Kelas</h3>
+        <h3>📝 Input Absensi, Ekstrakurikuler & Catatan Wali Kelas</h3>
         <span class="close-btn" onclick="tutupModalCatatanWali()">&times;</span>
       </div>
       <form onsubmit="simpanCatatanAbsensiWali(event)">
@@ -826,6 +840,7 @@
           <input type="text" id="wali-display-nama" class="form-control" readonly style="background:#f1f5f9;">
         </div>
 
+        <div style="font-weight:bold; font-size:13px; color:#1a73e8; margin-bottom:8px;">1. Ketidakhadiran (Absensi)</div>
         <div class="grid-3">
           <div class="form-group">
             <label>Sakit (Hari)</label>
@@ -841,12 +856,39 @@
           </div>
         </div>
 
-        <div class="form-group">
-          <label>Catatan Wali Kelas</label>
-          <textarea id="wali-input-catatan" class="form-control" rows="3" placeholder="Contoh: Tingkatkan lagi prestasi dan keaktifan..."></textarea>
+        <div style="font-weight:bold; font-size:13px; color:#1a73e8; margin-top:5px; margin-bottom:8px;">2. Kegiatan Ekstrakurikuler</div>
+        <div class="grid-2">
+          <div class="form-group">
+            <label>Ekstrakurikuler 1</label>
+            <input type="text" id="wali-input-ekstra1-nama" class="form-control" placeholder="Contoh: Pramuka">
+          </div>
+          <div class="form-group">
+            <label>Keterangan Ekstra 1</label>
+            <input type="text" id="wali-input-ekstra1-ket" class="form-control" placeholder="Contoh: Baik, mampu menerapkan...">
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="form-group">
+            <label>Ekstrakurikuler 2 (Opsional)</label>
+            <input type="text" id="wali-input-ekstra2-nama" class="form-control" placeholder="Contoh: PMR">
+          </div>
+          <div class="form-group">
+            <label>Keterangan Ekstra 2</label>
+            <input type="text" id="wali-input-ekstra2-ket" class="form-control" placeholder="Keterangan...">
+          </div>
         </div>
 
-        <button type="submit" class="btn-submit" style="background:#d97706;">💾 Simpan Data Wali Kelas</button>
+        <div style="font-weight:bold; font-size:13px; color:#1a73e8; margin-top:5px; margin-bottom:8px;">3. Catatan Wali Kelas</div>
+        <div class="form-group">
+          <textarea id="wali-input-catatan" class="form-control" rows="2" placeholder="Contoh: Masih perlu bimbingan dalam belajar dan sikap..."></textarea>
+        </div>
+
+        <div style="font-weight:bold; font-size:13px; color:#1a73e8; margin-top:5px; margin-bottom:8px;">4. Tanggapan Orang Tua / Wali Murid</div>
+        <div class="form-group">
+          <textarea id="wali-input-tanggapan" class="form-control" rows="2" placeholder="Kosongkan jika diisi manual oleh Orang Tua setelah dicetak..."></textarea>
+        </div>
+
+        <button type="submit" class="btn-submit" style="background:#d97706;">💾 Simpan Data Rapor</button>
       </form>
     </div>
   </div>
@@ -900,6 +942,7 @@
           </tr>
         </table>
 
+        <!-- TABEL NILAI MAPEL -->
         <table style="width:100%; border-collapse:collapse; font-size:12px; margin-bottom:20px;">
           <thead>
             <tr style="background:#f1f5f9;">
@@ -914,21 +957,59 @@
           </tbody>
         </table>
 
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-bottom:25px; font-size:12px;">
+        <!-- B. EKSTRAKURIKULER -->
+        <div style="font-size:12px; margin-bottom:15px;">
+          <b style="display:block; margin-bottom:5px;">A. Ekstrakurikuler</b>
+          <table class="table-rapor-ekstra">
+            <thead>
+              <tr>
+                <th style="width:30px;">No</th>
+                <th style="width:200px;">Ekstrakurikuler</th>
+                <th>Keterangan</th>
+              </tr>
+            </thead>
+            <tbody id="rp-tabel-ekstra-body">
+              <tr>
+                <td style="text-align:center;">1</td>
+                <td id="rp-ekstra1-nama">-</td>
+                <td id="rp-ekstra1-ket">-</td>
+              </tr>
+              <tr>
+                <td style="text-align:center;">2</td>
+                <td id="rp-ekstra2-nama">-</td>
+                <td id="rp-ekstra2-ket">-</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- C. KETIDAKHADIRAN & CATATAN WALI KELAS -->
+        <div style="display:grid; grid-template-columns: 1fr 1.2fr; gap:15px; margin-bottom:20px; font-size:12px;">
           <div>
-            <b style="display:block; margin-bottom:5px;">A. Ketidakhadiran (Absensi)</b>
+            <b style="display:block; margin-bottom:5px;">B. Ketidakhadiran</b>
             <table style="width:100%; border-collapse:collapse;">
-              <tr><td style="border:1px solid #000; padding:4px;">Sakit</td><td style="border:1px solid #000; padding:4px; text-align:center;" id="rp-absensi-sakit">0 Hari</td></tr>
-              <tr><td style="border:1px solid #000; padding:4px;">Izin</td><td style="border:1px solid #000; padding:4px; text-align:center;" id="rp-absensi-izin">0 Hari</td></tr>
-              <tr><td style="border:1px solid #000; padding:4px;">Tanpa Keterangan (Alpa)</td><td style="border:1px solid #000; padding:4px; text-align:center;" id="rp-absensi-alpa">0 Hari</td></tr>
+              <tr><td style="border:1px solid #000; padding:5px;">Sakit</td><td style="border:1px solid #000; padding:5px; text-align:center; width:60px;" id="rp-absensi-sakit">0 Hari</td></tr>
+              <tr><td style="border:1px solid #000; padding:5px;">Izin</td><td style="border:1px solid #000; padding:5px; text-align:center;" id="rp-absensi-izin">0 Hari</td></tr>
+              <tr><td style="border:1px solid #000; padding:5px;">Tanpa Keterangan</td><td style="border:1px solid #000; padding:5px; text-align:center;" id="rp-absensi-alpa">0 Hari</td></tr>
             </table>
           </div>
           <div>
-            <b style="display:block; margin-bottom:5px;">B. Catatan Wali Kelas</b>
-            <div style="border:1px solid #000; padding:8px; min-height:65px;" id="rp-catatan-wali">-</div>
+            <b style="display:block; margin-bottom:5px;">Catatan Wali Kelas</b>
+            <div style="border:1px solid #000; padding:8px; min-height:75px;" id="rp-catatan-wali">
+              -
+            </div>
           </div>
         </div>
 
+        <!-- D. TANGGAPAN ORANG TUA / WALI MURID (SESUAI LAMPIRAN GAMBAR) -->
+        <div style="font-size:12px; margin-bottom:25px;">
+          <b style="display:block; margin-bottom:5px;">Tanggapan Orang Tua/Wali Murid</b>
+          <div class="box-tanggapan-ortu" id="rp-tanggapan-ortu">
+            
+          </div>
+        </div>
+
+        <!-- BLOK TANDA TANGAN RAPOR -->
         <div style="font-size:12px;">
           <div style="display:flex; justify-content:space-between; text-align:center; margin-bottom:30px;">
             <div style="width: 40%;">
@@ -1248,7 +1329,6 @@
       } catch (err) { alert("Gagal menyimpan identitas: " + err.message); }
     };
 
-    /* PROSES LOGIN DENGAN CONVERT TO STRING AGAR BEBAS BUG */
     window.prosesLogin = async function(e) {
       e.preventDefault();
       const usernameInput = String(document.getElementById("username").value).trim();
@@ -1426,13 +1506,23 @@
 
       const qWaliData = query(collection(db, "walikelas_catatan"), where("kelas", "==", kelasSiswa), where("nama_siswa", "==", namaSiswa));
       const snapWaliData = await getDocs(qWaliData);
-      let wData = { sakit: 0, izin: 0, alpa: 0, catatan: "-" };
+      let wData = { sakit: 0, izin: 0, alpa: 0, catatan: "-", ekstra1_nama: "", ekstra1_ket: "", ekstra2_nama: "", ekstra2_ket: "", tanggapan_ortu: "-" };
       snapWaliData.forEach(d => { wData = d.data(); });
 
       document.getElementById("view-siswa-sakit").innerText = (wData.sakit || 0) + " Hari";
       document.getElementById("view-siswa-izin").innerText = (wData.izin || 0) + " Hari";
       document.getElementById("view-siswa-alpa").innerText = (wData.alpa || 0) + " Hari";
       document.getElementById("view-siswa-catatan").innerText = wData.catatan || "-";
+      document.getElementById("view-siswa-tanggapan").innerText = wData.tanggapan_ortu || "-";
+
+      let strEkstra = "-";
+      if(wData.ekstra1_nama) {
+        strEkstra = `${wData.ekstra1_nama} (${wData.ekstra1_ket || '-'})`;
+        if(wData.ekstra2_nama) {
+          strEkstra += `, ${wData.ekstra2_nama} (${wData.ekstra2_ket || '-'})`;
+        }
+      }
+      document.getElementById("view-siswa-ekstra").innerText = strEkstra;
 
       cacheSiswaMandiriData = {
         nama: namaSiswa,
@@ -1442,7 +1532,12 @@
         sakit: wData.sakit || 0,
         izin: wData.izin || 0,
         alpa: wData.alpa || 0,
-        catatan: wData.catatan || "-"
+        catatan: wData.catatan || "-",
+        ekstra1_nama: wData.ekstra1_nama || "",
+        ekstra1_ket: wData.ekstra1_ket || "",
+        ekstra2_nama: wData.ekstra2_nama || "",
+        ekstra2_ket: wData.ekstra2_ket || "",
+        tanggapan_ortu: wData.tanggapan_ortu || ""
       };
 
       const qNilai = query(collection(db, "nilai_mapel"), where("kelas", "==", kelasSiswa), where("nama_siswa", "==", namaSiswa));
@@ -1724,11 +1819,11 @@
       if (!tbody) return;
 
       if (!kelasBinaanAktif) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#ef4444; padding:15px;">Pilih kelas terlebih dahulu.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#ef4444; padding:15px;">Pilih kelas terlebih dahulu.</td></tr>';
         return;
       }
 
-      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Memuat data siswa kelas binaan...</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Memuat data siswa kelas binaan...</td></tr>';
 
       const qSiswa = query(collection(db, "users"), where("role", "==", "siswa"), where("kelas", "==", kelasBinaanAktif));
       const snapSiswa = await getDocs(qSiswa);
@@ -1749,16 +1844,23 @@
       let no = 1;
 
       listSiswa.forEach(s => {
-        const wData = mapWaliData[s.nama] || { sakit: 0, izin: 0, alpa: 0, catatan: "-" };
+        const wData = mapWaliData[s.nama] || { sakit: 0, izin: 0, alpa: 0, catatan: "-", ekstra1_nama: "", ekstra1_ket: "", ekstra2_nama: "", ekstra2_ket: "", tanggapan_ortu: "" };
         const dataObj = { nama: s.nama, username: s.username, nisn: s.nisn || "", kelas: s.kelas, ...wData };
 
         const displayNis = s.nisn ? `NIS: ${s.username} / NISN: ${s.nisn}` : `NIS: ${s.username}`;
+
+        let strEkstraRingkas = "-";
+        if (wData.ekstra1_nama) {
+          strEkstraRingkas = wData.ekstra1_nama;
+          if (wData.ekstra2_nama) strEkstraRingkas += `, ${wData.ekstra2_nama}`;
+        }
 
         const tr = document.createElement("tr");
         tr.innerHTML = `
           <td>${no++}</td>
           <td><b>${s.nama}</b><br><small style="color:#666;">${displayNis}</small></td>
           <td>S: <b>${wData.sakit || 0}</b> | I: <b>${wData.izin || 0}</b> | A: <b>${wData.alpa || 0}</b></td>
+          <td>${strEkstraRingkas}</td>
           <td>${wData.catatan || '-'}</td>
           <td>
             <button class="btn-edit btn-edit-catatan" style="margin-right:4px;">✏️ Edit</button>
@@ -1772,7 +1874,7 @@
       });
 
       if (no === 1) {
-        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">Belum ada siswa terdaftar pada kelas <b>${kelasBinaanAktif}</b>.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">Belum ada siswa terdaftar pada kelas <b>${kelasBinaanAktif}</b>.</td></tr>`;
       }
     }
 
@@ -1784,7 +1886,14 @@
       document.getElementById("wali-input-sakit").value = data.sakit || 0;
       document.getElementById("wali-input-izin").value = data.izin || 0;
       document.getElementById("wali-input-alpa").value = data.alpa || 0;
+      
+      document.getElementById("wali-input-ekstra1-nama").value = data.ekstra1_nama || "";
+      document.getElementById("wali-input-ekstra1-ket").value = data.ekstra1_ket || "";
+      document.getElementById("wali-input-ekstra2-nama").value = data.ekstra2_nama || "";
+      document.getElementById("wali-input-ekstra2-ket").value = data.ekstra2_ket || "";
+
       document.getElementById("wali-input-catatan").value = data.catatan === "-" ? "" : (data.catatan || "");
+      document.getElementById("wali-input-tanggapan").value = data.tanggapan_ortu === "-" ? "" : (data.tanggapan_ortu || "");
 
       document.getElementById("modal-edit-catatan-wali").style.display = "flex";
     };
@@ -1800,7 +1909,14 @@
       const sakit = Number(document.getElementById("wali-input-sakit").value);
       const izin = Number(document.getElementById("wali-input-izin").value);
       const alpa = Number(document.getElementById("wali-input-alpa").value);
+
+      const ekstra1_nama = document.getElementById("wali-input-ekstra1-nama").value.trim();
+      const ekstra1_ket = document.getElementById("wali-input-ekstra1-ket").value.trim();
+      const ekstra2_nama = document.getElementById("wali-input-ekstra2-nama").value.trim();
+      const ekstra2_ket = document.getElementById("wali-input-ekstra2-ket").value.trim();
+
       const catatan = document.getElementById("wali-input-catatan").value.trim() || "-";
+      const tanggapan_ortu = document.getElementById("wali-input-tanggapan").value.trim() || "";
 
       const docId = `wali_${kelas}_${namaSiswa}`.replace(/\s+/g, '_');
 
@@ -1811,10 +1927,15 @@
           sakit: sakit,
           izin: izin,
           alpa: alpa,
+          ekstra1_nama: ekstra1_nama,
+          ekstra1_ket: ekstra1_ket,
+          ekstra2_nama: ekstra2_nama,
+          ekstra2_ket: ekstra2_ket,
           catatan: catatan,
-          wali_kelas: currentUser.nama
+          tanggapan_ortu: tanggapan_ortu,
+          wali_kelas: currentUser ? currentUser.nama : "Wali Kelas"
         });
-        alert(`Data absensi & catatan ${namaSiswa} berhasil disimpan!`);
+        alert(`Data Rapor ${namaSiswa} berhasil disimpan!`);
         tutupModalCatatanWali();
         muatTabelWaliKelasSiswa();
       } catch(err) { alert("Gagal menyimpan: " + err.message); }
@@ -1833,10 +1954,21 @@
       document.getElementById("rp-nama-siswa").innerText = dataSiswa.nama;
       document.getElementById("rp-username-siswa").innerText = formattedNisNisn;
       document.getElementById("rp-kelas-siswa").innerText = dataSiswa.kelas;
+      
       document.getElementById("rp-absensi-sakit").innerText = (dataSiswa.sakit || 0) + " Hari";
       document.getElementById("rp-absensi-izin").innerText = (dataSiswa.izin || 0) + " Hari";
       document.getElementById("rp-absensi-alpa").innerText = (dataSiswa.alpa || 0) + " Hari";
+      
       document.getElementById("rp-catatan-wali").innerText = dataSiswa.catatan || "-";
+
+      // POPULATE EKSTRAKURIKULER
+      document.getElementById("rp-ekstra1-nama").innerText = dataSiswa.ekstra1_nama || "-";
+      document.getElementById("rp-ekstra1-ket").innerText = dataSiswa.ekstra1_ket || "-";
+      document.getElementById("rp-ekstra2-nama").innerText = dataSiswa.ekstra2_nama || "-";
+      document.getElementById("rp-ekstra2-ket").innerText = dataSiswa.ekstra2_ket || "-";
+
+      // POPULATE TANGGAPAN ORANG TUA
+      document.getElementById("rp-tanggapan-ortu").innerText = dataSiswa.tanggapan_ortu || "";
 
       const qWaliKelasResmi = query(collection(db, "plotting_walikelas"), where("kelas", "==", dataSiswa.kelas));
       const snapWaliResmi = await getDocs(qWaliKelasResmi);
@@ -2033,7 +2165,6 @@
       } catch(err) { alert("Gagal menyimpan: " + err.message); }
     };
 
-    /* AMAN BATCH KETIKA JUMLAH DATA BESAR */
     window.simpanSemuaNilaiKolektif = async function() {
       const mapel = document.getElementById("guru-select-mapel-nilai").value;
       const kelas = document.getElementById("guru-select-kelas-nilai").value;
@@ -2060,7 +2191,6 @@
             });
             count++;
 
-            // Mencegah error limit 500 batch
             if (count % 400 === 0) {
               await batch.commit();
               batch = writeBatch(db);
@@ -2357,7 +2487,6 @@
       finally { btn.disabled = false; }
     };
 
-    /* IMPORT EXCEL DENGAN KEAMANAN OVER-LIMIT BATCH */
     window.prosesImportExcel = function() {
       const fileInput = document.getElementById("file-excel");
       const statusDiv = document.getElementById("status-import");
