@@ -56,7 +56,7 @@
     /* LAYOUT UTAMA DASHBOARD */
     .app-container { display: flex; height: 100vh; overflow: hidden; }
     
-    /* SIDEBAR DAPODIK STYLE */
+    /* SIDEBAR STYLE */
     .sidebar { width: 260px; background-color: #1e293b; color: #fff; display: flex; flex-direction: column; transition: all 0.3s ease; z-index: 100; flex-shrink: 0; }
     .sidebar.collapsed { width: 70px; }
     .sidebar.collapsed .sidebar-user-info,
@@ -134,13 +134,12 @@
 
     .action-bar-flex { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 15px; background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; }
 
-    /* LAYOUT POPUP PRINT RAPOR DIGITAL */
+    /* LAYOUT PRINT RAPOR */
     .rapor-preview-container { background: #fff; padding: 30px; border-radius: 8px; max-width: 800px; margin: 0 auto; box-shadow: 0 4px 20px rgba(0,0,0,0.08); border: 1px solid #cbd5e1; }
     .rapor-header-sekolah { text-align: center; border-bottom: 3px double #000; padding-bottom: 12px; margin-bottom: 20px; }
     .rapor-header-sekolah h3 { font-size: 18px; text-transform: uppercase; font-weight: bold; margin-bottom: 2px; }
     .rapor-header-sekolah p { font-size: 12px; color: #333; }
     
-    /* STYLING KOP META RAPOR AGAR TITIK DUA TEGAK SEGARIS */
     .rapor-meta-table { width: 100%; font-size: 13px; margin-bottom: 20px; border-collapse: collapse; }
     .rapor-meta-table td { border: none !important; padding: 3px 0; vertical-align: top; }
     .rapor-meta-table td.label { font-weight: bold; width: 140px; }
@@ -236,7 +235,7 @@
               <p id="text-welcome-sub">Sistem Informasi Rapor Digital SMK Diponegoro 1 Purwokerto. Kelola data akademik, input nilai, serta cetak rapor digital secara terintegrasi.</p>
             </div>
 
-            <!-- STATISTIK REALTIME (UNTUK GURU & ADMIN) -->
+            <!-- STATISTIK REALTIME -->
             <div class="grid-4" id="container-stat-dashboard">
               <div class="stat-card blue">
                 <div class="stat-info">
@@ -271,7 +270,7 @@
               </div>
             </div>
 
-            <!-- PENGATURAN IDENTITAS SEKOLAH, ALAMAT & KEPALA SEKOLAH -->
+            <!-- PENGATURAN IDENTITAS SEKOLAH -->
             <div class="section-card" id="card-setting-sekolah" style="display: none;">
               <div class="section-title" style="color:#1a73e8; font-size:16px; margin-bottom:12px; font-weight:bold;">🏫 Pengaturan Identitas Sekolah & Kepala Sekolah</div>
               <p style="font-size:13px; color:#666; margin-bottom:15px;">Data ini akan digunakan secara otomatis untuk kop header dan lembar Tanda Tangan Cetak Rapor Digital.</p>
@@ -469,22 +468,30 @@
                     </select>
                   </div>
                 </div>
-                <div class="grid-3">
+                <div class="grid-2">
                   <div class="form-group">
-                    <label>Username / NIS</label>
+                    <label id="label-username">Username / NIS</label>
                     <input type="text" id="input-username" class="form-control" placeholder="Username / NIS" required>
                   </div>
                   <div class="form-group">
                     <label>Password</label>
                     <input type="text" id="input-password" class="form-control" placeholder="Password" required>
                   </div>
-                  <div class="form-group" id="container-input-kelas" style="display: none;">
-                    <label>Kelas (Khusus Siswa)</label>
+                </div>
+
+                <div class="grid-2" id="container-field-siswa" style="display: none;">
+                  <div class="form-group">
+                    <label>NISN (Nomor Induk Siswa Nasional)</label>
+                    <input type="text" id="input-nisn-siswa" class="form-control" placeholder="Contoh: 0081234567">
+                  </div>
+                  <div class="form-group">
+                    <label>Kelas Siswa</label>
                     <select id="input-kelas-siswa" class="form-control">
                       <option value="">-- Pilih Kelas --</option>
                     </select>
                   </div>
                 </div>
+
                 <button type="submit" class="btn-submit" id="btn-tambah-user">+ Simpan Akun Baru</button>
               </form>
 
@@ -538,13 +545,14 @@
                       <th>No</th>
                       <th>Nama Siswa</th>
                       <th>NIS</th>
+                      <th>NISN</th>
                       <th>Password</th>
                       <th>Kelas</th>
                       <th>Aksi</th>
                     </tr>
                   </thead>
                   <tbody id="tabel-users-siswa">
-                    <tr><td colspan="7" style="text-align:center;">Memuat data...</td></tr>
+                    <tr><td colspan="8" style="text-align:center;">Memuat data...</td></tr>
                   </tbody>
                 </table>
               </div>
@@ -628,7 +636,6 @@
               <div class="card-header-flex">
                 <div class="section-title" style="color:#d97706; font-size:16px;">🏫 Panel Wali Kelas: <span id="text-kelas-binaan-title">-</span></div>
                 <div style="display:flex; gap:10px; align-items:center;">
-                  <!-- TOGGLE DROPDOWN KELAS UNTUK ADMIN/WAKA -->
                   <div id="container-select-admin-walikelas" style="display:none; margin:0;">
                     <select id="select-admin-walikelas" class="form-control" style="padding:6px 12px; font-size:13px;" onchange="gantiKelasBinaanAdmin(this.value)">
                       <option value="">-- Pilih Kelas (Admin) --</option>
@@ -757,7 +764,7 @@
             </div>
           </div>
 
-          <!-- PANEL 8: PANEL SISWA / WALI MURID (LIHAT RAPOR SAYA) -->
+          <!-- PANEL 8: PANEL SISWA / WALI MURID -->
           <div class="content-panel" id="panel-rapor-siswa">
             <div class="section-card">
               <div class="card-header-flex">
@@ -768,7 +775,7 @@
               <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:15px; margin-bottom:20px;">
                 <div class="grid-3" style="font-size:13px; row-gap:8px;">
                   <div><b>Nama Siswa:</b> <span id="view-siswa-nama">-</span></div>
-                  <div><b>NIS / Username:</b> <span id="view-siswa-nis">-</span></div>
+                  <div><b>NIS / NISN:</b> <span id="view-siswa-nis">-</span></div>
                   <div><b>Kelas:</b> <span id="view-siswa-kelas">-</span></div>
                   <div><b>Sakit:</b> <span id="view-siswa-sakit">0 Hari</span></div>
                   <div><b>Izin:</b> <span id="view-siswa-izin">0 Hari</span></div>
@@ -786,7 +793,7 @@
                       <th style="width:30px; text-align:center;">No</th>
                       <th>Mata Pelajaran</th>
                       <th style="width:90px; text-align:center;">Nilai Akhir</th>
-                      <th>Capaian Kompetensi / Keterangan</th>
+                      <th>Capaian Kompetensi</th>
                     </tr>
                   </thead>
                   <tbody id="tabel-rapor-siswa-body">
@@ -803,7 +810,7 @@
     </div>
   </div>
 
-  <!-- MODAL INPUT ABSENSI & CATATAN WALI KELAS -->
+  <!-- MODAL EDIT CATATAN WALI -->
   <div class="modal-overlay" id="modal-edit-catatan-wali">
     <div class="modal-box modal-box-small">
       <div class="modal-header">
@@ -836,7 +843,7 @@
 
         <div class="form-group">
           <label>Catatan Wali Kelas</label>
-          <textarea id="wali-input-catatan" class="form-control" rows="3" placeholder="Contoh: Tingkatkan lagi prestasi dan keaktifan dalam kegiatan pembelajaran..."></textarea>
+          <textarea id="wali-input-catatan" class="form-control" rows="3" placeholder="Contoh: Tingkatkan lagi prestasi dan keaktifan..."></textarea>
         </div>
 
         <button type="submit" class="btn-submit" style="background:#d97706;">💾 Simpan Data Wali Kelas</button>
@@ -844,7 +851,7 @@
     </div>
   </div>
 
-  <!-- MODAL PREVIEW & CETAK RAPOR DIGITAL -->
+  <!-- MODAL PREVIEW & CETAK RAPOR -->
   <div class="modal-overlay" id="modal-preview-rapor">
     <div class="modal-box">
       <div class="modal-header no-print">
@@ -855,15 +862,14 @@
         </div>
       </div>
 
-      <!-- LEMBAR HASIL RAPOR RESMI SIAP CETAK -->
       <div class="rapor-preview-container" id="area-rapor-cetak">
         <div class="rapor-header-sekolah">
-          <h3>RAPOR HASIL BELAJAR (KURIKULUM MERDEKA)</h3>
-          <h3 id="rp-header-nama-sekolah">SMK DIPONEGORO 1 PURWOKERTO</h3>
+          <h3>LAPORAN HASIL BELAJAR</h3>
+          <h3>(RAPOR)</h3>
+          <h3 id="rp-header-nama-sekolah" style="margin-top: 5px;">SMK DIPONEGORO 1 PURWOKERTO</h3>
           <p id="rp-header-alamat-sekolah">Jl. Diponegoro No. 1, Purwokerto, Kabupaten Banyumas, Jawa Tengah</p>
         </div>
 
-        <!-- META DATA SISWA DENGAN TABEL AGAR TITIK DUA TEGAK LURUS SEGARIS -->
         <table class="rapor-meta-table">
           <tr>
             <td class="label">Nama Peserta Didik</td>
@@ -875,7 +881,7 @@
             <td class="val" id="rp-kelas-siswa">-</td>
           </tr>
           <tr>
-            <td class="label">NIS/NISN</td>
+            <td class="label">NIS / NISN</td>
             <td class="colon">:</td>
             <td class="val" id="rp-username-siswa">-</td>
             
@@ -894,14 +900,13 @@
           </tr>
         </table>
 
-        <!-- TABEL HASIL CAPAIAN BELAJAR -->
         <table style="width:100%; border-collapse:collapse; font-size:12px; margin-bottom:20px;">
           <thead>
             <tr style="background:#f1f5f9;">
               <th style="border:1px solid #000; padding:6px; text-align:center; width:30px;">No</th>
-              <th style="border:1px solid #000; padding:6px;">Mata Pelajaran</th>
+              <th style="border:1px solid #000; padding:6px;">Muatan Pelajaran</th>
               <th style="border:1px solid #000; padding:6px; text-align:center; width:70px;">Nilai Akhir</th>
-              <th style="border:1px solid #000; padding:6px;">Capaian Kompetensi / Keterangan</th>
+              <th style="border:1px solid #000; padding:6px; text-align:center;">Capaian Kompetensi</th>
             </tr>
           </thead>
           <tbody id="rp-tabel-nilai-body">
@@ -909,7 +914,6 @@
           </tbody>
         </table>
 
-        <!-- EKSTRAKURIKULER & ABSENSI -->
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-bottom:25px; font-size:12px;">
           <div>
             <b style="display:block; margin-bottom:5px;">A. Ketidakhadiran (Absensi)</b>
@@ -921,13 +925,10 @@
           </div>
           <div>
             <b style="display:block; margin-bottom:5px;">B. Catatan Wali Kelas</b>
-            <div style="border:1px solid #000; padding:8px; min-height:65px;" id="rp-catatan-wali">
-              -
-            </div>
+            <div style="border:1px solid #000; padding:8px; min-height:65px;" id="rp-catatan-wali">-</div>
           </div>
         </div>
 
-        <!-- BLOK TANDA TANGAN RAPOR -->
         <div style="font-size:12px;">
           <div style="display:flex; justify-content:space-between; text-align:center; margin-bottom:30px;">
             <div style="width: 40%;">
@@ -943,7 +944,6 @@
             </div>
           </div>
 
-          <!-- KEPALA SEKOLAH (TENGAH BAWAH) -->
           <div style="text-align:center; width:100%;">
             <p>Mengetahui,</p>
             <p>Kepala <span id="rp-ttd-nama-sekolah">SMK Diponegoro 1 Purwokerto</span></p>
@@ -972,7 +972,7 @@
         </div>
         <div class="form-group">
           <label>Role</label>
-          <select id="edit-role" class="form-control" required>
+          <select id="edit-role" class="form-control" onchange="toggleFieldEditUser()" required>
             <option value="guru">Guru (Mapel/Wali)</option>
             <option value="waka">Waka Kurikulum</option>
             <option value="siswa">Siswa</option>
@@ -980,18 +980,24 @@
           </select>
         </div>
         <div class="form-group">
-          <label>Username / NIS</label>
+          <label id="edit-label-username">Username / NIS</label>
           <input type="text" id="edit-username" class="form-control" required>
         </div>
-        <div class="form-group">
-          <label>Password</label>
-          <input type="text" id="edit-password" class="form-control" required>
+        
+        <div class="form-group" id="container-edit-nisn" style="display: none;">
+          <label>NISN (Nomor Induk Siswa Nasional)</label>
+          <input type="text" id="edit-nisn" class="form-control" placeholder="Contoh: 0081234567">
         </div>
         <div class="form-group" id="container-edit-kelas" style="display: none;">
           <label>Kelas</label>
           <select id="edit-kelas" class="form-control">
             <option value="">-- Pilih Kelas --</option>
           </select>
+        </div>
+
+        <div class="form-group">
+          <label>Password</label>
+          <input type="text" id="edit-password" class="form-control" required>
         </div>
         <button type="submit" class="btn-submit" id="btn-simpan-edit">💾 Simpan Perubahan</button>
       </form>
@@ -1090,7 +1096,7 @@
     </div>
   </div>
 
-  <!-- LOAD FIREBASE SDK (MODULE) -->
+  <!-- FIREBASE MODULE & CORE SCRIPT -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getFirestore, collection, query, where, getDocs, addDoc, deleteDoc, doc, setDoc, updateDoc, onSnapshot, writeBatch } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -1111,7 +1117,7 @@
     let daftarKelasGlobal = [];
     let cacheListSiswaNilai = [];
     let kelasBinaanAktif = "";
-    let cacheSiswaMandiriData = null; // Menyimpan data rapor siswa yang sedang login
+    let cacheSiswaMandiriData = null;
     let dataSekolahGlobal = {
       nama_sekolah: "SMK Diponegoro 1 Purwokerto",
       alamat_sekolah: "Jl. Diponegoro No. 1, Purwokerto, Kabupaten Banyumas, Jawa Tengah",
@@ -1119,7 +1125,6 @@
       nip_kepsek: "19750812 200003 1 002"
     };
 
-    /* FUNGI BANTUAN URUTKAN KELAS X, XI, XII */
     function urutkanDaftarKelas(arrKelas) {
       const bobotTingkat = (nama) => {
         const u = String(nama).toUpperCase();
@@ -1161,7 +1166,33 @@
 
     window.toggleFieldKelasSiswa = function() {
       const role = document.getElementById("input-role").value;
-      document.getElementById("container-input-kelas").style.display = role === "siswa" ? "block" : "none";
+      const containerSiswa = document.getElementById("container-field-siswa");
+      const labelUser = document.getElementById("label-username");
+
+      if (role === "siswa") {
+        containerSiswa.style.display = "grid";
+        labelUser.innerText = "NIS (Nomor Induk / Username Login)";
+      } else {
+        containerSiswa.style.display = "none";
+        labelUser.innerText = "Username";
+      }
+    };
+
+    window.toggleFieldEditUser = function() {
+      const role = document.getElementById("edit-role").value;
+      const cNisn = document.getElementById("container-edit-nisn");
+      const cKelas = document.getElementById("container-edit-kelas");
+      const labelUser = document.getElementById("edit-label-username");
+
+      if (role === "siswa") {
+        cNisn.style.display = "block";
+        cKelas.style.display = "block";
+        labelUser.innerText = "NIS (Nomor Induk / Username Login)";
+      } else {
+        cNisn.style.display = "none";
+        cKelas.style.display = "none";
+        labelUser.innerText = "Username";
+      }
     };
 
     window.toggleSelectAllItems = function(group, masterCheckbox) {
@@ -1170,21 +1201,20 @@
 
     window.downloadTemplateExcel = function() {
       const templateData = [
-        { nama: "Ahmad Subarjo", username: "ahmad123", password: "pass123", role: "siswa", kelas: daftarKelasGlobal[0] || "X MP 1" },
-        { nama: "Budi Pekerti", username: "budi123", password: "pass123", role: "waka", kelas: "" }
+        { nama: "Ahmad Subarjo", "username/NIS": "12345", nisn: "0081234567", password: "pass123", role: "siswa", kelas: daftarKelasGlobal[0] || "X MP 1" },
+        { nama: "Budi Pekerti", "username/NIS": "budi123", nisn: "", password: "pass123", role: "waka", kelas: "" }
       ];
       const ws = XLSX.utils.json_to_sheet(templateData);
       const strKelas = daftarKelasGlobal.length > 0 ? daftarKelasGlobal.join(",") : "X MP 1,X TSM 1";
       ws['!dataValidation'] = [
-        { sqref: "D2:D100", type: "list", allowBlank: false, formula1: '"guru,waka,siswa,walimurid"' },
-        { sqref: "E2:E100", type: "list", allowBlank: true, formula1: `"${strKelas}"` }
+        { sqref: "E2:E100", type: "list", allowBlank: false, formula1: '"guru,waka,siswa,walimurid"' },
+        { sqref: "F2:F100", type: "list", allowBlank: true, formula1: `"${strKelas}"` }
       ];
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "Template Akun");
       XLSX.writeFile(wb, "Template_Import_Akun_DIPSA.xlsx");
     };
 
-    // MUAT & SIMPAN IDENTITAS SEKOLAH
     function muatIdentitasSekolahRealtime() {
       onSnapshot(doc(db, "pengaturan_sekolah", "identitas"), (docSnap) => {
         if (docSnap.exists()) {
@@ -1195,7 +1225,7 @@
           document.getElementById("input-nama-kepsek").value = dataSekolahGlobal.nama_kepsek || "";
           document.getElementById("input-nip-kepsek").value = dataSekolahGlobal.nip_kepsek || "";
 
-          document.getElementById("dash-app-brand").innerText = dataSekolahGlobal.nama_sekolah.toUpperCase();
+          document.getElementById("dash-app-brand").innerText = (dataSekolahGlobal.nama_sekolah || "").toUpperCase();
         }
       });
     }
@@ -1218,11 +1248,11 @@
       } catch (err) { alert("Gagal menyimpan identitas: " + err.message); }
     };
 
-    // PROSES LOGIN
+    /* PROSES LOGIN DENGAN CONVERT TO STRING AGAR BEBAS BUG */
     window.prosesLogin = async function(e) {
       e.preventDefault();
-      const usernameInput = document.getElementById("username").value.trim();
-      const passwordInput = document.getElementById("password").value.trim();
+      const usernameInput = String(document.getElementById("username").value).trim();
+      const passwordInput = String(document.getElementById("password").value).trim();
       const loading = document.getElementById("loading-login");
       const err = document.getElementById("err-login");
       const btn = document.getElementById("btn-login");
@@ -1232,7 +1262,7 @@
       btn.disabled = true;
 
       if (usernameInput === "admin" && passwordInput === "123456") {
-        currentUser = { nama: "Administrator Utama", username: "admin", role: "admin", kelas: "" };
+        currentUser = { nama: "Administrator Utama", username: "admin", role: "admin", kelas: "", nisn: "" };
         loading.style.display = "none";
         btn.disabled = false;
         await tampilkanDashboardDinamis(currentUser);
@@ -1272,7 +1302,7 @@
       const menuList = document.getElementById("menu-list-container");
       menuList.innerHTML = "";
 
-      const r = user.role.toLowerCase();
+      const r = (user.role || '').toLowerCase();
       muatIdentitasSekolahRealtime();
       muatMasterKelasRealtime();
 
@@ -1289,7 +1319,7 @@
         document.getElementById("container-select-admin-walikelas").style.display = "none";
       }
 
-      const qWali = query(collection(db, "plotting_walikelas"), where("nama_walikelas", "==", user.nama));
+      const qWali = query(collection(db, "plotting_walikelas"), where("nama_walikelas", "==", user.nama.trim()));
       const snapWali = await getDocs(qWali);
       let isWaliKelas = !snapWali.empty;
       
@@ -1361,10 +1391,9 @@
         muatTabelTPRealtime();
 
       } else {
-        // SISWA / WALI MURID
         document.getElementById("container-stat-dashboard").style.display = "none";
         document.getElementById("dash-role-sidebar").innerText = r === "siswa" ? `Siswa (${user.kelas || '-'})` : "Wali Murid";
-        document.getElementById("dash-role").innerText = user.role.toUpperCase();
+        document.getElementById("dash-role").innerText = (user.role || '').toUpperCase();
         
         document.getElementById("text-welcome-sub").innerText = `Selamat datang di Portal Rapor Digital SMK Diponegoro 1 Purwokerto. Anda dapat melihat hasil capaian belajar dan mencetak rapor secara mandiri.`;
 
@@ -1379,21 +1408,22 @@
       }
     }
 
-    /* --- FEATURE MANDIRI UNTUK SISWA / WALI MURID (PANEL RAPOR SISWA) --- */
+    /* SISWA MANDIRI */
     async function muatTabelRaporSiswaMandiri() {
       const tbody = document.getElementById("tabel-rapor-siswa-body");
       if (!tbody || !currentUser) return;
 
       tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Memuat data nilai Anda...</td></tr>';
 
+      const displayNisNisn = currentUser.nisn ? `${currentUser.username} / ${currentUser.nisn}` : currentUser.username;
+
       document.getElementById("view-siswa-nama").innerText = currentUser.nama;
-      document.getElementById("view-siswa-nis").innerText = currentUser.username;
+      document.getElementById("view-siswa-nis").innerText = displayNisNisn;
       document.getElementById("view-siswa-kelas").innerText = currentUser.kelas || "-";
 
       const kelasSiswa = currentUser.kelas;
       const namaSiswa = currentUser.nama;
 
-      // GET DATA CATATAN WALI KELAS & ABSENSI
       const qWaliData = query(collection(db, "walikelas_catatan"), where("kelas", "==", kelasSiswa), where("nama_siswa", "==", namaSiswa));
       const snapWaliData = await getDocs(qWaliData);
       let wData = { sakit: 0, izin: 0, alpa: 0, catatan: "-" };
@@ -1407,6 +1437,7 @@
       cacheSiswaMandiriData = {
         nama: namaSiswa,
         username: currentUser.username,
+        nisn: currentUser.nisn || "",
         kelas: kelasSiswa,
         sakit: wData.sakit || 0,
         izin: wData.izin || 0,
@@ -1414,7 +1445,6 @@
         catatan: wData.catatan || "-"
       };
 
-      // GET NILAI MAPEL
       const qNilai = query(collection(db, "nilai_mapel"), where("kelas", "==", kelasSiswa), where("nama_siswa", "==", namaSiswa));
       const snapNilai = await getDocs(qNilai);
 
@@ -1423,17 +1453,18 @@
 
       snapNilai.forEach(d => {
         const n = d.data();
-        let ket = "";
-        if (n.tp_tinggi) ket += `<b>Capaian Tertinggi:</b> ${n.tp_tinggi}<br>`;
-        if (n.tp_rendah) ket += `<b>Perlu Peningkatan:</b> ${n.tp_rendah}`;
-        if (!ket) ket = "-";
+        let strTinggi = n.tp_tinggi ? `${namaSiswa} menunjukkan pemahaman dalam ${n.tp_tinggi}` : "";
+        let strRendah = n.tp_rendah ? `${namaSiswa} membutuhkan bimbingan dalam ${n.tp_rendah}` : "";
 
         tbody.innerHTML += `
           <tr>
-            <td style="text-align:center;">${no++}</td>
-            <td><b>${n.mapel}</b></td>
-            <td style="text-align:center; font-weight:bold; font-size:14px; color:#1a73e8;">${n.nilai}</td>
-            <td style="font-size:12px;">${ket}</td>
+            <td style="text-align:center; vertical-align:top;">${no++}</td>
+            <td style="vertical-align:top;"><b>${n.mapel}</b></td>
+            <td style="text-align:center; font-weight:bold; font-size:14px; color:#1a73e8; vertical-align:top;">${n.nilai}</td>
+            <td style="font-size:12px; padding:0;">
+              <div style="border-bottom:1px solid #e2e8f0; padding:8px;">${strTinggi || '-'}</div>
+              <div style="padding:8px;">${strRendah || '-'}</div>
+            </td>
           </tr>
         `;
       });
@@ -1451,7 +1482,6 @@
       previewRaporSiswa(cacheSiswaMandiriData);
     };
 
-    /* --- REALTIME STATISTIK --- */
     function muatStatistikDashboardRealtime() {
       onSnapshot(collection(db, "users"), (snapshot) => {
         let countGuru = 0; let countSiswa = 0;
@@ -1473,7 +1503,7 @@
       });
     }
 
-    /* --- MASTER KELAS LOGIC --- */
+    /* MASTER KELAS */
     window.tambahDataKelas = async function(e) {
       e.preventDefault();
       const tingkat = document.getElementById("input-tingkat-kelas").value;
@@ -1525,18 +1555,20 @@
         let no = 1;
         listKelasTemp.forEach((k) => {
           daftarKelasGlobal.push(k.nama_kelas);
-          const dataString = JSON.stringify(k).replace(/'/g, "&apos;");
-
-          tbody.innerHTML += `
-            <tr>
-              <td><input type="checkbox" class="chk-item-kelas" value="${k.id}"></td>
-              <td>${no++}</td>
-              <td><b>${k.nama_kelas}</b></td>
-              <td>${k.tingkat}</td>
-              <td>${k.jurusan}</td>
-              <td><button class="btn-edit" onclick='bukaModalEditKelas(${dataString})'>✏️ Edit</button></td>
-            </tr>`;
           
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td><input type="checkbox" class="chk-item-kelas" value="${k.id}"></td>
+            <td>${no++}</td>
+            <td><b>${k.nama_kelas}</b></td>
+            <td>${k.tingkat}</td>
+            <td>${k.jurusan}</td>
+            <td><button class="btn-edit btn-edit-kelas">✏️ Edit</button></td>
+          `;
+          
+          tr.querySelector('.btn-edit-kelas').addEventListener('click', () => bukaModalEditKelas(k));
+          tbody.appendChild(tr);
+
           const opt = `<option value="${k.nama_kelas}">${k.nama_kelas}</option>`;
           selectSiswa.innerHTML += opt;
           selectWali.innerHTML += opt;
@@ -1602,17 +1634,20 @@
       if(confirm(`Hapus ${selected.length} kelas terpilih?`)) {
         let batch = writeBatch(db);
         let count = 0;
-        selected.forEach(cb => { batch.delete(doc(db, "master_kelas", cb.value)); count++; });
+        selected.forEach(cb => { 
+          batch.delete(doc(db, "master_kelas", cb.value)); 
+          count++; 
+        });
         if(count > 0) { await batch.commit(); alert(`Berhasil menghapus ${count} kelas!`); }
       }
     };
 
-    /* --- MAPEL LOGIC --- */
+    /* MAPEL */
     window.tambahMapel = async function(e) {
       e.preventDefault();
       await addDoc(collection(db, "mapel"), {
-        kode: document.getElementById("input-kode-mapel").value,
-        nama: document.getElementById("input-nama-mapel").value,
+        kode: document.getElementById("input-kode-mapel").value.trim(),
+        nama: document.getElementById("input-nama-mapel").value.trim(),
         tingkat: document.getElementById("input-tingkat-mapel").value
       });
       alert("Mapel disimpan!");
@@ -1627,16 +1662,20 @@
         let no = 1;
         snapshot.forEach((docSnap) => {
           const m = docSnap.data();
-          const dataString = JSON.stringify({ id: docSnap.id, ...m }).replace(/'/g, "&apos;");
-          tbody.innerHTML += `
-            <tr>
-              <td><input type="checkbox" class="chk-item-mapel" value="${docSnap.id}"></td>
-              <td>${no++}</td>
-              <td><b>${m.kode}</b></td>
-              <td>${m.nama}</td>
-              <td>${m.tingkat}</td>
-              <td><button class="btn-edit" onclick='bukaModalEditMapel(${dataString})'>✏️ Edit</button></td>
-            </tr>`;
+          const itemMapel = { id: docSnap.id, ...m };
+
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td><input type="checkbox" class="chk-item-mapel" value="${docSnap.id}"></td>
+            <td>${no++}</td>
+            <td><b>${m.kode}</b></td>
+            <td>${m.nama}</td>
+            <td>${m.tingkat}</td>
+            <td><button class="btn-edit btn-edit-mapel">✏️ Edit</button></td>
+          `;
+
+          tr.querySelector('.btn-edit-mapel').addEventListener('click', () => bukaModalEditMapel(itemMapel));
+          tbody.appendChild(tr);
         });
         if(no === 1) tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Belum ada data mata pelajaran.</td></tr>';
       });
@@ -1679,7 +1718,7 @@
       }
     };
 
-    /* --- FEATURE PANEL WALI KELAS (ABSENSI & CETAK RAPOR) --- */
+    /* PANEL WALI KELAS */
     async function muatTabelWaliKelasSiswa() {
       const tbody = document.getElementById("tabel-walikelas-siswa-body");
       if (!tbody) return;
@@ -1711,20 +1750,25 @@
 
       listSiswa.forEach(s => {
         const wData = mapWaliData[s.nama] || { sakit: 0, izin: 0, alpa: 0, catatan: "-" };
-        const dataString = JSON.stringify({ nama: s.nama, username: s.username, kelas: s.kelas, ...wData }).replace(/'/g, "&apos;");
+        const dataObj = { nama: s.nama, username: s.username, nisn: s.nisn || "", kelas: s.kelas, ...wData };
 
-        tbody.innerHTML += `
-          <tr>
-            <td>${no++}</td>
-            <td><b>${s.nama}</b><br><small style="color:#666;">NIS: ${s.username}</small></td>
-            <td>S: <b>${wData.sakit || 0}</b> | I: <b>${wData.izin || 0}</b> | A: <b>${wData.alpa || 0}</b></td>
-            <td>${wData.catatan || '-'}</td>
-            <td>
-              <button class="btn-edit" style="margin-right:4px;" onclick='bukaModalCatatanWali(${dataString})'>✏️ Edit</button>
-              <button class="btn-submit" style="padding:5px 10px; font-size:12px; width:auto;" onclick='previewRaporSiswa(${dataString})'>📄 Rapor</button>
-            </td>
-          </tr>
+        const displayNis = s.nisn ? `NIS: ${s.username} / NISN: ${s.nisn}` : `NIS: ${s.username}`;
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${no++}</td>
+          <td><b>${s.nama}</b><br><small style="color:#666;">${displayNis}</small></td>
+          <td>S: <b>${wData.sakit || 0}</b> | I: <b>${wData.izin || 0}</b> | A: <b>${wData.alpa || 0}</b></td>
+          <td>${wData.catatan || '-'}</td>
+          <td>
+            <button class="btn-edit btn-edit-catatan" style="margin-right:4px;">✏️ Edit</button>
+            <button class="btn-submit btn-preview-rapor" style="padding:5px 10px; font-size:12px; width:auto;">📄 Rapor</button>
+          </td>
         `;
+
+        tr.querySelector('.btn-edit-catatan').addEventListener('click', () => bukaModalCatatanWali(dataObj));
+        tr.querySelector('.btn-preview-rapor').addEventListener('click', () => previewRaporSiswa(dataObj));
+        tbody.appendChild(tr);
       });
 
       if (no === 1) {
@@ -1778,14 +1822,16 @@
 
     window.previewRaporSiswa = async function(dataSiswa) {
       document.getElementById("rp-header-nama-sekolah").innerText = (dataSekolahGlobal.nama_sekolah || "SMK DIPONEGORO 1 PURWOKERTO").toUpperCase();
-      document.getElementById("rp-header-alamat-sekolah").innerText = dataSekolahGlobal.alamat_sekolah || "Jl. Diponegoro No. 1, Purwokerto, Kabupaten Banyumas, Jawa Tengah";
-      document.getElementById("rp-meta-nama-sekolah").innerText = dataSekolahGlobal.nama_sekolah || "SMK Diponegoro 1 Purwokerto";
-      document.getElementById("rp-ttd-nama-sekolah").innerText = dataSekolahGlobal.nama_sekolah || "SMK Diponegoro 1 Purwokerto";
+      document.getElementById("rp-header-alamat-sekolah").innerText = dataSekolahGlobal.alamat_sekolah || "";
+      document.getElementById("rp-meta-nama-sekolah").innerText = dataSekolahGlobal.nama_sekolah || "";
+      document.getElementById("rp-ttd-nama-sekolah").innerText = dataSekolahGlobal.nama_sekolah || "";
       document.getElementById("rp-ttd-nama-kepsek").innerText = dataSekolahGlobal.nama_kepsek || "............................................................";
       document.getElementById("rp-ttd-nip-kepsek").innerText = dataSekolahGlobal.nip_kepsek || "...................................";
 
+      const formattedNisNisn = dataSiswa.nisn ? `${dataSiswa.username} / ${dataSiswa.nisn}` : dataSiswa.username;
+
       document.getElementById("rp-nama-siswa").innerText = dataSiswa.nama;
-      document.getElementById("rp-username-siswa").innerText = dataSiswa.username;
+      document.getElementById("rp-username-siswa").innerText = formattedNisNisn;
       document.getElementById("rp-kelas-siswa").innerText = dataSiswa.kelas;
       document.getElementById("rp-absensi-sakit").innerText = (dataSiswa.sakit || 0) + " Hari";
       document.getElementById("rp-absensi-izin").innerText = (dataSiswa.izin || 0) + " Hari";
@@ -1794,7 +1840,7 @@
 
       const qWaliKelasResmi = query(collection(db, "plotting_walikelas"), where("kelas", "==", dataSiswa.kelas));
       const snapWaliResmi = await getDocs(qWaliKelasResmi);
-      let namaWaliResmi = currentUser.nama;
+      let namaWaliResmi = currentUser ? currentUser.nama : "Wali Kelas";
       snapWaliResmi.forEach(d => { namaWaliResmi = d.data().nama_walikelas; });
 
       document.getElementById("rp-nama-walikelas").innerText = namaWaliResmi;
@@ -1810,17 +1856,18 @@
 
       snapNilai.forEach(d => {
         const n = d.data();
-        let ket = "";
-        if (n.tp_tinggi) ket += `<b>Capaian Tertinggi:</b> ${n.tp_tinggi}<br>`;
-        if (n.tp_rendah) ket += `<b>Perlu Peningkatan:</b> ${n.tp_rendah}`;
-        if (!ket) ket = "-";
+        let strTinggi = n.tp_tinggi ? `${dataSiswa.nama} menunjukkan pemahaman dalam ${n.tp_tinggi}` : "";
+        let strRendah = n.tp_rendah ? `${dataSiswa.nama} membutuhkan bimbingan dalam ${n.tp_rendah}` : "";
 
         tbody.innerHTML += `
           <tr>
-            <td style="border:1px solid #000; padding:6px; text-align:center;">${no++}</td>
-            <td style="border:1px solid #000; padding:6px;"><b>${n.mapel}</b></td>
-            <td style="border:1px solid #000; padding:6px; text-align:center; font-weight:bold;">${n.nilai}</td>
-            <td style="border:1px solid #000; padding:6px; font-size:11px;">${ket}</td>
+            <td style="border:1px solid #000; padding:6px; text-align:center; vertical-align:middle;">${no++}</td>
+            <td style="border:1px solid #000; padding:6px; vertical-align:middle;"><b>${n.mapel}</b></td>
+            <td style="border:1px solid #000; padding:6px; text-align:center; font-weight:bold; vertical-align:middle;">${n.nilai}</td>
+            <td style="border:1px solid #000; padding:0; font-size:11px; vertical-align:top;">
+              <div style="border-bottom:1px solid #000; padding:6px;">${strTinggi || '-'}</div>
+              <div style="padding:6px;">${strRendah || '-'}</div>
+            </td>
           </tr>
         `;
       });
@@ -1836,7 +1883,7 @@
       document.getElementById("modal-preview-rapor").style.display = "none";
     };
 
-    /* --- GURU MAPEL (TP & NILAI) --- */
+    /* GURU MAPEL (TP & NILAI) */
     function muatDropdownMapelGuru() {
       onSnapshot(collection(db, "mapel"), (snapshot) => {
         const sel1 = document.getElementById("guru-select-mapel-tp");
@@ -1946,8 +1993,11 @@
           <td><input type="number" id="nilai-${no}" class="form-control" value="${existing.nilai}" placeholder="0-100" min="0" max="100"></td>
           <td><select id="tphigh-${no}" class="form-control">${tpHighOptions}</select></td>
           <td><select id="tplow-${no}" class="form-control">${tpLowOptions}</select></td>
-          <td><button class="btn-submit" style="padding: 6px 12px; font-size: 12px;" onclick="simpanNilaiSiswa('${s.nama}', ${no})">Simpan</button></td>
+          <td><button class="btn-submit btn-simpan-satu" style="padding: 6px 12px; font-size: 12px;">Simpan</button></td>
         `;
+        
+        const indexCurrent = no;
+        tr.querySelector('.btn-simpan-satu').addEventListener('click', () => simpanNilaiSiswa(s.nama, indexCurrent));
         tbody.appendChild(tr);
 
         if(existing.tp_tinggi) document.getElementById(`tphigh-${no}`).value = existing.tp_tinggi;
@@ -1983,6 +2033,7 @@
       } catch(err) { alert("Gagal menyimpan: " + err.message); }
     };
 
+    /* AMAN BATCH KETIKA JUMLAH DATA BESAR */
     window.simpanSemuaNilaiKolektif = async function() {
       const mapel = document.getElementById("guru-select-mapel-nilai").value;
       const kelas = document.getElementById("guru-select-kelas-nilai").value;
@@ -2008,6 +2059,12 @@
               nilai: Number(nilai), tp_tinggi: tpTinggi, tp_rendah: tpRendah, guru: currentUser.nama
             });
             count++;
+
+            // Mencegah error limit 500 batch
+            if (count % 400 === 0) {
+              await batch.commit();
+              batch = writeBatch(db);
+            }
           }
         }
 
@@ -2038,7 +2095,7 @@
       XLSX.writeFile(wb, `Template_Nilai_${mapel}_${kelas}.xlsx`);
     };
 
-    /* --- LEGER REKAP NILAI & MONITORING --- */
+    /* LEGER REKAP NILAI */
     window.generateLegerNilaiKelas = async function() {
       const kelas = document.getElementById("waka-select-kelas-leger").value;
       const container = document.getElementById("container-tabel-leger");
@@ -2176,7 +2233,7 @@
       if (no === 1) tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Belum ada mata pelajaran terdaftar.</td></tr>';
     }
 
-    /* --- PLOTTING WALI KELAS --- */
+    /* PLOTTING WALI KELAS */
     function muatOpsiDropdownWaliKelas() {
       onSnapshot(query(collection(db, "users"), where("role", "in", ["guru", "walikelas", "waka", "gurumapel"])), (snapshot) => {
         const select = document.getElementById("select-wali-kelas");
@@ -2192,7 +2249,7 @@
         listGuru.sort((a, b) => a.nama.localeCompare(b.nama, undefined, { sensitivity: 'base' }));
 
         listGuru.forEach(u => {
-          const opt = `<option value="${u.nama}">${u.nama} (${u.username})</option>`;
+          const opt = `<option value="${u.nama.trim()}">${u.nama} (${u.username})</option>`;
           select.innerHTML += opt;
           if(selectEdit) selectEdit.innerHTML += opt;
         });
@@ -2202,7 +2259,7 @@
     window.simpanPlottingWali = async function(e) {
       e.preventDefault();
       await addDoc(collection(db, "plotting_walikelas"), {
-        nama_walikelas: document.getElementById("select-wali-kelas").value,
+        nama_walikelas: document.getElementById("select-wali-kelas").value.trim(),
         kelas: document.getElementById("select-kelas-binaan").value
       });
       alert("Penetapan wali kelas disimpan!");
@@ -2222,15 +2279,17 @@
 
         let no = 1;
         listPlotting.forEach((w) => {
-          const dataString = JSON.stringify(w).replace(/'/g, "&apos;");
-          tbody.innerHTML += `
-            <tr>
-              <td><input type="checkbox" class="chk-item-walikelas_plot" value="${w.id}"></td>
-              <td>${no++}</td>
-              <td><b>${w.nama_walikelas}</b></td>
-              <td>${w.kelas}</td>
-              <td><button class="btn-edit" onclick='bukaModalEditWali(${dataString})'>✏️ Edit</button></td>
-            </tr>`;
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td><input type="checkbox" class="chk-item-walikelas_plot" value="${w.id}"></td>
+            <td>${no++}</td>
+            <td><b>${w.nama_walikelas}</b></td>
+            <td>${w.kelas}</td>
+            <td><button class="btn-edit btn-edit-plot">✏️ Edit</button></td>
+          `;
+
+          tr.querySelector('.btn-edit-plot').addEventListener('click', () => bukaModalEditWali(w));
+          tbody.appendChild(tr);
         });
         if(no === 1) tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Belum ada penugasan wali kelas.</td></tr>';
       });
@@ -2252,7 +2311,7 @@
       const docId = document.getElementById("edit-walikelas-id").value;
       try {
         await updateDoc(doc(db, "plotting_walikelas", docId), {
-          nama_walikelas: document.getElementById("edit-select-wali-kelas").value,
+          nama_walikelas: document.getElementById("edit-select-wali-kelas").value.trim(),
           kelas: document.getElementById("edit-select-kelas-binaan").value
         });
         alert("Plotting Wali Kelas berhasil diperbarui!");
@@ -2271,30 +2330,34 @@
       }
     };
 
-    /* --- USER MANAGEMENT --- */
+    /* MANAJEMEN USER */
     window.tambahUserSatuan = async function(e) {
       e.preventDefault();
       const btn = document.getElementById("btn-tambah-user");
       btn.disabled = true;
       const role = document.getElementById("input-role").value;
       const kelas = role === "siswa" ? document.getElementById("input-kelas-siswa").value : "";
+      const nisn = role === "siswa" ? String(document.getElementById("input-nisn-siswa").value).trim() : "";
 
       try {
         await addDoc(collection(db, "users"), {
-          nama: document.getElementById("input-nama").value,
+          nama: document.getElementById("input-nama").value.trim(),
           role: role,
-          username: document.getElementById("input-username").value,
-          password: document.getElementById("input-password").value,
-          kelas: kelas
+          username: String(document.getElementById("input-username").value).trim(),
+          password: String(document.getElementById("input-password").value).trim(),
+          kelas: kelas,
+          nisn: nisn
         });
         alert("Akun berhasil ditambahkan!");
         document.getElementById("input-nama").value = "";
         document.getElementById("input-username").value = "";
         document.getElementById("input-password").value = "";
+        document.getElementById("input-nisn-siswa").value = "";
       } catch (err) { alert("Gagal: " + err.message); } 
       finally { btn.disabled = false; }
     };
 
+    /* IMPORT EXCEL DENGAN KEAMANAN OVER-LIMIT BATCH */
     window.prosesImportExcel = function() {
       const fileInput = document.getElementById("file-excel");
       const statusDiv = document.getElementById("status-import");
@@ -2315,19 +2378,32 @@
           let count = 0;
 
           for (let row of jsonData) {
-            if (row.nama && row.username && row.password && row.role) {
+            const usr = row['username/NIS'] !== undefined ? row['username/NIS'] : row.username;
+
+            if (row.nama && usr !== undefined && row.password && row.role) {
               batch.set(doc(collection(db, "users")), {
-                nama: String(row.nama),
-                username: String(row.username),
-                password: String(row.password),
-                role: String(row.role).toLowerCase(),
-                kelas: row.kelas ? String(row.kelas) : ""
+                nama: String(row.nama).trim(),
+                username: String(usr).trim(),
+                password: String(row.password).trim(),
+                role: String(row.role).toLowerCase().trim(),
+                kelas: row.kelas ? String(row.kelas).trim() : "",
+                nisn: row.nisn ? String(row.nisn).trim() : ""
               });
               count++;
-              if (count % 400 === 0) { await batch.commit(); batch = writeBatch(db); }
+              
+              if (count % 400 === 0) { 
+                await batch.commit(); 
+                batch = writeBatch(db); 
+              }
             }
           }
-          if (count > 0) { await batch.commit(); alert(`Berhasil mengimpor ${count} akun!`); fileInput.value = ""; }
+          if (count > 0) { 
+            await batch.commit(); 
+            alert(`Berhasil mengimpor ${count} akun!`); 
+            fileInput.value = ""; 
+          } else { 
+            alert("Tidak ada data akun valid yang dapat diimpor."); 
+          }
         } catch (err) { alert("Gagal: " + err.message); } 
         finally { btn.disabled = false; statusDiv.innerText = ""; }
       };
@@ -2355,7 +2431,7 @@
           let no = 1;
 
           if(dataGroup[r].length === 0) {
-            const colspan = r === 'siswa' || r === 'guru' ? 7 : 6;
+            const colspan = r === 'siswa' ? 8 : (r === 'guru' ? 7 : 6);
             tbody.innerHTML = `<tr><td colspan="${colspan}" style="text-align:center;">Belum ada akun ${r}.</td></tr>`;
             return;
           }
@@ -2364,7 +2440,6 @@
 
           dataGroup[r].forEach(u => {
             const tr = document.createElement("tr");
-            const dataString = JSON.stringify(u).replace(/'/g, "&apos;");
 
             if(r === 'siswa') {
               tr.innerHTML = `
@@ -2372,9 +2447,10 @@
                 <td>${no++}</td>
                 <td><b>${u.nama}</b></td>
                 <td>${u.username}</td>
+                <td>${u.nisn || '-'}</td>
                 <td>${u.password}</td>
                 <td><b>${u.kelas || '-'}</b></td>
-                <td><button class="btn-edit" onclick='bukaModalEdit(${dataString})'>✏️ Edit</button></td>
+                <td><button class="btn-edit btn-edit-user">✏️ Edit</button></td>
               `;
             } else if(r === 'guru') {
               tr.innerHTML = `
@@ -2384,7 +2460,7 @@
                 <td>${u.username}</td>
                 <td>${u.password}</td>
                 <td><span class="badge-role">${u.role}</span></td>
-                <td><button class="btn-edit" onclick='bukaModalEdit(${dataString})'>✏️ Edit</button></td>
+                <td><button class="btn-edit btn-edit-user">✏️ Edit</button></td>
               `;
             } else {
               tr.innerHTML = `
@@ -2393,9 +2469,11 @@
                 <td><b>${u.nama}</b></td>
                 <td>${u.username}</td>
                 <td>${u.password}</td>
-                <td><button class="btn-edit" onclick='bukaModalEdit(${dataString})'>✏️ Edit</button></td>
+                <td><button class="btn-edit btn-edit-user">✏️ Edit</button></td>
               `;
             }
+
+            tr.querySelector('.btn-edit-user').addEventListener('click', () => bukaModalEdit(u));
             tbody.appendChild(tr);
           });
         });
@@ -2409,13 +2487,13 @@
       document.getElementById("edit-username").value = user.username;
       document.getElementById("edit-password").value = user.password;
 
-      const containerKelas = document.getElementById("container-edit-kelas");
+      toggleFieldEditUser();
+
       if (user.role.toLowerCase() === "siswa") {
-        containerKelas.style.display = "block";
+        document.getElementById("edit-nisn").value = user.nisn || "";
         document.getElementById("edit-kelas").value = user.kelas || "";
-      } else {
-        containerKelas.style.display = "none";
       }
+
       document.getElementById("modal-edit-user").style.display = "flex";
     };
 
@@ -2426,14 +2504,22 @@
     window.simpanPerubahanUser = async function(e) {
       e.preventDefault();
       const docId = document.getElementById("edit-doc-id").value;
+      const role = document.getElementById("edit-role").value;
+
       const updateData = {
-        nama: document.getElementById("edit-nama").value,
-        role: document.getElementById("edit-role").value,
-        username: document.getElementById("edit-username").value,
-        password: document.getElementById("edit-password").value
+        nama: document.getElementById("edit-nama").value.trim(),
+        role: role,
+        username: String(document.getElementById("edit-username").value).trim(),
+        password: String(document.getElementById("edit-password").value).trim()
       };
-      const editKelasVal = document.getElementById("edit-kelas").value;
-      if (editKelasVal) updateData.kelas = editKelasVal;
+
+      if (role === "siswa") {
+        updateData.nisn = String(document.getElementById("edit-nisn").value).trim();
+        updateData.kelas = document.getElementById("edit-kelas").value;
+      } else {
+        updateData.nisn = "";
+        updateData.kelas = "";
+      }
 
       try {
         await updateDoc(doc(db, "users", docId), updateData);
@@ -2452,7 +2538,10 @@
       if(confirm(`Hapus ${selected.length} akun terpilih?`)) {
         let batch = writeBatch(db);
         let count = 0;
-        selected.forEach(cb => { batch.delete(doc(db, "users", cb.value)); count++; });
+        selected.forEach(cb => { 
+          batch.delete(doc(db, "users", cb.value)); 
+          count++; 
+        });
         if(count > 0) { await batch.commit(); alert(`Berhasil menghapus ${count} akun!`); }
       }
     };
