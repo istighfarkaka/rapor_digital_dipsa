@@ -336,7 +336,7 @@
             <div class="section-card" id="card-panduan-beranda">
               <div class="section-title" style="color:#1e293b; font-size:16px; margin-bottom:12px; font-weight:bold;">📌 Panduan & Fitur Rapor Digital</div>
               <ul style="padding-left: 20px; font-size: 13px; color: #475569; line-height: 1.8;">
-                <li><b>Waka Kurikulum:</b> Mengatur Semester Aktif, Tahun Ajaran, Kelas, Mapel, Penugasan Wali Kelas, Leger Nilai, dan Monitoring Guru.</li>
+                <li><b>Waka Kurikulum:</b> Mengatur Semester Aktif, Tahun Ajaran, Fase, Tanggal Rapor, Kelas, Mapel, Penugasan Wali Kelas, Leger Nilai, dan Monitoring Guru.</li>
                 <li><b>Guru Mapel:</b> Menginput Tujuan Pembelajaran (TP) serta mengisi Nilai Rapor & Capaian TP.</li>
                 <li><b>Wali Kelas:</b> Menginput Absensi, Ekstrakurikuler, Catatan, Keputusan Kenaikan/Kelulusan (Genap), dan Cetak Rapor.</li>
                 <li><b>Siswa / Wali Murid:</b> Melihat rangkuman hasil belajar serta mencetak lembar Rapor Digital.</li>
@@ -347,26 +347,43 @@
           <!-- PANEL 1: DATA AKADEMIK & KELAS -->
           <div class="content-panel" id="panel-akademik">
             
-            <!-- 0) PENGATURAN SEMESTER & TAHUN AJARAN (BARU) -->
+            <!-- 0) PENGATURAN SEMESTER, FASE, TAHUN AJARAN & TANGGAL RAPOR -->
             <div class="section-card card-semester">
-              <div class="section-title">⚙️ Pengaturan Semester Aktif & Tahun Ajaran</div>
-              <p style="font-size:13px; color:#666; margin-bottom:15px;">Pengaturan ini akan langsung tercetak di Kop Rapor dan mengaktifkan fitur khusus (seperti Kenaikan Kelas pada semester Genap).</p>
+              <div class="section-title">⚙️ Pengaturan Semester, Fase, Tahun Ajaran & Tanggal Rapor</div>
+              <p style="font-size:13px; color:#666; margin-bottom:15px;">Pengaturan ini akan langsung tercetak di Kop Rapor dan menentukan tanggal penerbitan rapor resmi.</p>
               
               <form onsubmit="simpanPengaturanSemester(event)">
                 <div class="grid-2">
                   <div class="form-group">
                     <label>Semester Aktif</label>
                     <select id="setting-semester" class="form-control" required>
-                      <option value="Ganjil">Semester Ganjil (1)</option>
-                      <option value="Genap">Semester Genap (2)</option>
+                      <option value="Ganjil">Ganjil</option>
+                      <option value="Genap">Genap</option>
                     </select>
                   </div>
+                  <div class="form-group">
+                    <label>Fase Pembelajaran</label>
+                    <select id="setting-fase" class="form-control" required>
+                      <option value="A">Fase A</option>
+                      <option value="B">Fase B</option>
+                      <option value="C">Fase C</option>
+                      <option value="D">Fase D</option>
+                      <option value="E">Fase E</option>
+                      <option value="F" selected>Fase F</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="grid-2">
                   <div class="form-group">
                     <label>Tahun Ajaran</label>
                     <input type="text" id="setting-tahun-ajaran" class="form-control" placeholder="Contoh: 2026/2027" required>
                   </div>
+                  <div class="form-group">
+                    <label>Tempat, Tanggal Penerbitan Rapor</label>
+                    <input type="text" id="setting-tanggal-rapor" class="form-control" placeholder="Contoh: Purwokerto, 22 Oktober 2026" required>
+                  </div>
                 </div>
-                <button type="submit" class="btn-submit" style="background-color: #9333ea; max-width: 250px;">💾 Simpan Semester & TP</button>
+                <button type="submit" class="btn-submit" style="background-color: #9333ea; max-width: 280px;">💾 Simpan Pengaturan Rapor</button>
               </form>
             </div>
 
@@ -1102,7 +1119,7 @@
               <p><b>( ......................................... )</b></p>
             </div>
             <div style="width: 40%;">
-              <p>Purwokerto, 22 September 2026</p>
+              <p id="rp-tanggal-penerbitan">Purwokerto, 22 Oktober 2026</p>
               <p>Wali Kelas,</p>
               <br><br>
               <p><b id="rp-nama-walikelas">( ......................................... )</b></p>
@@ -1291,7 +1308,9 @@
       nama_kepsek: "Drs. H. Ahmad Sudrajat, M.Pd.",
       nip_kepsek: "19750812 200003 1 002",
       semester_aktif: "Ganjil",
-      tahun_ajaran: "2026/2027"
+      fase_aktif: "F",
+      tahun_ajaran: "2026/2027",
+      tanggal_rapor: "Purwokerto, 22 Oktober 2026"
     };
 
     function urutkanDaftarKelas(arrKelas) {
@@ -1404,7 +1423,9 @@
           document.getElementById("input-nip-kepsek").value = dataSekolahGlobal.nip_kepsek || "";
 
           document.getElementById("setting-semester").value = dataSekolahGlobal.semester_aktif || "Ganjil";
+          document.getElementById("setting-fase").value = dataSekolahGlobal.fase_aktif || "F";
           document.getElementById("setting-tahun-ajaran").value = dataSekolahGlobal.tahun_ajaran || "2026/2027";
+          document.getElementById("setting-tanggal-rapor").value = dataSekolahGlobal.tanggal_rapor || "Purwokerto, 22 Oktober 2026";
 
           document.getElementById("dash-app-brand").innerText = (dataSekolahGlobal.nama_sekolah || "").toUpperCase();
           document.getElementById("dash-info-semester").innerText = `Semester ${dataSekolahGlobal.semester_aktif || 'Ganjil'} | TP ${dataSekolahGlobal.tahun_ajaran || '2026/2027'}`;
@@ -1428,16 +1449,20 @@
     window.simpanPengaturanSemester = async function(e) {
       e.preventDefault();
       const sem = document.getElementById("setting-semester").value;
+      const fase = document.getElementById("setting-fase").value;
       const ta = document.getElementById("setting-tahun-ajaran").value.trim();
+      const tglRapor = document.getElementById("setting-tanggal-rapor").value.trim();
 
       try {
         await setDoc(doc(db, "pengaturan_sekolah", "identitas"), {
           semester_aktif: sem,
-          tahun_ajaran: ta
+          fase_aktif: fase,
+          tahun_ajaran: ta,
+          tanggal_rapor: tglRapor
         }, { merge: true });
-        alert(`Semester Aktif berhasil diubah ke ${sem} (${ta})!`);
+        alert(`Pengaturan Rapor (Semester ${sem}, Fase ${fase}) berhasil diperbarui!`);
         muatTabelWaliKelasSiswa();
-      } catch (err) { alert("Gagal menyimpan semester: " + err.message); }
+      } catch (err) { alert("Gagal menyimpan pengaturan: " + err.message); }
     };
 
     window.prosesLogin = async function(e) {
@@ -2228,24 +2253,34 @@
       document.getElementById("rp-kelas-siswa").innerText = dataSiswa.kelas;
 
       const semAktif = dataSekolahGlobal.semester_aktif || "Ganjil";
+      const faseAktif = dataSekolahGlobal.fase_aktif || "F";
       const taAktif = dataSekolahGlobal.tahun_ajaran || "2026/2027";
-      const semAngka = semAktif.toLowerCase() === "ganjil" ? "1 (Satu)" : "2 (Dua)";
+      const tglRapor = dataSekolahGlobal.tanggal_rapor || "Purwokerto, 22 Oktober 2026";
 
-      document.getElementById("rp-semester-siswa").innerText = `F / ${semAktif} (${semAngka})`;
+      document.getElementById("rp-semester-siswa").innerText = `${faseAktif} / ${semAktif}`;
       document.getElementById("rp-tp-siswa").innerText = taAktif;
+      document.getElementById("rp-tanggal-penerbitan").innerText = tglRapor;
       
-      document.getElementById("rp-absensi-sakit").innerText = (dataSiswa.sakit || 0) + " Hari";
-      document.getElementById("rp-absensi-izin").innerText = (dataSiswa.izin || 0) + " Hari";
-      document.getElementById("rp-absensi-alpa").innerText = (dataSiswa.alpa || 0) + " Hari";
+      // Mengambil data Wali Kelas Catatan realtime terkini dari Firestore
+      const docId = `wali_${dataSiswa.kelas}_${dataSiswa.nama}`.replace(/\s+/g, '_');
+      const snapDocWali = await getDocs(query(collection(db, "walikelas_catatan"), where("kelas", "==", dataSiswa.kelas), where("nama_siswa", "==", dataSiswa.nama)));
+      let liveDataWali = dataSiswa;
+      if (!snapDocWali.empty) {
+        snapDocWali.forEach(d => { liveDataWali = { ...liveDataWali, ...d.data() }; });
+      }
+
+      document.getElementById("rp-absensi-sakit").innerText = (liveDataWali.sakit || 0) + " Hari";
+      document.getElementById("rp-absensi-izin").innerText = (liveDataWali.izin || 0) + " Hari";
+      document.getElementById("rp-absensi-alpa").innerText = (liveDataWali.alpa || 0) + " Hari";
       
-      document.getElementById("rp-catatan-wali").innerText = dataSiswa.catatan || "-";
+      document.getElementById("rp-catatan-wali").innerText = liveDataWali.catatan || "-";
 
-      document.getElementById("rp-ekstra1-nama").innerText = dataSiswa.ekstra1_nama || "-";
-      document.getElementById("rp-ekstra1-ket").innerText = dataSiswa.ekstra1_ket || "-";
-      document.getElementById("rp-ekstra2-nama").innerText = dataSiswa.ekstra2_nama || "-";
-      document.getElementById("rp-ekstra2-ket").innerText = dataSiswa.ekstra2_ket || "-";
+      document.getElementById("rp-ekstra1-nama").innerText = liveDataWali.ekstra1_nama || "-";
+      document.getElementById("rp-ekstra1-ket").innerText = liveDataWali.ekstra1_ket || "-";
+      document.getElementById("rp-ekstra2-nama").innerText = liveDataWali.ekstra2_nama || "-";
+      document.getElementById("rp-ekstra2-ket").innerText = liveDataWali.ekstra2_ket || "-";
 
-      document.getElementById("rp-tanggapan-ortu").innerText = dataSiswa.tanggapan_ortu || "";
+      document.getElementById("rp-tanggapan-ortu").innerText = liveDataWali.tanggapan_ortu || "";
 
       // GENERATE KEPUTUSAN SEMESTER GENAP
       const boxKep = document.getElementById("rp-container-keputusan");
@@ -2253,24 +2288,24 @@
 
       if (semAktif.toLowerCase() === "genap") {
         boxKep.style.display = "block";
-        const kep = dataSiswa.keputusan;
-        const kelasAwal = dataSiswa.kelas;
+        const kep = liveDataWali.keputusan;
+        const kelasAwal = liveDataWali.kelas;
         const isKelas12 = kelasAwal.toUpperCase().startsWith("XII");
 
         if (isKelas12) {
           if (kep === "lulus") {
-            txtKep.innerHTML = `Berdasarkan hasil pengamatan dan penilaian perkembangan selama di <b>${namaSekolahResmi}</b>, maka siswa <b>${dataSiswa.nama}</b> dinyatakan <b>LULUS</b>.`;
+            txtKep.innerHTML = `Berdasarkan hasil pengamatan dan penilaian perkembangan selama di <b>${namaSekolahResmi}</b>, maka siswa <b>${liveDataWali.nama}</b> dinyatakan <b>LULUS</b>.`;
           } else if (kep === "tidak_lulus") {
-            txtKep.innerHTML = `Berdasarkan hasil pengamatan dan penilaian perkembangan selama di <b>${namaSekolahResmi}</b>, maka siswa <b>${dataSiswa.nama}</b> dinyatakan <b>TIDAK LULUS</b>.`;
+            txtKep.innerHTML = `Berdasarkan hasil pengamatan dan penilaian perkembangan selama di <b>${namaSekolahResmi}</b>, maka siswa <b>${liveDataWali.nama}</b> dinyatakan <b>TIDAK LULUS</b>.`;
           } else {
             txtKep.innerHTML = `Keputusan kelulusan belum ditentukan oleh Wali Kelas.`;
           }
         } else {
           if (kep === "naik") {
             const kelasNaik = hitungKelasTujuan(kelasAwal);
-            txtKep.innerHTML = `Berdasarkan hasil pengamatan dan penilaian perkembangan selama satu tahun, maka siswa <b>${dataSiswa.nama}</b> dinyatakan <b>NAIK KE KELAS ${kelasNaik}</b>.`;
+            txtKep.innerHTML = `Berdasarkan hasil pengamatan dan penilaian perkembangan selama satu tahun, maka siswa <b>${liveDataWali.nama}</b> dinyatakan <b>NAIK KE KELAS ${kelasNaik}</b>.`;
           } else if (kep === "tinggal") {
-            txtKep.innerHTML = `Berdasarkan hasil pengamatan dan penilaian perkembangan selama satu tahun, maka siswa <b>${dataSiswa.nama}</b> dinyatakan <b>TINGGAL DI KELAS ${kelasAwal}</b>.`;
+            txtKep.innerHTML = `Berdasarkan hasil pengamatan dan penilaian perkembangan selama satu tahun, maka siswa <b>${liveDataWali.nama}</b> dinyatakan <b>TINGGAL DI KELAS ${kelasAwal}</b>.`;
           } else {
             txtKep.innerHTML = `Keputusan kenaikan kelas belum ditentukan oleh Wali Kelas.`;
           }
