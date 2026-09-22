@@ -12,17 +12,40 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     body { background-color: #f0f2f5; height: 100vh; overflow: hidden; }
     
-    /* HALAMAN LOGIN */
-    .screen-login-container { display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; background-color: #f0f2f5; }
-    .login-card { background: #ffffff; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); width: 100%; max-width: 420px; padding: 25px; }
+    /* HALAMAN LOGIN DENGAN BACKGROUND GAMBAR */
+    .screen-login-container { 
+      display: flex; 
+      justify-content: center; 
+      align-items: center; 
+      min-height: 100vh; 
+      padding: 20px; 
+      background-image: url('https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhydqKQ1JuvtQPYiLfxBx5e8wQ5BuN4WDK_FZMTmjsaYhLqbef03r9J7chJKML58BBoxE52W5rvJcgDAWG7WGnEnNSEIkVK7ReFuqfedmNf83cJZma_wkxNYE5wpQCiOba6PuGy_jKVaUer2XrMQH216Pfk0V9_pgDmVRP7daDePltHGkg7k3RAylX9LtW4/s2816/Gemini_Generated_Image_gc9ddfgc9ddfgc9d.jpg'); 
+      background-size: cover; 
+      background-position: center; 
+      background-repeat: no-repeat; 
+      position: relative;
+    }
+
+    /* Kartu login transparan modern dengan efek Glassmorphism */
+    .login-card { 
+      background: rgba(255, 255, 255, 0.92); 
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border-radius: 16px; 
+      box-shadow: 0 12px 32px rgba(0,0,0,0.25); 
+      width: 100%; 
+      max-width: 420px; 
+      padding: 30px; 
+      border: 1px solid rgba(255, 255, 255, 0.4);
+    }
     
     .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #eef2f5; padding-bottom: 15px; }
     .logo-sekolah { width: 90px; height: auto; margin-bottom: 10px; }
     .header h2 { color: #1a73e8; font-size: 22px; text-transform: uppercase; }
-    .header p { color: #666; font-size: 13px; margin-top: 5px; }
+    .header p { color: #555; font-size: 13px; margin-top: 5px; font-weight: 500; }
 
     .form-group { margin-bottom: 15px; }
-    .form-group label { display: block; font-size: 13px; font-weight: 600; color: #444; margin-bottom: 5px; }
+    .form-group label { display: block; font-size: 13px; font-weight: 600; color: #333; margin-bottom: 5px; }
     .form-control { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; outline: none; background-color: #fff; }
     .form-control:focus { border-color: #1a73e8; box-shadow: 0 0 0 3px rgba(26,115,232,0.2); }
 
@@ -48,7 +71,7 @@
 
     .badge-role { display: inline-block; background: #e8f0fe; color: #1a73e8; padding: 4px 12px; border-radius: 20px; font-weight: bold; font-size: 11px; text-transform: uppercase; }
     .loading { text-align: center; color: #1a73e8; font-weight: bold; font-size: 14px; margin-top: 10px; display: none; }
-    .error-msg { color: #ef4444; font-size: 13px; text-align: center; margin-top: 10px; }
+    .error-msg { color: #ef4444; font-size: 13px; text-align: center; margin-top: 10px; font-weight: bold; }
     
     .screen { display: none; }
     .screen.active { display: block; }
@@ -173,7 +196,7 @@
 </head>
 <body>
 
-  <!-- HALAMAN LOGIN -->
+  <!-- HALAMAN LOGIN DENGAN BACKGROUND GAMBAR -->
   <div class="screen active" id="screen-login">
     <div class="screen-login-container">
       <div class="login-card">
@@ -312,7 +335,7 @@
               <ul style="padding-left: 20px; font-size: 13px; color: #475569; line-height: 1.8;">
                 <li><b>Waka Kurikulum:</b> Mengatur Kelas, Mapel, Penugasan Wali Kelas, Leger Nilai, dan Monitoring Guru.</li>
                 <li><b>Guru Mapel:</b> Menginput Tujuan Pembelajaran (TP) serta mengisi Nilai Rapor & Capaian TP.</li>
-                <li><b>Wali Kelas:</b> Menginput Absensi Siswa, Ekstrakurikuler, Catatan Wali Kelas, Tanggapan Orang Tua, dan Mencetak Lembar Rapor Digital PDF.</li>
+                <li><b>Wali Kelas:</b> Menginput Absensi, Ekstrakurikuler, Catatan Wali Kelas, Tanggapan Orang Tua (Manual/Excel Massal), dan Mencetak Lembar Rapor Digital.</li>
                 <li><b>Siswa / Wali Murid:</b> Melihat rangkuman hasil belajar serta mencetak lembar Rapor Digital.</li>
               </ul>
             </div>
@@ -650,6 +673,19 @@
                   </div>
                   <button class="btn-info" style="width:auto; padding:8px 16px; margin-bottom:0;" onclick="muatTabelWaliKelasSiswa()">🔄 Refresh Data Siswa</button>
                 </div>
+              </div>
+
+              <!-- KOTAK IMPORT MASSAL EXCEL UNTUK WALI KELAS -->
+              <div class="box-import" style="margin-bottom: 20px; background: #fffbe2; border-color: #d97706;">
+                <div style="font-weight: bold; font-size: 14px; color: #b45309; margin-bottom: 8px;">📊 Input Massal via File Excel Wali Kelas</div>
+                <p style="font-size: 12px; color: #78350f; margin-bottom: 12px;">Unduh template Excel yang berisi daftar siswa kelas <b id="text-nama-kelas-excel">-</b>, isi data Absensi, Ekstrakurikuler, Catatan, dan Tanggapan, lalu unggah kembali.</p>
+                
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+                  <button class="btn-info" style="width: auto; margin-bottom: 0; background: #d97706;" onclick="downloadTemplateWaliExcel()">📥 Download Template Excel Kelas Ini</button>
+                  <input type="file" id="file-excel-wali" accept=".xlsx, .xls" class="form-control" style="max-width: 280px; padding: 6px;">
+                  <button class="btn-success" style="width: auto;" id="btn-import-wali" onclick="prosesImportWaliExcel()">📤 Unggah & Simpan Data Massal</button>
+                </div>
+                <div id="status-import-wali" style="font-size: 12px; font-weight: bold; margin-top: 8px; color: #d97706;"></div>
               </div>
 
               <p style="font-size: 13px; color: #666; margin-bottom: 15px;">
@@ -1001,7 +1037,7 @@
           </div>
         </div>
 
-        <!-- D. TANGGAPAN ORANG TUA / WALI MURID (SESUAI LAMPIRAN GAMBAR) -->
+        <!-- D. TANGGAPAN ORANG TUA / WALI MURID -->
         <div style="font-size:12px; margin-bottom:25px;">
           <b style="display:block; margin-bottom:5px;">Tanggapan Orang Tua/Wali Murid</b>
           <div class="box-tanggapan-ortu" id="rp-tanggapan-ortu">
@@ -1197,6 +1233,7 @@
     let currentUser = null;
     let daftarKelasGlobal = [];
     let cacheListSiswaNilai = [];
+    let cacheListSiswaWaliClass = [];
     let kelasBinaanAktif = "";
     let cacheSiswaMandiriData = null;
     let dataSekolahGlobal = {
@@ -1406,10 +1443,12 @@
       if (isWaliKelas) {
         snapWali.forEach(d => { kelasBinaanAktif = d.data().kelas; });
         document.getElementById("text-kelas-binaan-title").innerText = kelasBinaanAktif;
+        document.getElementById("text-nama-kelas-excel").innerText = kelasBinaanAktif;
       } else if (isAdmin || isWaka) {
         if (daftarKelasGlobal.length > 0) {
           kelasBinaanAktif = daftarKelasGlobal[0];
           document.getElementById("text-kelas-binaan-title").innerText = kelasBinaanAktif;
+          document.getElementById("text-nama-kelas-excel").innerText = kelasBinaanAktif;
         }
       }
 
@@ -1688,6 +1727,7 @@
       if(!kelasBaru) return;
       kelasBinaanAktif = kelasBaru;
       document.getElementById("text-kelas-binaan-title").innerText = kelasBinaanAktif;
+      document.getElementById("text-nama-kelas-excel").innerText = kelasBinaanAktif;
       
       const r = currentUser ? currentUser.role.toLowerCase() : '';
       if (r !== 'admin' && r !== 'waka') {
@@ -1823,6 +1863,7 @@
         return;
       }
 
+      document.getElementById("text-nama-kelas-excel").innerText = kelasBinaanAktif;
       tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Memuat data siswa kelas binaan...</td></tr>';
 
       const qSiswa = query(collection(db, "users"), where("role", "==", "siswa"), where("kelas", "==", kelasBinaanAktif));
@@ -1839,6 +1880,7 @@
       });
 
       listSiswa.sort((a, b) => a.nama.localeCompare(b.nama, undefined, { sensitivity: 'base' }));
+      cacheListSiswaWaliClass = listSiswa;
 
       tbody.innerHTML = "";
       let no = 1;
@@ -1877,6 +1919,103 @@
         tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">Belum ada siswa terdaftar pada kelas <b>${kelasBinaanAktif}</b>.</td></tr>`;
       }
     }
+
+    /* DOWNLOAD TEMPLATE EXCEL WALI KELAS */
+    window.downloadTemplateWaliExcel = async function() {
+      if (!kelasBinaanAktif) { alert("Pilih kelas binaan terlebih dahulu!"); return; }
+      if (cacheListSiswaWaliClass.length === 0) { alert(`Tidak ada siswa di kelas ${kelasBinaanAktif}`); return; }
+
+      const qWaliData = query(collection(db, "walikelas_catatan"), where("kelas", "==", kelasBinaanAktif));
+      const snapWaliData = await getDocs(qWaliData);
+      const mapWaliData = {};
+      snapWaliData.forEach(d => { mapWaliData[d.data().nama_siswa] = d.data(); });
+
+      const templateData = cacheListSiswaWaliClass.map(s => {
+        const ex = mapWaliData[s.nama] || {};
+        return {
+          nama_siswa: s.nama,
+          sakit: ex.sakit !== undefined ? ex.sakit : 0,
+          izin: ex.izin !== undefined ? ex.izin : 0,
+          alpa: ex.alpa !== undefined ? ex.alpa : 0,
+          ekstra1_nama: ex.ekstra1_nama || "",
+          ekstra1_ket: ex.ekstra1_ket || "",
+          ekstra2_nama: ex.ekstra2_nama || "",
+          ekstra2_ket: ex.ekstra2_ket || "",
+          catatan_walikelas: ex.catatan && ex.catatan !== "-" ? ex.catatan : "",
+          tanggapan_ortu: ex.tanggapan_ortu && ex.tanggapan_ortu !== "-" ? ex.tanggapan_ortu : ""
+        };
+      });
+
+      const ws = XLSX.utils.json_to_sheet(templateData);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Data Wali Kelas");
+      XLSX.writeFile(wb, `Template_WaliKelas_${kelasBinaanAktif.replace(/\s+/g, '_')}.xlsx`);
+    };
+
+    /* IMPORT EXCEL MASSAL WALI KELAS */
+    window.prosesImportWaliExcel = function() {
+      const fileInput = document.getElementById("file-excel-wali");
+      const statusDiv = document.getElementById("status-import-wali");
+      const btn = document.getElementById("btn-import-wali");
+
+      if (!fileInput.files.length) { alert("Silakan pilih file Excel template Wali Kelas!"); return; }
+      if (!kelasBinaanAktif) { alert("Pilih kelas binaan terlebih dahulu!"); return; }
+
+      const reader = new FileReader();
+      btn.disabled = true;
+      statusDiv.innerText = "Membaca & mengunggah data Excel...";
+
+      reader.onload = async function(e) {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+
+          let batch = writeBatch(db);
+          let count = 0;
+
+          for (let row of jsonData) {
+            const namaSiswa = row.nama_siswa ? String(row.nama_siswa).trim() : "";
+            if (namaSiswa) {
+              const docId = `wali_${kelasBinaanAktif}_${namaSiswa}`.replace(/\s+/g, '_');
+              const refDoc = doc(db, "walikelas_catatan", docId);
+
+              batch.set(refDoc, {
+                nama_siswa: namaSiswa,
+                kelas: kelasBinaanAktif,
+                sakit: Number(row.sakit) || 0,
+                izin: Number(row.izin) || 0,
+                alpa: Number(row.alpa) || 0,
+                ekstra1_nama: row.ekstra1_nama ? String(row.ekstra1_nama).trim() : "",
+                ekstra1_ket: row.ekstra1_ket ? String(row.ekstra1_ket).trim() : "",
+                ekstra2_nama: row.ekstra2_nama ? String(row.ekstra2_nama).trim() : "",
+                ekstra2_ket: row.ekstra2_ket ? String(row.ekstra2_ket).trim() : "",
+                catatan: row.catatan_walikelas ? String(row.catatan_walikelas).trim() : "-",
+                tanggapan_ortu: row.tanggapan_ortu ? String(row.tanggapan_ortu).trim() : "",
+                wali_kelas: currentUser ? currentUser.nama : "Wali Kelas"
+              });
+              count++;
+
+              if (count % 400 === 0) {
+                await batch.commit();
+                batch = writeBatch(db);
+              }
+            }
+          }
+
+          if (count > 0) {
+            await batch.commit();
+            alert(`Berhasil menyimpan data Rapor massal untuk ${count} siswa kelas ${kelasBinaanAktif}!`);
+            fileInput.value = "";
+            muatTabelWaliKelasSiswa();
+          } else {
+            alert("Tidak ada data siswa valid dalam file Excel.");
+          }
+        } catch (err) { alert("Gagal import: " + err.message); } 
+        finally { btn.disabled = false; statusDiv.innerText = ""; }
+      };
+      reader.readAsArrayBuffer(fileInput.files[0]);
+    };
 
     window.bukaModalCatatanWali = function(data) {
       document.getElementById("wali-siswa-nama").value = data.nama;
