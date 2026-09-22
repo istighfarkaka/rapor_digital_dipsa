@@ -26,7 +26,6 @@
       position: relative;
     }
 
-    /* Kartu login transparan modern dengan efek Glassmorphism */
     .login-card { 
       background: rgba(255, 255, 255, 0.92); 
       backdrop-filter: blur(8px);
@@ -140,6 +139,8 @@
     .section-card { background: #fff; border-radius: 10px; padding: 20px; margin-bottom: 25px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
     .card-header-flex { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
 
+    .card-semester { border-left: 4px solid #9333ea; }
+    .card-semester .section-title { color: #6b21a8; font-size: 15px; font-weight: bold; }
     .card-kelas { border-left: 4px solid #16a34a; }
     .card-kelas .section-title { color: #166534; font-size: 15px; font-weight: bold; }
     .card-mapel { border-left: 4px solid #2563eb; }
@@ -175,6 +176,7 @@
     .table-rapor-ekstra th { background: #e2e8f0; text-align: center; font-weight: bold; }
 
     .box-tanggapan-ortu { border: 1px solid #000; padding: 10px; min-height: 70px; font-size: 12px; margin-bottom: 25px; }
+    .box-keputusan-rapor { border: 2px solid #000; padding: 12px; font-size: 12px; margin-bottom: 20px; background: #fafafa; }
 
     /* MODAL POPUP */
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 999; }
@@ -251,7 +253,8 @@
             <button class="toggle-sidebar-btn" onclick="toggleSidebar()" title="Buka/Tutup Menu">☰</button>
             <div class="app-brand" id="dash-app-brand">SMK DIPONEGORO 1 PURWOKERTO</div>
           </div>
-          <div>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span class="badge-role" style="background:#f3e8ff; color:#7e22ce;" id="dash-info-semester">Semester - | TP -</span>
             <span class="badge-role" id="dash-role">ADMIN</span>
           </div>
         </header>
@@ -333,9 +336,9 @@
             <div class="section-card" id="card-panduan-beranda">
               <div class="section-title" style="color:#1e293b; font-size:16px; margin-bottom:12px; font-weight:bold;">📌 Panduan & Fitur Rapor Digital</div>
               <ul style="padding-left: 20px; font-size: 13px; color: #475569; line-height: 1.8;">
-                <li><b>Waka Kurikulum:</b> Mengatur Kelas, Mapel, Penugasan Wali Kelas, Leger Nilai, dan Monitoring Guru.</li>
+                <li><b>Waka Kurikulum:</b> Mengatur Semester Aktif, Tahun Ajaran, Kelas, Mapel, Penugasan Wali Kelas, Leger Nilai, dan Monitoring Guru.</li>
                 <li><b>Guru Mapel:</b> Menginput Tujuan Pembelajaran (TP) serta mengisi Nilai Rapor & Capaian TP.</li>
-                <li><b>Wali Kelas:</b> Menginput Absensi, Ekstrakurikuler, Catatan Wali Kelas, Tanggapan Orang Tua (Manual/Excel Massal), dan Mencetak Lembar Rapor Digital.</li>
+                <li><b>Wali Kelas:</b> Menginput Absensi, Ekstrakurikuler, Catatan, Keputusan Kenaikan/Kelulusan (Genap), dan Cetak Rapor.</li>
                 <li><b>Siswa / Wali Murid:</b> Melihat rangkuman hasil belajar serta mencetak lembar Rapor Digital.</li>
               </ul>
             </div>
@@ -343,6 +346,30 @@
 
           <!-- PANEL 1: DATA AKADEMIK & KELAS -->
           <div class="content-panel" id="panel-akademik">
+            
+            <!-- 0) PENGATURAN SEMESTER & TAHUN AJARAN (BARU) -->
+            <div class="section-card card-semester">
+              <div class="section-title">⚙️ Pengaturan Semester Aktif & Tahun Ajaran</div>
+              <p style="font-size:13px; color:#666; margin-bottom:15px;">Pengaturan ini akan langsung tercetak di Kop Rapor dan mengaktifkan fitur khusus (seperti Kenaikan Kelas pada semester Genap).</p>
+              
+              <form onsubmit="simpanPengaturanSemester(event)">
+                <div class="grid-2">
+                  <div class="form-group">
+                    <label>Semester Aktif</label>
+                    <select id="setting-semester" class="form-control" required>
+                      <option value="Ganjil">Semester Ganjil (1)</option>
+                      <option value="Genap">Semester Genap (2)</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>Tahun Ajaran</label>
+                    <input type="text" id="setting-tahun-ajaran" class="form-control" placeholder="Contoh: 2026/2027" required>
+                  </div>
+                </div>
+                <button type="submit" class="btn-submit" style="background-color: #9333ea; max-width: 250px;">💾 Simpan Semester & TP</button>
+              </form>
+            </div>
+
             <div class="section-card card-kelas">
               <div class="card-header-flex">
                 <div class="section-title">1) Pengaturan Data Kelas & Jurusan</div>
@@ -689,7 +716,7 @@
               </div>
 
               <p style="font-size: 13px; color: #666; margin-bottom: 15px;">
-                Berikut daftar siswa di kelas binaan Anda. Anda dapat menginputkan Kehadiran/Absensi, Ekstrakurikuler, Catatan Wali Kelas, Tanggapan Orang Tua, serta melakukan Preview & Cetak Lembar Rapor Digital.
+                Berikut daftar siswa di kelas binaan Anda. Anda dapat menginputkan Kehadiran/Absensi, Ekstrakurikuler, Catatan Wali Kelas, Tanggapan Orang Tua, Kenaikan/Kelulusan (Genap), serta Cetak Rapor Digital.
               </p>
 
               <div class="table-container">
@@ -701,11 +728,12 @@
                       <th style="width:130px;">Absensi (S / I / A)</th>
                       <th>Ekstrakurikuler</th>
                       <th>Catatan Wali Kelas</th>
+                      <th style="width:160px;" id="th-walikelas-keputusan">Keputusan Rapor</th>
                       <th style="width:160px;">Aksi Rapor</th>
                     </tr>
                   </thead>
                   <tbody id="tabel-walikelas-siswa-body">
-                    <tr><td colspan="6" style="text-align:center;">Memuat data siswa kelas binaan...</td></tr>
+                    <tr><td colspan="7" style="text-align:center;">Memuat data siswa kelas binaan...</td></tr>
                   </tbody>
                 </table>
               </div>
@@ -860,11 +888,11 @@
     </div>
   </div>
 
-  <!-- MODAL EDIT CATATAN WALI (DILENGKAPI EKSTRAKURIKULER & TANGGAPAN ORTU) -->
+  <!-- MODAL EDIT CATATAN WALI (DILENGKAPI EKSTRAKURIKULER, KEPUTUSAN & TANGGAPAN ORTU) -->
   <div class="modal-overlay" id="modal-edit-catatan-wali">
     <div class="modal-box modal-box-small">
       <div class="modal-header">
-        <h3>📝 Input Absensi, Ekstrakurikuler & Catatan Wali Kelas</h3>
+        <h3>📝 Input Absensi, Catatan & Keputusan Wali Kelas</h3>
         <span class="close-btn" onclick="tutupModalCatatanWali()">&times;</span>
       </div>
       <form onsubmit="simpanCatatanAbsensiWali(event)">
@@ -919,7 +947,21 @@
           <textarea id="wali-input-catatan" class="form-control" rows="2" placeholder="Contoh: Masih perlu bimbingan dalam belajar dan sikap..."></textarea>
         </div>
 
-        <div style="font-weight:bold; font-size:13px; color:#1a73e8; margin-top:5px; margin-bottom:8px;">4. Tanggapan Orang Tua / Wali Murid</div>
+        <!-- KEPUTUSAN SEMESTER GENAP -->
+        <div id="container-input-keputusan-modal" style="display:none; background:#faf5ff; padding:10px; border-radius:6px; border:1px solid #d8b4fe; margin-bottom:12px;">
+          <div style="font-weight:bold; font-size:13px; color:#7e22ce; margin-bottom:6px;">4. Keputusan Akhir Tahun (Semester Genap)</div>
+          <div class="form-group" style="margin-bottom:0;">
+            <select id="wali-input-keputusan" class="form-control" style="border-color:#c084fc;">
+              <option value="">-- Pilih Keputusan --</option>
+              <option value="naik">Naik Kelas</option>
+              <option value="tinggal">Tinggal Kelas</option>
+              <option value="lulus">Lulus</option>
+              <option value="tidak_lulus">Tidak Lulus</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="font-weight:bold; font-size:13px; color:#1a73e8; margin-top:5px; margin-bottom:8px;">5. Tanggapan Orang Tua / Wali Murid</div>
         <div class="form-group">
           <textarea id="wali-input-tanggapan" class="form-control" rows="2" placeholder="Kosongkan jika diisi manual oleh Orang Tua setelah dicetak..."></textarea>
         </div>
@@ -965,7 +1007,7 @@
             
             <td class="label" style="padding-left:20px;">Fase / Semester</td>
             <td class="colon">:</td>
-            <td class="val">F / Gasal (1)</td>
+            <td class="val" id="rp-semester-siswa">F / Ganjil</td>
           </tr>
           <tr>
             <td class="label">Sekolah</td>
@@ -974,7 +1016,7 @@
             
             <td class="label" style="padding-left:20px;">Tahun Ajaran</td>
             <td class="colon">:</td>
-            <td class="val">2026/2027</td>
+            <td class="val" id="rp-tp-siswa">2026/2027</td>
           </tr>
         </table>
 
@@ -1037,7 +1079,13 @@
           </div>
         </div>
 
-        <!-- D. TANGGAPAN ORANG TUA / WALI MURID -->
+        <!-- D. BLOK KEPUTUSAN KENAIKAN / KELULUSAN (GENAP) -->
+        <div id="rp-container-keputusan" class="box-keputusan-rapor" style="display:none;">
+          <b>Keputusan:</b>
+          <p id="rp-teks-keputusan" style="margin-top:5px; line-height:1.5;">-</p>
+        </div>
+
+        <!-- E. TANGGAPAN ORANG TUA / WALI MURID -->
         <div style="font-size:12px; margin-bottom:25px;">
           <b style="display:block; margin-bottom:5px;">Tanggapan Orang Tua/Wali Murid</b>
           <div class="box-tanggapan-ortu" id="rp-tanggapan-ortu">
@@ -1236,11 +1284,14 @@
     let cacheListSiswaWaliClass = [];
     let kelasBinaanAktif = "";
     let cacheSiswaMandiriData = null;
+
     let dataSekolahGlobal = {
       nama_sekolah: "SMK Diponegoro 1 Purwokerto",
       alamat_sekolah: "Jl. Diponegoro No. 1, Purwokerto, Kabupaten Banyumas, Jawa Tengah",
       nama_kepsek: "Drs. H. Ahmad Sudrajat, M.Pd.",
-      nip_kepsek: "19750812 200003 1 002"
+      nip_kepsek: "19750812 200003 1 002",
+      semester_aktif: "Ganjil",
+      tahun_ajaran: "2026/2027"
     };
 
     function urutkanDaftarKelas(arrKelas) {
@@ -1259,6 +1310,14 @@
         if (bA !== bB) return bA - bB;
         return itemA.localeCompare(itemB, undefined, { numeric: true, sensitivity: 'base' });
       });
+    }
+
+    function hitungKelasTujuan(kelasAwal) {
+      if (!kelasAwal) return "-";
+      const parts = kelasAwal.trim().split(" ");
+      if (parts[0] === "X") parts[0] = "XI";
+      else if (parts[0] === "XI") parts[0] = "XII";
+      return parts.join(" ");
     }
 
     window.toggleSidebar = function() {
@@ -1336,34 +1395,49 @@
     function muatIdentitasSekolahRealtime() {
       onSnapshot(doc(db, "pengaturan_sekolah", "identitas"), (docSnap) => {
         if (docSnap.exists()) {
-          dataSekolahGlobal = docSnap.data();
+          const d = docSnap.data();
+          dataSekolahGlobal = { ...dataSekolahGlobal, ...d };
           
           document.getElementById("input-nama-sekolah").value = dataSekolahGlobal.nama_sekolah || "";
           document.getElementById("input-alamat-sekolah").value = dataSekolahGlobal.alamat_sekolah || "";
           document.getElementById("input-nama-kepsek").value = dataSekolahGlobal.nama_kepsek || "";
           document.getElementById("input-nip-kepsek").value = dataSekolahGlobal.nip_kepsek || "";
 
+          document.getElementById("setting-semester").value = dataSekolahGlobal.semester_aktif || "Ganjil";
+          document.getElementById("setting-tahun-ajaran").value = dataSekolahGlobal.tahun_ajaran || "2026/2027";
+
           document.getElementById("dash-app-brand").innerText = (dataSekolahGlobal.nama_sekolah || "").toUpperCase();
+          document.getElementById("dash-info-semester").innerText = `Semester ${dataSekolahGlobal.semester_aktif || 'Ganjil'} | TP ${dataSekolahGlobal.tahun_ajaran || '2026/2027'}`;
         }
       });
     }
 
     window.simpanIdentitasSekolah = async function(e) {
       e.preventDefault();
-      const namaSekolah = document.getElementById("input-nama-sekolah").value.trim();
-      const alamatSekolah = document.getElementById("input-alamat-sekolah").value.trim();
-      const namaKepsek = document.getElementById("input-nama-kepsek").value.trim();
-      const nipKepsek = document.getElementById("input-nip-kepsek").value.trim();
+      try {
+        await setDoc(doc(db, "pengaturan_sekolah", "identitas"), {
+          nama_sekolah: document.getElementById("input-nama-sekolah").value.trim(),
+          alamat_sekolah: document.getElementById("input-alamat-sekolah").value.trim(),
+          nama_kepsek: document.getElementById("input-nama-kepsek").value.trim(),
+          nip_kepsek: document.getElementById("input-nip-kepsek").value.trim()
+        }, { merge: true });
+        alert("Identitas Sekolah & Kepala Sekolah berhasil diperbarui!");
+      } catch (err) { alert("Gagal menyimpan identitas: " + err.message); }
+    };
+
+    window.simpanPengaturanSemester = async function(e) {
+      e.preventDefault();
+      const sem = document.getElementById("setting-semester").value;
+      const ta = document.getElementById("setting-tahun-ajaran").value.trim();
 
       try {
         await setDoc(doc(db, "pengaturan_sekolah", "identitas"), {
-          nama_sekolah: namaSekolah,
-          alamat_sekolah: alamatSekolah,
-          nama_kepsek: namaKepsek,
-          nip_kepsek: nipKepsek
-        });
-        alert("Identitas Sekolah & Kepala Sekolah berhasil diperbarui!");
-      } catch (err) { alert("Gagal menyimpan identitas: " + err.message); }
+          semester_aktif: sem,
+          tahun_ajaran: ta
+        }, { merge: true });
+        alert(`Semester Aktif berhasil diubah ke ${sem} (${ta})!`);
+        muatTabelWaliKelasSiswa();
+      } catch (err) { alert("Gagal menyimpan semester: " + err.message); }
     };
 
     window.prosesLogin = async function(e) {
@@ -1545,7 +1619,7 @@
 
       const qWaliData = query(collection(db, "walikelas_catatan"), where("kelas", "==", kelasSiswa), where("nama_siswa", "==", namaSiswa));
       const snapWaliData = await getDocs(qWaliData);
-      let wData = { sakit: 0, izin: 0, alpa: 0, catatan: "-", ekstra1_nama: "", ekstra1_ket: "", ekstra2_nama: "", ekstra2_ket: "", tanggapan_ortu: "-" };
+      let wData = { sakit: 0, izin: 0, alpa: 0, catatan: "-", ekstra1_nama: "", ekstra1_ket: "", ekstra2_nama: "", ekstra2_ket: "", tanggapan_ortu: "-", keputusan: "" };
       snapWaliData.forEach(d => { wData = d.data(); });
 
       document.getElementById("view-siswa-sakit").innerText = (wData.sakit || 0) + " Hari";
@@ -1576,7 +1650,8 @@
         ekstra1_ket: wData.ekstra1_ket || "",
         ekstra2_nama: wData.ekstra2_nama || "",
         ekstra2_ket: wData.ekstra2_ket || "",
-        tanggapan_ortu: wData.tanggapan_ortu || ""
+        tanggapan_ortu: wData.tanggapan_ortu || "",
+        keputusan: wData.keputusan || ""
       };
 
       const qNilai = query(collection(db, "nilai_mapel"), where("kelas", "==", kelasSiswa), where("nama_siswa", "==", namaSiswa));
@@ -1853,18 +1928,22 @@
       }
     };
 
-    /* PANEL WALI KELAS */
+    /* PANEL WALI KELAS & KEPUTUSAN KENAIKAN */
     async function muatTabelWaliKelasSiswa() {
       const tbody = document.getElementById("tabel-walikelas-siswa-body");
+      const thKeputusan = document.getElementById("th-walikelas-keputusan");
       if (!tbody) return;
 
       if (!kelasBinaanAktif) {
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#ef4444; padding:15px;">Pilih kelas terlebih dahulu.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#ef4444; padding:15px;">Pilih kelas terlebih dahulu.</td></tr>';
         return;
       }
 
+      const isGenap = (dataSekolahGlobal.semester_aktif || "Ganjil").toLowerCase() === "genap";
+      if (thKeputusan) thKeputusan.style.display = isGenap ? "table-cell" : "none";
+
       document.getElementById("text-nama-kelas-excel").innerText = kelasBinaanAktif;
-      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Memuat data siswa kelas binaan...</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">Memuat data siswa kelas binaan...</td></tr>';
 
       const qSiswa = query(collection(db, "users"), where("role", "==", "siswa"), where("kelas", "==", kelasBinaanAktif));
       const snapSiswa = await getDocs(qSiswa);
@@ -1884,9 +1963,10 @@
 
       tbody.innerHTML = "";
       let no = 1;
+      const isKelas12 = kelasBinaanAktif.toUpperCase().startsWith("XII");
 
-      listSiswa.forEach(s => {
-        const wData = mapWaliData[s.nama] || { sakit: 0, izin: 0, alpa: 0, catatan: "-", ekstra1_nama: "", ekstra1_ket: "", ekstra2_nama: "", ekstra2_ket: "", tanggapan_ortu: "" };
+      listSiswa.forEach((s, idx) => {
+        const wData = mapWaliData[s.nama] || { sakit: 0, izin: 0, alpa: 0, catatan: "-", ekstra1_nama: "", ekstra1_ket: "", ekstra2_nama: "", ekstra2_ket: "", tanggapan_ortu: "", keputusan: "" };
         const dataObj = { nama: s.nama, username: s.username, nisn: s.nisn || "", kelas: s.kelas, ...wData };
 
         const displayNis = s.nisn ? `NIS: ${s.username} / NISN: ${s.nisn}` : `NIS: ${s.username}`;
@@ -1897,6 +1977,19 @@
           if (wData.ekstra2_nama) strEkstraRingkas += `, ${wData.ekstra2_nama}`;
         }
 
+        let tdKeputusanHtml = "";
+        if (isGenap) {
+          let opts = '<option value="">-- Pilih --</option>';
+          if (isKelas12) {
+            opts += `<option value="lulus" ${wData.keputusan === 'lulus' ? 'selected' : ''}>Lulus</option>`;
+            opts += `<option value="tidak_lulus" ${wData.keputusan === 'tidak_lulus' ? 'selected' : ''}>Tidak Lulus</option>`;
+          } else {
+            opts += `<option value="naik" ${wData.keputusan === 'naik' ? 'selected' : ''}>Naik Kelas</option>`;
+            opts += `<option value="tinggal" ${wData.keputusan === 'tinggal' ? 'selected' : ''}>Tinggal Kelas</option>`;
+          }
+          tdKeputusanHtml = `<td><select class="form-control sel-keputusan-inline" data-nama="${s.nama}" style="font-size:12px; padding:4px 8px;">${opts}</select></td>`;
+        }
+
         const tr = document.createElement("tr");
         tr.innerHTML = `
           <td>${no++}</td>
@@ -1904,11 +1997,17 @@
           <td>S: <b>${wData.sakit || 0}</b> | I: <b>${wData.izin || 0}</b> | A: <b>${wData.alpa || 0}</b></td>
           <td>${strEkstraRingkas}</td>
           <td>${wData.catatan || '-'}</td>
+          ${tdKeputusanHtml}
           <td>
             <button class="btn-edit btn-edit-catatan" style="margin-right:4px;">✏️ Edit</button>
             <button class="btn-submit btn-preview-rapor" style="padding:5px 10px; font-size:12px; width:auto;">📄 Rapor</button>
           </td>
         `;
+
+        if (isGenap) {
+          const selIn = tr.querySelector('.sel-keputusan-inline');
+          selIn.addEventListener('change', (e) => simpanKeputusanQuick(s.nama, s.kelas, e.target.value));
+        }
 
         tr.querySelector('.btn-edit-catatan').addEventListener('click', () => bukaModalCatatanWali(dataObj));
         tr.querySelector('.btn-preview-rapor').addEventListener('click', () => previewRaporSiswa(dataObj));
@@ -1916,8 +2015,19 @@
       });
 
       if (no === 1) {
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">Belum ada siswa terdaftar pada kelas <b>${kelasBinaanAktif}</b>.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;">Belum ada siswa terdaftar pada kelas <b>${kelasBinaanAktif}</b>.</td></tr>`;
       }
+    }
+
+    async function simpanKeputusanQuick(namaSiswa, kelas, nilaiKeputusan) {
+      const docId = `wali_${kelas}_${namaSiswa}`.replace(/\s+/g, '_');
+      try {
+        await setDoc(doc(db, "walikelas_catatan", docId), {
+          nama_siswa: namaSiswa,
+          kelas: kelas,
+          keputusan: nilaiKeputusan
+        }, { merge: true });
+      } catch(err) { console.error("Gagal update keputusan:", err); }
     }
 
     /* DOWNLOAD TEMPLATE EXCEL WALI KELAS */
@@ -1942,7 +2052,8 @@
           ekstra2_nama: ex.ekstra2_nama || "",
           ekstra2_ket: ex.ekstra2_ket || "",
           catatan_walikelas: ex.catatan && ex.catatan !== "-" ? ex.catatan : "",
-          tanggapan_ortu: ex.tanggapan_ortu && ex.tanggapan_ortu !== "-" ? ex.tanggapan_ortu : ""
+          tanggapan_ortu: ex.tanggapan_ortu && ex.tanggapan_ortu !== "-" ? ex.tanggapan_ortu : "",
+          keputusan_genap: ex.keputusan || ""
         };
       });
 
@@ -1992,8 +2103,9 @@
                 ekstra2_ket: row.ekstra2_ket ? String(row.ekstra2_ket).trim() : "",
                 catatan: row.catatan_walikelas ? String(row.catatan_walikelas).trim() : "-",
                 tanggapan_ortu: row.tanggapan_ortu ? String(row.tanggapan_ortu).trim() : "",
+                keputusan: row.keputusan_genap ? String(row.keputusan_genap).toLowerCase().trim() : "",
                 wali_kelas: currentUser ? currentUser.nama : "Wali Kelas"
-              });
+              }, { merge: true });
               count++;
 
               if (count % 400 === 0) {
@@ -2034,6 +2146,24 @@
       document.getElementById("wali-input-catatan").value = data.catatan === "-" ? "" : (data.catatan || "");
       document.getElementById("wali-input-tanggapan").value = data.tanggapan_ortu === "-" ? "" : (data.tanggapan_ortu || "");
 
+      const isGenap = (dataSekolahGlobal.semester_aktif || "Ganjil").toLowerCase() === "genap";
+      const boxKep = document.getElementById("container-input-keputusan-modal");
+      const selKep = document.getElementById("wali-input-keputusan");
+
+      if (isGenap) {
+        boxKep.style.display = "block";
+        const isKelas12 = data.kelas.toUpperCase().startsWith("XII");
+        selKep.innerHTML = '<option value="">-- Pilih Keputusan --</option>';
+        if (isKelas12) {
+          selKep.innerHTML += '<option value="lulus">Lulus</option><option value="tidak_lulus">Tidak Lulus</option>';
+        } else {
+          selKep.innerHTML += '<option value="naik">Naik Kelas</option><option value="tinggal">Tinggal Kelas</option>';
+        }
+        selKep.value = data.keputusan || "";
+      } else {
+        boxKep.style.display = "none";
+      }
+
       document.getElementById("modal-edit-catatan-wali").style.display = "flex";
     };
 
@@ -2056,6 +2186,7 @@
 
       const catatan = document.getElementById("wali-input-catatan").value.trim() || "-";
       const tanggapan_ortu = document.getElementById("wali-input-tanggapan").value.trim() || "";
+      const keputusan = document.getElementById("wali-input-keputusan").value;
 
       const docId = `wali_${kelas}_${namaSiswa}`.replace(/\s+/g, '_');
 
@@ -2072,8 +2203,9 @@
           ekstra2_ket: ekstra2_ket,
           catatan: catatan,
           tanggapan_ortu: tanggapan_ortu,
+          keputusan: keputusan,
           wali_kelas: currentUser ? currentUser.nama : "Wali Kelas"
-        });
+        }, { merge: true });
         alert(`Data Rapor ${namaSiswa} berhasil disimpan!`);
         tutupModalCatatanWali();
         muatTabelWaliKelasSiswa();
@@ -2081,10 +2213,11 @@
     };
 
     window.previewRaporSiswa = async function(dataSiswa) {
-      document.getElementById("rp-header-nama-sekolah").innerText = (dataSekolahGlobal.nama_sekolah || "SMK DIPONEGORO 1 PURWOKERTO").toUpperCase();
+      const namaSekolahResmi = dataSekolahGlobal.nama_sekolah || "SMK DIPONEGORO 1 PURWOKERTO";
+      document.getElementById("rp-header-nama-sekolah").innerText = namaSekolahResmi.toUpperCase();
       document.getElementById("rp-header-alamat-sekolah").innerText = dataSekolahGlobal.alamat_sekolah || "";
-      document.getElementById("rp-meta-nama-sekolah").innerText = dataSekolahGlobal.nama_sekolah || "";
-      document.getElementById("rp-ttd-nama-sekolah").innerText = dataSekolahGlobal.nama_sekolah || "";
+      document.getElementById("rp-meta-nama-sekolah").innerText = namaSekolahResmi;
+      document.getElementById("rp-ttd-nama-sekolah").innerText = namaSekolahResmi;
       document.getElementById("rp-ttd-nama-kepsek").innerText = dataSekolahGlobal.nama_kepsek || "............................................................";
       document.getElementById("rp-ttd-nip-kepsek").innerText = dataSekolahGlobal.nip_kepsek || "...................................";
 
@@ -2093,6 +2226,13 @@
       document.getElementById("rp-nama-siswa").innerText = dataSiswa.nama;
       document.getElementById("rp-username-siswa").innerText = formattedNisNisn;
       document.getElementById("rp-kelas-siswa").innerText = dataSiswa.kelas;
+
+      const semAktif = dataSekolahGlobal.semester_aktif || "Ganjil";
+      const taAktif = dataSekolahGlobal.tahun_ajaran || "2026/2027";
+      const semAngka = semAktif.toLowerCase() === "ganjil" ? "1 (Satu)" : "2 (Dua)";
+
+      document.getElementById("rp-semester-siswa").innerText = `F / ${semAktif} (${semAngka})`;
+      document.getElementById("rp-tp-siswa").innerText = taAktif;
       
       document.getElementById("rp-absensi-sakit").innerText = (dataSiswa.sakit || 0) + " Hari";
       document.getElementById("rp-absensi-izin").innerText = (dataSiswa.izin || 0) + " Hari";
@@ -2100,14 +2240,44 @@
       
       document.getElementById("rp-catatan-wali").innerText = dataSiswa.catatan || "-";
 
-      // POPULATE EKSTRAKURIKULER
       document.getElementById("rp-ekstra1-nama").innerText = dataSiswa.ekstra1_nama || "-";
       document.getElementById("rp-ekstra1-ket").innerText = dataSiswa.ekstra1_ket || "-";
       document.getElementById("rp-ekstra2-nama").innerText = dataSiswa.ekstra2_nama || "-";
       document.getElementById("rp-ekstra2-ket").innerText = dataSiswa.ekstra2_ket || "-";
 
-      // POPULATE TANGGAPAN ORANG TUA
       document.getElementById("rp-tanggapan-ortu").innerText = dataSiswa.tanggapan_ortu || "";
+
+      // GENERATE KEPUTUSAN SEMESTER GENAP
+      const boxKep = document.getElementById("rp-container-keputusan");
+      const txtKep = document.getElementById("rp-teks-keputusan");
+
+      if (semAktif.toLowerCase() === "genap") {
+        boxKep.style.display = "block";
+        const kep = dataSiswa.keputusan;
+        const kelasAwal = dataSiswa.kelas;
+        const isKelas12 = kelasAwal.toUpperCase().startsWith("XII");
+
+        if (isKelas12) {
+          if (kep === "lulus") {
+            txtKep.innerHTML = `Berdasarkan hasil pengamatan dan penilaian perkembangan selama di <b>${namaSekolahResmi}</b>, maka siswa <b>${dataSiswa.nama}</b> dinyatakan <b>LULUS</b>.`;
+          } else if (kep === "tidak_lulus") {
+            txtKep.innerHTML = `Berdasarkan hasil pengamatan dan penilaian perkembangan selama di <b>${namaSekolahResmi}</b>, maka siswa <b>${dataSiswa.nama}</b> dinyatakan <b>TIDAK LULUS</b>.`;
+          } else {
+            txtKep.innerHTML = `Keputusan kelulusan belum ditentukan oleh Wali Kelas.`;
+          }
+        } else {
+          if (kep === "naik") {
+            const kelasNaik = hitungKelasTujuan(kelasAwal);
+            txtKep.innerHTML = `Berdasarkan hasil pengamatan dan penilaian perkembangan selama satu tahun, maka siswa <b>${dataSiswa.nama}</b> dinyatakan <b>NAIK KE KELAS ${kelasNaik}</b>.`;
+          } else if (kep === "tinggal") {
+            txtKep.innerHTML = `Berdasarkan hasil pengamatan dan penilaian perkembangan selama satu tahun, maka siswa <b>${dataSiswa.nama}</b> dinyatakan <b>TINGGAL DI KELAS ${kelasAwal}</b>.`;
+          } else {
+            txtKep.innerHTML = `Keputusan kenaikan kelas belum ditentukan oleh Wali Kelas.`;
+          }
+        }
+      } else {
+        boxKep.style.display = "none";
+      }
 
       const qWaliKelasResmi = query(collection(db, "plotting_walikelas"), where("kelas", "==", dataSiswa.kelas));
       const snapWaliResmi = await getDocs(qWaliKelasResmi);
