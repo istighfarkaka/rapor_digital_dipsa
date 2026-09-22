@@ -336,7 +336,7 @@
             <div class="section-card" id="card-panduan-beranda">
               <div class="section-title" style="color:#1e293b; font-size:16px; margin-bottom:12px; font-weight:bold;">📌 Panduan & Fitur Rapor Digital</div>
               <ul style="padding-left: 20px; font-size: 13px; color: #475569; line-height: 1.8;">
-                <li><b>Waka Kurikulum:</b> Mengatur Semester Aktif, Tahun Ajaran, Fase, Tanggal Rapor, Kelas, Mapel, Penugasan Wali Kelas, Leger Nilai, dan Monitoring Guru.</li>
+                <li><b>Waka Kurikulum:</b> Mengatur Semester Aktif, Tahun Ajaran, Tanggal Rapor, Kelas (beserta Fase masing-masing), Mapel, Penugasan Wali Kelas, Leger Nilai, dan Monitoring Guru.</li>
                 <li><b>Guru Mapel:</b> Menginput Tujuan Pembelajaran (TP) serta mengisi Nilai Rapor & Capaian TP.</li>
                 <li><b>Wali Kelas:</b> Menginput Absensi, Ekstrakurikuler, Catatan, Keputusan Kenaikan/Kelulusan (Genap), dan Cetak Rapor.</li>
                 <li><b>Siswa / Wali Murid:</b> Melihat rangkuman hasil belajar serta mencetak lembar Rapor Digital.</li>
@@ -347,13 +347,13 @@
           <!-- PANEL 1: DATA AKADEMIK & KELAS -->
           <div class="content-panel" id="panel-akademik">
             
-            <!-- 0) PENGATURAN SEMESTER, FASE, TAHUN AJARAN & TANGGAL RAPOR -->
+            <!-- 0) PENGATURAN SEMESTER, TAHUN AJARAN & TANGGAL RAPOR -->
             <div class="section-card card-semester">
-              <div class="section-title">⚙️ Pengaturan Semester, Fase, Tahun Ajaran & Tanggal Rapor</div>
+              <div class="section-title">⚙️ Pengaturan Semester, Tahun Ajaran & Tanggal Penerbitan Rapor</div>
               <p style="font-size:13px; color:#666; margin-bottom:15px;">Pengaturan ini akan langsung tercetak di Kop Rapor dan menentukan tanggal penerbitan rapor resmi.</p>
               
               <form onsubmit="simpanPengaturanSemester(event)">
-                <div class="grid-2">
+                <div class="grid-3">
                   <div class="form-group">
                     <label>Semester Aktif</label>
                     <select id="setting-semester" class="form-control" required>
@@ -361,19 +361,6 @@
                       <option value="Genap">Genap</option>
                     </select>
                   </div>
-                  <div class="form-group">
-                    <label>Fase Pembelajaran</label>
-                    <select id="setting-fase" class="form-control" required>
-                      <option value="A">Fase A</option>
-                      <option value="B">Fase B</option>
-                      <option value="C">Fase C</option>
-                      <option value="D">Fase D</option>
-                      <option value="E">Fase E</option>
-                      <option value="F" selected>Fase F</option>
-                    </select>
-                  </div>
-                </div>
-                <div class="grid-2">
                   <div class="form-group">
                     <label>Tahun Ajaran</label>
                     <input type="text" id="setting-tahun-ajaran" class="form-control" placeholder="Contoh: 2026/2027" required>
@@ -393,7 +380,18 @@
                 <button class="btn-danger" onclick="hapusMultipleKelas()">🗑️ Hapus Pilihan</button>
               </div>
               <form onsubmit="tambahDataKelas(event)">
-                <div class="grid-3">
+                <div class="grid-4" style="margin-bottom:0;">
+                  <div class="form-group">
+                    <label>Fase Pembelajaran</label>
+                    <select id="input-fase-kelas" class="form-control" required>
+                      <option value="A">Fase A</option>
+                      <option value="B">Fase B</option>
+                      <option value="C">Fase C</option>
+                      <option value="D">Fase D</option>
+                      <option value="E">Fase E</option>
+                      <option value="F" selected>Fase F</option>
+                    </select>
+                  </div>
                   <div class="form-group">
                     <label>Tingkat Kelas</label>
                     <select id="input-tingkat-kelas" class="form-control" required>
@@ -419,6 +417,7 @@
                     <tr>
                       <th style="width: 30px;"><input type="checkbox" onchange="toggleSelectAllItems('kelas', this)"></th>
                       <th>No</th>
+                      <th>Fase</th>
                       <th>Nama Kelas Resmi</th>
                       <th>Tingkat</th>
                       <th>Jurusan</th>
@@ -426,7 +425,7 @@
                     </tr>
                   </thead>
                   <tbody id="tabel-kelas-body">
-                    <tr><td colspan="6" style="text-align:center;">Memuat data kelas...</td></tr>
+                    <tr><td colspan="7" style="text-align:center;">Memuat data kelas...</td></tr>
                   </tbody>
                 </table>
               </div>
@@ -634,7 +633,7 @@
 
             <div class="user-group-card">
               <div class="user-card-header">
-                <div class="user-card-title">👨‍👩‍👧 Daftar Akun Wali Murid</div>
+                <div class="user-card-title">👨‍gsub Daftar Akun Wali Murid</div>
                 <button class="btn-danger" onclick="hapusMultipleUser('walimurid')">🗑️ Hapus Pilihan</button>
               </div>
               <div class="table-container">
@@ -1196,6 +1195,17 @@
       <form onsubmit="simpanPerubahanKelas(event)">
         <input type="hidden" id="edit-kelas-id">
         <div class="form-group">
+          <label>Fase Pembelajaran</label>
+          <select id="edit-kelas-fase" class="form-control" required>
+            <option value="A">Fase A</option>
+            <option value="B">Fase B</option>
+            <option value="C">Fase C</option>
+            <option value="D">Fase D</option>
+            <option value="E">Fase E</option>
+            <option value="F">Fase F</option>
+          </select>
+        </div>
+        <div class="form-group">
           <label>Nama Kelas Resmi</label>
           <input type="text" id="edit-kelas-nama" class="form-control" required>
         </div>
@@ -1297,6 +1307,7 @@
 
     let currentUser = null;
     let daftarKelasGlobal = [];
+    let mapFaseKelasGlobal = {};
     let cacheListSiswaNilai = [];
     let cacheListSiswaWaliClass = [];
     let kelasBinaanAktif = "";
@@ -1308,7 +1319,6 @@
       nama_kepsek: "Drs. H. Ahmad Sudrajat, M.Pd.",
       nip_kepsek: "19750812 200003 1 002",
       semester_aktif: "Ganjil",
-      fase_aktif: "F",
       tahun_ajaran: "2026/2027",
       tanggal_rapor: "Purwokerto, 22 Oktober 2026"
     };
@@ -1423,7 +1433,6 @@
           document.getElementById("input-nip-kepsek").value = dataSekolahGlobal.nip_kepsek || "";
 
           document.getElementById("setting-semester").value = dataSekolahGlobal.semester_aktif || "Ganjil";
-          document.getElementById("setting-fase").value = dataSekolahGlobal.fase_aktif || "F";
           document.getElementById("setting-tahun-ajaran").value = dataSekolahGlobal.tahun_ajaran || "2026/2027";
           document.getElementById("setting-tanggal-rapor").value = dataSekolahGlobal.tanggal_rapor || "Purwokerto, 22 Oktober 2026";
 
@@ -1449,18 +1458,16 @@
     window.simpanPengaturanSemester = async function(e) {
       e.preventDefault();
       const sem = document.getElementById("setting-semester").value;
-      const fase = document.getElementById("setting-fase").value;
       const ta = document.getElementById("setting-tahun-ajaran").value.trim();
       const tglRapor = document.getElementById("setting-tanggal-rapor").value.trim();
 
       try {
         await setDoc(doc(db, "pengaturan_sekolah", "identitas"), {
           semester_aktif: sem,
-          fase_aktif: fase,
           tahun_ajaran: ta,
           tanggal_rapor: tglRapor
         }, { merge: true });
-        alert(`Pengaturan Rapor (Semester ${sem}, Fase ${fase}) berhasil diperbarui!`);
+        alert(`Pengaturan Rapor (Semester ${sem}) berhasil diperbarui!`);
         muatTabelWaliKelasSiswa();
       } catch (err) { alert("Gagal menyimpan pengaturan: " + err.message); }
     };
@@ -1740,14 +1747,15 @@
     /* MASTER KELAS */
     window.tambahDataKelas = async function(e) {
       e.preventDefault();
+      const fase = document.getElementById("input-fase-kelas").value;
       const tingkat = document.getElementById("input-tingkat-kelas").value;
       const jurusan = document.getElementById("input-jurusan-kelas").value.trim().toUpperCase();
       const rombel = document.getElementById("input-rombel-kelas").value.trim();
       const namaKelas = rombel ? `${tingkat} ${jurusan} ${rombel}` : `${tingkat} ${jurusan}`;
 
       try {
-        await addDoc(collection(db, "master_kelas"), { nama_kelas: namaKelas, tingkat: tingkat, jurusan: jurusan });
-        alert(`Kelas ${namaKelas} berhasil ditambahkan!`);
+        await addDoc(collection(db, "master_kelas"), { nama_kelas: namaKelas, tingkat: tingkat, jurusan: jurusan, fase: fase });
+        alert(`Kelas ${namaKelas} (Fase ${fase}) berhasil ditambahkan!`);
         document.getElementById("input-jurusan-kelas").value = "";
         document.getElementById("input-rombel-kelas").value = "";
       } catch (err) { alert("Gagal simpan kelas: " + err.message); }
@@ -1779,6 +1787,7 @@
 
         let listKelasTemp = [];
         daftarKelasGlobal = [];
+        mapFaseKelasGlobal = {};
 
         snapshot.forEach((docSnap) => {
           listKelasTemp.push({ id: docSnap.id, ...docSnap.data() });
@@ -1788,12 +1797,15 @@
 
         let no = 1;
         listKelasTemp.forEach((k) => {
+          const faseUnit = k.fase || (k.tingkat === "X" ? "E" : "F");
           daftarKelasGlobal.push(k.nama_kelas);
+          mapFaseKelasGlobal[k.nama_kelas] = faseUnit;
           
           const tr = document.createElement("tr");
           tr.innerHTML = `
             <td><input type="checkbox" class="chk-item-kelas" value="${k.id}"></td>
             <td>${no++}</td>
+            <td><span class="badge-role" style="background:#e0e7ff; color:#3730a3;">Fase ${faseUnit}</span></td>
             <td><b>${k.nama_kelas}</b></td>
             <td>${k.tingkat}</td>
             <td>${k.jurusan}</td>
@@ -1819,7 +1831,7 @@
           selectAdminWali.value = kelasBinaanAktif;
         }
 
-        if(no === 1) tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Belum ada data kelas.</td></tr>';
+        if(no === 1) tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">Belum ada data kelas.</td></tr>';
       });
     }
 
@@ -1839,6 +1851,7 @@
 
     window.bukaModalEditKelas = function(k) {
       document.getElementById("edit-kelas-id").value = k.id;
+      document.getElementById("edit-kelas-fase").value = k.fase || (k.tingkat === "X" ? "E" : "F");
       document.getElementById("edit-kelas-nama").value = k.nama_kelas;
       document.getElementById("edit-kelas-tingkat").value = k.tingkat;
       document.getElementById("edit-kelas-jurusan").value = k.jurusan;
@@ -1854,6 +1867,7 @@
       const docId = document.getElementById("edit-kelas-id").value;
       try {
         await updateDoc(doc(db, "master_kelas", docId), {
+          fase: document.getElementById("edit-kelas-fase").value,
           nama_kelas: document.getElementById("edit-kelas-nama").value,
           tingkat: document.getElementById("edit-kelas-tingkat").value,
           jurusan: document.getElementById("edit-kelas-jurusan").value
@@ -2253,16 +2267,21 @@
       document.getElementById("rp-kelas-siswa").innerText = dataSiswa.kelas;
 
       const semAktif = dataSekolahGlobal.semester_aktif || "Ganjil";
-      const faseAktif = dataSekolahGlobal.fase_aktif || "F";
       const taAktif = dataSekolahGlobal.tahun_ajaran || "2026/2027";
       const tglRapor = dataSekolahGlobal.tanggal_rapor || "Purwokerto, 22 Oktober 2026";
 
-      document.getElementById("rp-semester-siswa").innerText = `${faseAktif} / ${semAktif}`;
+      // Mengambil Fase khusus per kelas
+      let faseKelas = mapFaseKelasGlobal[dataSiswa.kelas];
+      if (!faseKelas) {
+        if (dataSiswa.kelas.startsWith("X ")) faseKelas = "E";
+        else faseKelas = "F";
+      }
+
+      document.getElementById("rp-semester-siswa").innerText = `${faseKelas} / ${semAktif}`;
       document.getElementById("rp-tp-siswa").innerText = taAktif;
       document.getElementById("rp-tanggal-penerbitan").innerText = tglRapor;
       
       // Mengambil data Wali Kelas Catatan realtime terkini dari Firestore
-      const docId = `wali_${dataSiswa.kelas}_${dataSiswa.nama}`.replace(/\s+/g, '_');
       const snapDocWali = await getDocs(query(collection(db, "walikelas_catatan"), where("kelas", "==", dataSiswa.kelas), where("nama_siswa", "==", dataSiswa.nama)));
       let liveDataWali = dataSiswa;
       if (!snapDocWali.empty) {
