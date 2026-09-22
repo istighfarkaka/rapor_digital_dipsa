@@ -178,8 +178,8 @@
         </div>
         <form id="form-login" onsubmit="prosesLogin(event)">
           <div class="form-group">
-            <label>Username</label>
-            <input type="text" id="username" class="form-control" placeholder="Masukkan Username" required autocomplete="off">
+            <label>Username / NIS</label>
+            <input type="text" id="username" class="form-control" placeholder="Masukkan Username / NIS" required autocomplete="off">
           </div>
           <div class="form-group">
             <label>Password</label>
@@ -233,11 +233,11 @@
           <div class="content-panel active" id="panel-beranda">
             <div class="welcome-banner">
               <h2 id="text-welcome-title">Selamat Datang!</h2>
-              <p>Sistem Informasi Rapor Digital SMK Diponegoro 1 Purwokerto. Kelola data akademik, input nilai, serta cetak rapor digital secara terintegrasi.</p>
+              <p id="text-welcome-sub">Sistem Informasi Rapor Digital SMK Diponegoro 1 Purwokerto. Kelola data akademik, input nilai, serta cetak rapor digital secara terintegrasi.</p>
             </div>
 
-            <!-- STATISTIK REALTIME -->
-            <div class="grid-4">
+            <!-- STATISTIK REALTIME (UNTUK GURU & ADMIN) -->
+            <div class="grid-4" id="container-stat-dashboard">
               <div class="stat-card blue">
                 <div class="stat-info">
                   <h3 id="stat-count-guru">0</h3>
@@ -301,12 +301,13 @@
               </form>
             </div>
 
-            <div class="section-card">
+            <div class="section-card" id="card-panduan-beranda">
               <div class="section-title" style="color:#1e293b; font-size:16px; margin-bottom:12px; font-weight:bold;">📌 Panduan & Fitur Rapor Digital</div>
               <ul style="padding-left: 20px; font-size: 13px; color: #475569; line-height: 1.8;">
                 <li><b>Waka Kurikulum:</b> Mengatur Kelas, Mapel, Penugasan Wali Kelas, Leger Nilai, dan Monitoring Guru.</li>
                 <li><b>Guru Mapel:</b> Menginput Tujuan Pembelajaran (TP) serta mengisi Nilai Rapor & Capaian TP.</li>
                 <li><b>Wali Kelas:</b> Menginput Absensi Siswa, Catatan Wali Kelas, dan Mencetak Lembar Rapor Digital PDF.</li>
+                <li><b>Siswa / Wali Murid:</b> Melihat rangkuman hasil belajar serta mencetak lembar Rapor Digital.</li>
               </ul>
             </div>
           </div>
@@ -551,7 +552,7 @@
 
             <div class="user-group-card">
               <div class="user-card-header">
-                <div class="user-card-title">👨‍gsub‍👧 Daftar Akun Wali Murid</div>
+                <div class="user-card-title">👨‍👩‍👧 Daftar Akun Wali Murid</div>
                 <button class="btn-danger" onclick="hapusMultipleUser('walimurid')">🗑️ Hapus Pilihan</button>
               </div>
               <div class="table-container">
@@ -750,6 +751,46 @@
                   </thead>
                   <tbody id="tabel-nilai-body">
                     <tr><td colspan="6" style="text-align:center;">Silakan pilih Mapel & Kelas terlebih dahulu.</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- PANEL 8: PANEL SISWA / WALI MURID (LIHAT RAPOR SAYA) -->
+          <div class="content-panel" id="panel-rapor-siswa">
+            <div class="section-card">
+              <div class="card-header-flex">
+                <div class="section-title" style="color:#10b981; font-size:16px;">🎓 Hasil Rapor Digital Siswa</div>
+                <button class="btn-success" style="width:auto; padding:8px 16px;" onclick="cetakRaporSiswaMandiri()">🖨️ Cetak Rapor Digital (PDF)</button>
+              </div>
+
+              <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:15px; margin-bottom:20px;">
+                <div class="grid-3" style="font-size:13px; row-gap:8px;">
+                  <div><b>Nama Siswa:</b> <span id="view-siswa-nama">-</span></div>
+                  <div><b>NIS / Username:</b> <span id="view-siswa-nis">-</span></div>
+                  <div><b>Kelas:</b> <span id="view-siswa-kelas">-</span></div>
+                  <div><b>Sakit:</b> <span id="view-siswa-sakit">0 Hari</span></div>
+                  <div><b>Izin:</b> <span id="view-siswa-izin">0 Hari</span></div>
+                  <div><b>Alpa:</b> <span id="view-siswa-alpa">0 Hari</span></div>
+                </div>
+                <div style="margin-top:10px; font-size:13px; border-top:1px dashed #cbd5e1; padding-top:8px;">
+                  <b>Catatan Wali Kelas:</b> <i id="view-siswa-catatan">-</i>
+                </div>
+              </div>
+
+              <div class="table-container">
+                <table>
+                  <thead>
+                    <tr style="background:#f1f5f9;">
+                      <th style="width:30px; text-align:center;">No</th>
+                      <th>Mata Pelajaran</th>
+                      <th style="width:90px; text-align:center;">Nilai Akhir</th>
+                      <th>Capaian Kompetensi / Keterangan</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tabel-rapor-siswa-body">
+                    <tr><td colspan="4" style="text-align:center;">Memuat data nilai Anda...</td></tr>
                   </tbody>
                 </table>
               </div>
@@ -1070,6 +1111,7 @@
     let daftarKelasGlobal = [];
     let cacheListSiswaNilai = [];
     let kelasBinaanAktif = "";
+    let cacheSiswaMandiriData = null; // Menyimpan data rapor siswa yang sedang login
     let dataSekolahGlobal = {
       nama_sekolah: "SMK Diponegoro 1 Purwokerto",
       alamat_sekolah: "Jl. Diponegoro No. 1, Purwokerto, Kabupaten Banyumas, Jawa Tengah",
@@ -1109,6 +1151,7 @@
 
       if (panelId === 'panel-monitoring') muatMonitoringProgressRealtime();
       if (panelId === 'panel-walikelas') muatTabelWaliKelasSiswa();
+      if (panelId === 'panel-rapor-siswa') muatTabelRaporSiswaMandiri();
     };
 
     window.togglePasswordVisibility = function() {
@@ -1232,7 +1275,6 @@
       const r = user.role.toLowerCase();
       muatIdentitasSekolahRealtime();
       muatMasterKelasRealtime();
-      muatStatistikDashboardRealtime();
 
       let isAdmin = (r === "admin");
       let isWaka = (r === "waka" || user.username.toLowerCase().includes("waka") || user.nama.toLowerCase().includes("waka"));
@@ -1240,6 +1282,8 @@
       if (isAdmin || isWaka) {
         document.getElementById("card-setting-sekolah").style.display = "block";
         document.getElementById("container-select-admin-walikelas").style.display = "block";
+        document.getElementById("container-stat-dashboard").style.display = "grid";
+        muatStatistikDashboardRealtime();
       } else {
         document.getElementById("card-setting-sekolah").style.display = "none";
         document.getElementById("container-select-admin-walikelas").style.display = "none";
@@ -1288,6 +1332,8 @@
         muatTabelTPRealtime();
 
       } else if (r === "guru" || r === "walikelas" || r === "gurumapel") {
+        document.getElementById("container-stat-dashboard").style.display = "grid";
+        muatStatistikDashboardRealtime();
         document.getElementById("dash-role-sidebar").innerText = isWaliKelas ? "Wali Kelas / Guru" : "Guru Mata Pelajaran";
         document.getElementById("dash-role").innerText = isWaliKelas ? "WALI KELAS" : "GURU MAPEL";
 
@@ -1315,15 +1361,95 @@
         muatTabelTPRealtime();
 
       } else {
-        document.getElementById("dash-role-sidebar").innerText = "Siswa / Wali Murid";
+        // SISWA / WALI MURID
+        document.getElementById("container-stat-dashboard").style.display = "none";
+        document.getElementById("dash-role-sidebar").innerText = r === "siswa" ? `Siswa (${user.kelas || '-'})` : "Wali Murid";
         document.getElementById("dash-role").innerText = user.role.toUpperCase();
+        
+        document.getElementById("text-welcome-sub").innerText = `Selamat datang di Portal Rapor Digital SMK Diponegoro 1 Purwokerto. Anda dapat melihat hasil capaian belajar dan mencetak rapor secara mandiri.`;
+
         menuList.innerHTML = `
+          <div class="sidebar-section-title">Menu Siswa</div>
           <li><a onclick="bukaPanel('panel-beranda', this)" class="active"><span class="menu-icon">🏠</span><span class="menu-text">Beranda Utama</span></a></li>
+          <li><a onclick="bukaPanel('panel-rapor-siswa', this)"><span class="menu-icon">📄</span><span class="menu-text">${r === 'siswa' ? 'Rapor Saya' : 'Rapor Anak'}</span></a></li>
+          <div class="sidebar-section-title">Akun</div>
           <li><a onclick="logout()" style="color: #fca5a5;"><span class="menu-icon">🚪</span><span class="menu-text">Keluar (Logout)</span></a></li>
         `;
         bukaPanel('panel-beranda', menuList.querySelector('a'));
       }
     }
+
+    /* --- FEATURE MANDIRI UNTUK SISWA / WALI MURID (PANEL RAPOR SISWA) --- */
+    async function muatTabelRaporSiswaMandiri() {
+      const tbody = document.getElementById("tabel-rapor-siswa-body");
+      if (!tbody || !currentUser) return;
+
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Memuat data nilai Anda...</td></tr>';
+
+      document.getElementById("view-siswa-nama").innerText = currentUser.nama;
+      document.getElementById("view-siswa-nis").innerText = currentUser.username;
+      document.getElementById("view-siswa-kelas").innerText = currentUser.kelas || "-";
+
+      const kelasSiswa = currentUser.kelas;
+      const namaSiswa = currentUser.nama;
+
+      // GET DATA CATATAN WALI KELAS & ABSENSI
+      const qWaliData = query(collection(db, "walikelas_catatan"), where("kelas", "==", kelasSiswa), where("nama_siswa", "==", namaSiswa));
+      const snapWaliData = await getDocs(qWaliData);
+      let wData = { sakit: 0, izin: 0, alpa: 0, catatan: "-" };
+      snapWaliData.forEach(d => { wData = d.data(); });
+
+      document.getElementById("view-siswa-sakit").innerText = (wData.sakit || 0) + " Hari";
+      document.getElementById("view-siswa-izin").innerText = (wData.izin || 0) + " Hari";
+      document.getElementById("view-siswa-alpa").innerText = (wData.alpa || 0) + " Hari";
+      document.getElementById("view-siswa-catatan").innerText = wData.catatan || "-";
+
+      cacheSiswaMandiriData = {
+        nama: namaSiswa,
+        username: currentUser.username,
+        kelas: kelasSiswa,
+        sakit: wData.sakit || 0,
+        izin: wData.izin || 0,
+        alpa: wData.alpa || 0,
+        catatan: wData.catatan || "-"
+      };
+
+      // GET NILAI MAPEL
+      const qNilai = query(collection(db, "nilai_mapel"), where("kelas", "==", kelasSiswa), where("nama_siswa", "==", namaSiswa));
+      const snapNilai = await getDocs(qNilai);
+
+      tbody.innerHTML = "";
+      let no = 1;
+
+      snapNilai.forEach(d => {
+        const n = d.data();
+        let ket = "";
+        if (n.tp_tinggi) ket += `<b>Capaian Tertinggi:</b> ${n.tp_tinggi}<br>`;
+        if (n.tp_rendah) ket += `<b>Perlu Peningkatan:</b> ${n.tp_rendah}`;
+        if (!ket) ket = "-";
+
+        tbody.innerHTML += `
+          <tr>
+            <td style="text-align:center;">${no++}</td>
+            <td><b>${n.mapel}</b></td>
+            <td style="text-align:center; font-weight:bold; font-size:14px; color:#1a73e8;">${n.nilai}</td>
+            <td style="font-size:12px;">${ket}</td>
+          </tr>
+        `;
+      });
+
+      if (no === 1) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px; color:#ef4444;">Belum ada nilai mata pelajaran yang diinputkan oleh Guru Mapel.</td></tr>';
+      }
+    }
+
+    window.cetakRaporSiswaMandiri = function() {
+      if (!cacheSiswaMandiriData) {
+        alert("Data Rapor belum dimuat dengan sempurna.");
+        return;
+      }
+      previewRaporSiswa(cacheSiswaMandiriData);
+    };
 
     /* --- REALTIME STATISTIK --- */
     function muatStatistikDashboardRealtime() {
@@ -1587,7 +1713,6 @@
         const wData = mapWaliData[s.nama] || { sakit: 0, izin: 0, alpa: 0, catatan: "-" };
         const dataString = JSON.stringify({ nama: s.nama, username: s.username, kelas: s.kelas, ...wData }).replace(/'/g, "&apos;");
 
-        // TOMBOL DIPERBARUI MENJADI "✏️ Edit"
         tbody.innerHTML += `
           <tr>
             <td>${no++}</td>
