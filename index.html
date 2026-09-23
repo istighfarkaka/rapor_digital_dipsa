@@ -11,9 +11,6 @@
   <!-- CDN html2pdf.js untuk Konversi HTML Rapor ke PDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
-  <!-- CDN Google Identity Services (OAuth2) -->
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
-
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     body { background-color: #f0f2f5; height: 100vh; overflow: hidden; }
@@ -253,6 +250,21 @@
     .close-btn:hover { color: #000; }
 
     .modal-box-small { max-width: 520px; }
+
+    /* STYLING BLOCK KODE PANDUAN GAS */
+    .code-block-container {
+      background: #1e293b;
+      color: #f8fafc;
+      padding: 15px;
+      border-radius: 8px;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 12px;
+      max-height: 250px;
+      overflow-y: auto;
+      margin: 10px 0;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
 
     @media print {
       body * { visibility: hidden; }
@@ -781,18 +793,34 @@
           <!-- PANEL BACKUP DRIVE (WAKA / ADMIN) -->
           <div class="content-panel" id="panel-backup-drive">
             <div class="section-card" style="border-left: 4px solid #0284c7;">
-              <div class="section-title" style="color:#0284c7; font-size:16px; margin-bottom:8px;">📦 Backup Cetak Rapor Digital ke Google Drive (Per Kelas)</div>
+              <div class="card-header-flex">
+                <div class="section-title" style="color:#0284c7; font-size:16px;">📦 Backup Cetak Rapor Digital ke Google Drive (Per Kelas)</div>
+                <button class="btn-info" style="width:auto; margin-bottom:0; background:#0f172a;" onclick="bukaModalPanduanGas()">📖 Panduan Setup Google Apps Script</button>
+              </div>
+              
               <p style="font-size:13px; color:#475569; margin-bottom:20px;">
-                Fitur ini akan secara otomatis membuatkan <b>Sub-Folder per Kelas</b> di dalam Folder Google Drive Utama Anda, lalu mengonversi dan mengunggah seluruh Rapor Siswa dalam format PDF ke kelasnya masing-masing.
+                Fitur ini akan secara otomatis membuatkan <b>Sub-Folder per Kelas</b> di dalam Folder Google Drive Utama Anda via <b>Google Apps Script API</b>, lalu mengonversikan dan mengunggah seluruh Rapor Siswa dalam format PDF ke kelasnya masing-masing.
               </p>
 
-              <div class="form-group">
-                <label style="color:#0f172a; font-weight:700;">📍 Tautkan Link / ID Folder Google Drive Tujuan Backup:</label>
-                <input type="text" id="input-backup-drive-url" class="form-control" placeholder="Contoh: https://drive.google.com/drive/folders/1ABC_XYZ123456789... ATAU tempel ID Folder-nya saja">
-                <small style="color:#64748b; font-size:11px; display:block; margin-top:4px;">
-                  Pastikan akun Google yang Anda gunakan saat login memiliki akses *Editor/Write* pada Folder Drive ini.
-                </small>
+              <div class="grid-2">
+                <div class="form-group">
+                  <label style="color:#0f172a; font-weight:700;">1. ID Folder Google Drive Tujuan Backup:</label>
+                  <input type="text" id="input-backup-drive-url" class="form-control" placeholder="Contoh: 1xq9gax2JAI8Wns7hrJoukGnrp8d5joIN">
+                  <small style="color:#64748b; font-size:11px; display:block; margin-top:4px;">
+                    Isikan ID Folder Utama (atau paste Link Folder Drive lengkap).
+                  </small>
+                </div>
+
+                <div class="form-group">
+                  <label style="color:#0f172a; font-weight:700;">2. URL Web App Google Apps Script (GAS):</label>
+                  <input type="text" id="input-backup-gas-url" class="form-control" placeholder="Contoh: https://script.google.com/macros/s/AKfycbx.../exec">
+                  <small style="color:#64748b; font-size:11px; display:block; margin-top:4px;">
+                    Tempel URL Web App dari Google Apps Script yang sudah Anda deploy.
+                  </small>
+                </div>
               </div>
+
+              <button class="btn-submit" style="background:#10b981; margin-top:5px; margin-bottom:20px; max-width:280px;" onclick="simpanKonfigurasiBackupDrive()">💾 Simpan Konfigurasi Backup</button>
 
               <div id="status-backup-progress" style="display:none; background:#f0fdf4; border:1px solid #bbf7d0; padding:12px; border-radius:8px; margin-bottom:15px;">
                 <div style="font-weight:bold; font-size:13px; color:#166534;" id="text-backup-status">Memproses...</div>
@@ -1038,6 +1066,79 @@
         </div>
       </div>
 
+    </div>
+  </div>
+
+  <!-- MODAL PANDUAN GOOGLE APPS SCRIPT -->
+  <div class="modal-overlay" id="modal-panduan-gas">
+    <div class="modal-box" style="max-width:700px;">
+      <div class="modal-header">
+        <h3>📖 Panduan Setup Google Apps Script (Satu Kali Langkah)</h3>
+        <span class="close-btn" onclick="tutupModalPanduanGas()">&times;</span>
+      </div>
+      
+      <div style="font-size:13px; color:#334155; line-height:1.6;">
+        <p style="margin-bottom:10px;">
+          Ikuti 5 langkah mudah berikut menggunakan Akun Gmail/Google Workspace Sekolah untuk mengaktifkan fitur Auto-Upload Rapor PDF ke Google Drive:
+        </p>
+
+        <ol style="padding-left:20px; margin-bottom:15px;">
+          <li>Buka situs <a href="https://script.google.com" target="_blank" style="color:#2563eb; font-weight:bold;">script.google.com</a> dan klik <b>"Proyek Baru" (New Project)</b>.</li>
+          <li>Hapus seluruh kode default yang ada di sana, lalu tempel (*paste*) kode di bawah ini:</li>
+        </ol>
+
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <b style="font-size:12px; color:#0f172a;">📄 Script Code Google Apps Script:</b>
+          <button class="btn-success" style="width:auto; padding:4px 10px; font-size:11px;" onclick="copyScriptGasCode()">📋 Salin Script (Copy)</button>
+        </div>
+
+        <div class="code-block-container" id="code-gas-text">function doPost(e) {
+  try {
+    var data = JSON.parse(e.postData.contents);
+    var parentFolderId = data.folderId;
+    var subFolderName = data.subFolder;
+    var fileName = data.fileName;
+    var base64Data = data.fileData;
+
+    // Ambil Folder Utama Google Drive
+    var parentFolder = DriveApp.getFolderById(parentFolderId);
+    
+    // Cek atau Buat Sub-Folder Kelas Otomatis
+    var subFolders = parentFolder.getFoldersByName(subFolderName);
+    var targetFolder;
+    if (subFolders.hasNext()) {
+      targetFolder = subFolders.next();
+    } else {
+      targetFolder = parentFolder.createFolder(subFolderName);
+    }
+
+    // Decode file PDF dan simpan ke Drive
+    var bytes = Utilities.base64Decode(base64Data);
+    var blob = Utilities.newBlob(bytes, "application/pdf", fileName);
+    var file = targetFolder.createFile(blob);
+
+    return ContentService.createTextOutput(JSON.stringify({
+      status: "success",
+      fileId: file.getId(),
+      fileUrl: file.getUrl()
+    })).setMimeType(ContentService.MimeType.JSON);
+
+  } catch (error) {
+    return ContentService.createTextOutput(JSON.stringify({
+      status: "error",
+      message: error.toString()
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+}</div>
+
+        <ol start="3" style="padding-left:20px; margin-top:15px; margin-bottom:15px;">
+          <li>Klik tombol <b>Terapkan (Deploy)</b> ➔ <b>Terapkan sebagai Aplikasi Web (New deployment)</b>.</li>
+          <li>Ubah opsi <b>"Siapa yang memiliki akses" (Who has access)</b> menjadi <b style="color:#dc2626;">Siapa saja (Anyone)</b>.</li>
+          <li>Klik <b>Terapkan (Deploy)</b>, berikan izin akses Google Drive saat diminta, lalu **salin URL Aplikasi Web** yang dihasilkan dan tempelkan ke kolom pengisian aplikasi Rapor.</li>
+        </ol>
+
+        <button class="btn-submit" style="background:#0284c7;" onclick="tutupModalPanduanGas()">Siap, Saya Mengerti</button>
+      </div>
     </div>
   </div>
 
@@ -1449,7 +1550,6 @@
     let cacheListSiswaWaliClass = [];
     let kelasBinaanAktif = "";
     let cacheSiswaMandiriData = null;
-    let googleDriveAccessToken = null;
 
     let dataSekolahGlobal = {
       nama_sekolah: "SMK Diponegoro 1 Purwokerto",
@@ -1460,7 +1560,8 @@
       tahun_ajaran: "2026/2027",
       tanggal_rapor: "Purwokerto, 22 Oktober 2026",
       waktu_akses_siswa: "",
-      drive_backup_url: ""
+      drive_backup_url: "",
+      gas_webapp_url: ""
     };
 
     function urutkanDaftarKelas(arrKelas) {
@@ -1568,6 +1669,23 @@
       document.querySelectorAll(`.chk-item-${group}`).forEach(cb => cb.checked = masterCheckbox.checked);
     };
 
+    window.bukaModalPanduanGas = function() {
+      document.getElementById("modal-panduan-gas").style.display = "flex";
+    };
+
+    window.tutupModalPanduanGas = function() {
+      document.getElementById("modal-panduan-gas").style.display = "none";
+    };
+
+    window.copyScriptGasCode = function() {
+      const codeText = document.getElementById("code-gas-text").innerText;
+      navigator.clipboard.writeText(codeText).then(() => {
+        alert("Script Google Apps Script berhasil disalin ke clipboard!");
+      }).catch(err => {
+        alert("Gagal menyalin otomatis: " + err.message);
+      });
+    };
+
     window.downloadTemplateExcel = function() {
       const templateData = [
         { nama: "Ahmad Subarjo", "username/NIS": "12345", nisn: "0081234567", password: "pass123", role: "siswa", kelas: daftarKelasGlobal[0] || "X MP 1" },
@@ -1601,7 +1719,9 @@
           document.getElementById("setting-waktu-akses-siswa").value = dataSekolahGlobal.waktu_akses_siswa || "";
 
           const inpDrive = document.getElementById("input-backup-drive-url");
+          const inpGas = document.getElementById("input-backup-gas-url");
           if(inpDrive) inpDrive.value = dataSekolahGlobal.drive_backup_url || "";
+          if(inpGas) inpGas.value = dataSekolahGlobal.gas_webapp_url || "";
 
           document.getElementById("dash-app-brand").innerText = (dataSekolahGlobal.nama_sekolah || "").toUpperCase();
           document.getElementById("dash-info-semester").innerText = `Semester ${dataSekolahGlobal.semester_aktif || 'Ganjil'} | TP ${dataSekolahGlobal.tahun_ajaran || '2026/2027'}`;
@@ -1639,6 +1759,24 @@
         alert(`Pengaturan Rapor & Jadwal Akses Siswa berhasil diperbarui!`);
         muatTabelWaliKelasSiswa();
       } catch (err) { alert("Gagal menyimpan pengaturan: " + err.message); }
+    };
+
+    window.simpanKonfigurasiBackupDrive = async function() {
+      const urlDrive = document.getElementById("input-backup-drive-url").value.trim();
+      const urlGas = document.getElementById("input-backup-gas-url").value.trim();
+
+      if(!urlDrive || !urlGas) {
+        alert("Mohon lengkapi ID Folder Drive dan URL Google Apps Script Web App!");
+        return;
+      }
+
+      try {
+        await setDoc(doc(db, "pengaturan_sekolah", "identitas"), {
+          drive_backup_url: urlDrive,
+          gas_webapp_url: urlGas
+        }, { merge: true });
+        alert("Konfigurasi Backup Google Drive berhasil disimpan!");
+      } catch(err) { alert("Gagal menyimpan konfigurasi: " + err.message); }
     };
 
     window.prosesLogin = async function(e) {
@@ -1803,7 +1941,7 @@
       }
     }
 
-    /* BACKUP GOOGLE DRIVE PER KELAS */
+    /* BACKUP GOOGLE DRIVE VIA GAS API */
     async function muatTabelBackupKelas() {
       const tbody = document.getElementById("tabel-backup-kelas-body");
       if(!tbody) return;
@@ -1832,161 +1970,110 @@
           <td><b>${count}</b> Siswa Terdaftar</td>
           <td style="text-align:center;">
             <button class="btn-success btn-execute-backup" style="padding:6px 12px; font-size:12px; width:auto;">
-              📤 Backup PDF Kelas Ini
+              📤 Backup PDF ke Drive
             </button>
           </td>
         `;
 
-        tr.querySelector('.btn-execute-backup').addEventListener('click', () => eksekusiBackupKelasKeDrive(namaKelas));
+        tr.querySelector('.btn-execute-backup').addEventListener('click', () => eksekusiBackupKelasKeDriveViaGAS(namaKelas));
         tbody.appendChild(tr);
       });
 
       if(no === 1) tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Belum ada kelas terdaftar.</td></tr>';
     }
 
-    function dapatkanGoogleAccessToken(callback) {
-      if (googleDriveAccessToken) {
-        callback(googleDriveAccessToken);
-        return;
-      }
-
-      const client = google.accounts.oauth2.initTokenClient({
-        client_id: '1059367167032-p0q8453g7k967923724.apps.googleusercontent.com', // Client ID Publik / OAuth Standard
-        scope: 'https://www.googleapis.com/auth/drive.file',
-        callback: (response) => {
-          if (response.access_token) {
-            googleDriveAccessToken = response.access_token;
-            callback(googleDriveAccessToken);
-          } else {
-            alert("Gagal mengotentikasi Google Drive. Izin ditolak.");
-          }
-        },
+    // Helper Konversi Blob Ke Base64
+    function blobToBase64(blob) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const base64String = reader.result.split(',')[1];
+          resolve(base64String);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
       });
-      client.requestAccessToken();
     }
 
-    async function cariAtauBuatSubFolder(parentFolderId, folderName, token) {
-      const q = `name = '${folderName}' and '${parentFolderId}' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false`;
-      const searchUrl = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}`;
-      
-      const resSearch = await fetch(searchUrl, {
-        headers: { 'Authorization': 'Bearer ' + token }
-      });
-      const dataSearch = await resSearch.json();
-
-      if (dataSearch.files && dataSearch.files.length > 0) {
-        return dataSearch.files[0].id;
-      }
-
-      // Buat baru jika belum ada
-      const createUrl = 'https://www.googleapis.com/drive/v3/files';
-      const metadata = {
-        name: folderName,
-        mimeType: 'application/vnd.google-apps.folder',
-        parents: [parentFolderId]
-      };
-
-      const resCreate = await fetch(createUrl, {
-        method: 'POST',
-        headers: {
-          'Authorization': 'Bearer ' + token,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(metadata)
-      });
-      const dataCreate = await resCreate.json();
-      return dataCreate.id;
-    }
-
-    async function uploadFilePdfKeDrive(folderId, fileName, blobPdf, token) {
-      const metadata = {
-        name: fileName,
-        parents: [folderId]
-      };
-
-      const form = new FormData();
-      form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
-      form.append('file', blobPdf);
-
-      const res = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
-        method: 'POST',
-        headers: { 'Authorization': 'Bearer ' + token },
-        body: form
-      });
-      return await res.json();
-    }
-
-    async function eksekusiBackupKelasKeDrive(namaKelas) {
+    async function eksekusiBackupKelasKeDriveViaGAS(namaKelas) {
       const rawUrlDrive = document.getElementById("input-backup-drive-url").value.trim();
       const parentFolderId = ekstraksiFolderIdDrive(rawUrlDrive);
+      const gasUrl = document.getElementById("input-backup-gas-url").value.trim();
 
-      if (!parentFolderId) {
-        alert("Silakan isi Link atau ID Folder Google Drive Utama pada kolom pengisian terlebih dahulu!");
+      if (!parentFolderId || !gasUrl) {
+        alert("Silakan lengkapi ID Folder Drive dan URL Web App Google Apps Script terlebih dahulu!");
         return;
       }
 
-      // Simpan URL Drive ke Firestore
-      await setDoc(doc(db, "pengaturan_sekolah", "identitas"), { drive_backup_url: rawUrlDrive }, { merge: true });
+      const boxStatus = document.getElementById("status-backup-progress");
+      const txtStatus = document.getElementById("text-backup-status");
+      const barFill = document.getElementById("bar-backup-fill");
 
-      dapatkanGoogleAccessToken(async (token) => {
-        const boxStatus = document.getElementById("status-backup-progress");
-        const txtStatus = document.getElementById("text-backup-status");
-        const barFill = document.getElementById("bar-backup-fill");
+      boxStatus.style.display = "block";
+      txtStatus.innerText = `🔍 Mengambil data Rapor siswa kelas "${namaKelas}"...`;
+      barFill.style.width = `5%`;
+      barFill.innerText = `5%`;
 
-        boxStatus.style.display = "block";
-        txtStatus.innerText = `🔍 Menguji akses Google Drive & membuat Sub-Folder "${namaKelas}"...`;
-        barFill.style.width = `5%`;
-        barFill.innerText = `5%`;
+      try {
+        // Ambil Siswa di Kelas Ini
+        const qSiswa = query(collection(db, "users"), where("role", "==", "siswa"), where("kelas", "==", namaKelas));
+        const snapSiswa = await getDocs(qSiswa);
+        
+        let listSiswa = [];
+        snapSiswa.forEach(d => listSiswa.push(d.data()));
+        listSiswa.sort((a,b) => a.nama.localeCompare(b.nama, undefined, { sensitivity: 'base' }));
 
-        try {
-          const classFolderId = await cariAtauBuatSubFolder(parentFolderId, namaKelas, token);
-
-          // Ambil Siswa di Kelas Ini
-          const qSiswa = query(collection(db, "users"), where("role", "==", "siswa"), where("kelas", "==", namaKelas));
-          const snapSiswa = await getDocs(qSiswa);
-          
-          let listSiswa = [];
-          snapSiswa.forEach(d => listSiswa.push(d.data()));
-          listSiswa.sort((a,b) => a.nama.localeCompare(b.nama, undefined, { sensitivity: 'base' }));
-
-          if(listSiswa.length === 0) {
-            alert(`Tidak ada siswa terdaftar pada kelas ${namaKelas}`);
-            boxStatus.style.display = "none";
-            return;
-          }
-
-          txtStatus.innerText = `📦 Mulai memproses ${listSiswa.length} Rapor Siswa Kelas ${namaKelas}...`;
-
-          let total = listSiswa.length;
-          let completed = 0;
-
-          for (let s of listSiswa) {
-            completed++;
-            const pct = Math.round((completed / total) * 100);
-            txtStatus.innerText = `⚙️ Converting & Uploading Rapor (${completed}/${total}): ${s.nama}...`;
-            barFill.style.width = `${pct}%`;
-            barFill.innerText = `${pct}%`;
-
-            const blobPdf = await generateRaporPdfBlobSiswa(s);
-            const safeNama = s.nama.replace(/[^a-zA-Z0-9 ]/g, "").replace(/\s+/g, "_");
-            const fileName = `Rapor_${namaKelas.replace(/\s+/g, "_")}_${safeNama}.pdf`;
-
-            await uploadFilePdfKeDrive(classFolderId, fileName, blobPdf, token);
-          }
-
-          txtStatus.innerText = `✅ SUKSES! Seluruh Rapor Kelas ${namaKelas} (${total} PDF) berhasil di-backup ke Drive!`;
-          alert(`Backup Kelas ${namaKelas} Selesai! Semua Rapor tersimpan di folder Google Drive.`);
-        } catch (err) {
-          alert("Terjadi kesalahan saat memproses backup: " + err.message);
-          txtStatus.innerText = "❌ Backup gagal: " + err.message;
+        if(listSiswa.length === 0) {
+          alert(`Tidak ada siswa terdaftar pada kelas ${namaKelas}`);
+          boxStatus.style.display = "none";
+          return;
         }
-      });
+
+        txtStatus.innerText = `📦 Mulai mengirim Rapor Siswa Kelas ${namaKelas} ke Google Drive...`;
+
+        let total = listSiswa.length;
+        let completed = 0;
+
+        for (let s of listSiswa) {
+          completed++;
+          const pct = Math.round((completed / total) * 100);
+          txtStatus.innerText = `⚙️ Converting & Uploading (${completed}/${total}): ${s.nama}...`;
+          barFill.style.width = `${pct}%`;
+          barFill.innerText = `${pct}%`;
+
+          const blobPdf = await generateRaporPdfBlobSiswa(s);
+          const base64Data = await blobToBase64(blobPdf);
+          
+          const safeNama = s.nama.replace(/[^a-zA-Z0-9 ]/g, "").replace(/\s+/g, "_");
+          const fileName = `Rapor_${namaKelas.replace(/\s+/g, "_")}_${safeNama}.pdf`;
+
+          const payload = {
+            folderId: parentFolderId,
+            subFolder: namaKelas,
+            fileName: fileName,
+            fileData: base64Data
+          };
+
+          // Kirim payload ke Google Apps Script Web App via Fetch
+          await fetch(gasUrl, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+        }
+
+        txtStatus.innerText = `✅ SUKSES! Seluruh Rapor Kelas ${namaKelas} (${total} PDF) telah diunggah ke Drive!`;
+        alert(`Backup Kelas ${namaKelas} Selesai!\nSeluruh file Rapor PDF berhasil diunggah ke Sub-Folder "${namaKelas}" di Google Drive Anda.`);
+      } catch (err) {
+        alert("Terjadi kesalahan saat memproses backup: " + err.message);
+        txtStatus.innerText = "❌ Backup gagal: " + err.message;
+      }
     }
 
     async function generateRaporPdfBlobSiswa(s) {
       const containerOffscreen = document.getElementById("container-pdf-offscreen");
       
-      // Load data pendukung Rapor
       const semAktif = dataSekolahGlobal.semester_aktif || "Ganjil";
       const taAktif = dataSekolahGlobal.tahun_ajaran || "2026/2027";
       const tglRapor = dataSekolahGlobal.tanggal_rapor || "Purwokerto, 22 Oktober 2026";
