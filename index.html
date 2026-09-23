@@ -8,9 +8,6 @@
   <!-- CDN SheetJS untuk Membaca & Membuat File Excel/CSV -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-  <!-- CDN html2pdf.js untuk Konversi HTML Rapor ke PDF -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     body { background-color: #f0f2f5; height: 100vh; overflow: hidden; }
@@ -275,9 +272,6 @@
   </style>
 </head>
 <body>
-
-  <!-- ELEMENT HTML UNTUK PROCESS GENERATE PDF BACKUP (Latar belakang aman agar tidak blank) -->
-  <div id="container-pdf-offscreen" style="position: fixed; top: 0; left: 0; width: 800px; z-index: -9999; opacity: 0; pointer-events: none; background: white;"></div>
 
   <!-- HALAMAN LOGIN DENGAN BACKGROUND GAMBAR -->
   <div class="screen active" id="screen-login">
@@ -1098,12 +1092,12 @@
     var parentFolderId = data.folderId;
     var subFolderName = data.subFolder;
     var fileName = data.fileName;
-    var base64Data = data.fileData;
+    var htmlContent = data.htmlContent;
 
-    // Ambil Folder Utama Google Drive
+    // 1. Ambil Folder Utama Google Drive
     var parentFolder = DriveApp.getFolderById(parentFolderId);
     
-    // Cek atau Buat Sub-Folder Kelas Otomatis
+    // 2. Cek atau Buat Sub-Folder Kelas
     var subFolders = parentFolder.getFoldersByName(subFolderName);
     var targetFolder;
     if (subFolders.hasNext()) {
@@ -1112,10 +1106,12 @@
       targetFolder = parentFolder.createFolder(subFolderName);
     }
 
-    // Decode file PDF dan simpan ke Drive
-    var bytes = Utilities.base64Decode(base64Data);
-    var blob = Utilities.newBlob(bytes, "application/pdf", fileName);
-    var file = targetFolder.createFile(blob);
+    // 3. Konversi HTML menjadi PDF secara Native di Server Google
+    var blobHtml = Utilities.newBlob(htmlContent, 'text/html', fileName + '.html');
+    var pdfBlob = blobHtml.getAs('application/pdf').setName(fileName);
+
+    // 4. Simpan File PDF ke Folder Drive
+    var file = targetFolder.createFile(pdfBlob);
 
     return ContentService.createTextOutput(JSON.stringify({
       status: "success",
@@ -1941,7 +1937,7 @@
       }
     }
 
-    /* BACKUP GOOGLE DRIVE VIA GAS API */
+    /* BACKUP GOOGLE DRIVE VIA GAS API (SERVER-SIDE PDF GENERATION - ANTI BLANK) */
     async function muatTabelBackupKelas() {
       const tbody = document.getElementById("tabel-backup-kelas-body");
       if(!tbody) return;
@@ -1982,19 +1978,6 @@
       if(no === 1) tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Belum ada kelas terdaftar.</td></tr>';
     }
 
-    // Helper Konversi Blob Ke Base64
-    function blobToBase64(blob) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          const base64String = reader.result.split(',')[1];
-          resolve(base64String);
-        };
-        reader.onerror = reject;
-        reader.readAsDataURL(blob);
-      });
-    }
-
     async function eksekusiBackupKelasKeDriveViaGAS(namaKelas) {
       const rawUrlDrive = document.getElementById("input-backup-drive-url").value.trim();
       const parentFolderId = ekstraksiFolderIdDrive(rawUrlDrive);
@@ -2015,7 +1998,6 @@
       barFill.innerText = `5%`;
 
       try {
-        // Ambil Siswa di Kelas Ini
         const qSiswa = query(collection(db, "users"), where("role", "==", "siswa"), where("kelas", "==", namaKelas));
         const snapSiswa = await getDocs(qSiswa);
         
@@ -2037,12 +2019,12 @@
         for (let s of listSiswa) {
           completed++;
           const pct = Math.round((completed / total) * 100);
-          txtStatus.innerText = `⚙️ Converting & Uploading (${completed}/${total}): ${s.nama}...`;
+          txtStatus.innerText = `⚙️ Mengirim Rapor PDF (${completed}/${total}): ${s.nama}...`;
           barFill.style.width = `${pct}%`;
           barFill.innerText = `${pct}%`;
 
-          const blobPdf = await generateRaporPdfBlobSiswa(s);
-          const base64Data = await blobToBase64(blobPdf);
+          // Generate Struktur Kode HTML Rapor Lengkap
+          const htmlRaporSiswa = await buatHtmlRaporSiswa(s);
           
           const safeNama = s.nama.replace(/[^a-zA-Z0-9 ]/g, "").replace(/\s+/g, "_");
           const fileName = `Rapor_${namaKelas.replace(/\s+/g, "_")}_${safeNama}.pdf`;
@@ -2051,10 +2033,10 @@
             folderId: parentFolderId,
             subFolder: namaKelas,
             fileName: fileName,
-            fileData: base64Data
+            htmlContent: htmlRaporSiswa
           };
 
-          // Kirim payload ke Google Apps Script Web App via Fetch
+          // Kirim payload HTML ke GAS untuk dikonversi menjadi PDF secara Native di Server Google
           await fetch(gasUrl, {
             method: 'POST',
             mode: 'no-cors',
@@ -2071,9 +2053,7 @@
       }
     }
 
-    async function generateRaporPdfBlobSiswa(s) {
-      const containerOffscreen = document.getElementById("container-pdf-offscreen");
-      
+    async function buatHtmlRaporSiswa(s) {
       const semAktif = dataSekolahGlobal.semester_aktif || "Ganjil";
       const taAktif = dataSekolahGlobal.tahun_ajaran || "2026/2027";
       const tglRapor = dataSekolahGlobal.tanggal_rapor || "Purwokerto, 22 Oktober 2026";
@@ -2126,106 +2106,118 @@
         } else {
           txt = kep === "naik" ? `Berdasarkan hasil pengamatan dan penilaian perkembangan, maka siswa <b>${s.nama}</b> dinyatakan <b>NAIK KE KELAS ${hitungKelasTujuan(s.kelas)}</b>.` : `Berdasarkan hasil pengamatan dan penilaian perkembangan, maka siswa <b>${s.nama}</b> dinyatakan <b>TINGGAL DI KELAS ${s.kelas}</b>.`;
         }
-        htmlKeputusan = `<div class="box-keputusan-rapor"><b>Keputusan:</b><p style="margin-top:5px;">${txt}</p></div>`;
+        htmlKeputusan = `<div style="border:2px solid #000; padding:10px; margin-bottom:15px; background:#fafafa;"><b>Keputusan:</b><p style="margin-top:5px;">${txt}</p></div>`;
       }
 
-      // Isi HTML Rapor ke container
-      containerOffscreen.innerHTML = `
-        <div class="rapor-preview-container" style="box-shadow:none; border:none; padding:20px; background:#ffffff;">
-          <div class="rapor-header-sekolah">
+      // Merakit Struktur HTML Dokumen Rapor Siap Cetak
+      return `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <style>
+            body { font-family: Arial, sans-serif; font-size: 12px; margin: 20px; color: #000; }
+            .rapor-header { text-align: center; border-bottom: 3px double #000; padding-bottom: 8px; margin-bottom: 15px; }
+            .rapor-header h3 { font-size: 16px; margin: 2px 0; text-transform: uppercase; }
+            .rapor-meta-table { width: 100%; font-size: 12px; margin-bottom: 15px; border-collapse: collapse; }
+            .rapor-meta-table td { border: none !important; padding: 2px 0; vertical-align: top; }
+            .table-data { width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 15px; }
+            .table-data th, .table-data td { border: 1px solid #000; padding: 5px; }
+            .table-data th { background-color: #f1f5f9; text-align: center; }
+          </style>
+        </head>
+        <body>
+          <div class="rapor-header">
             <h3>LAPORAN HASIL BELAJAR (RAPOR)</h3>
             <h3>${namaSekolahResmi.toUpperCase()}</h3>
-            <p>${dataSekolahGlobal.alamat_sekolah}</p>
+            <p style="font-size: 11px; margin: 2px 0;">${dataSekolahGlobal.alamat_sekolah}</p>
           </div>
 
           <table class="rapor-meta-table">
             <tr>
-              <td class="label">Nama Peserta Didik</td><td class="colon">:</td><td class="val"><b>${s.nama}</b></td>
-              <td class="label" style="padding-left:20px;">Kelas</td><td class="colon">:</td><td class="val">${s.kelas}</td>
+              <td style="font-weight:bold; width:130px;">Nama Peserta Didik</td><td style="width:10px;">:</td><td><b>${s.nama}</b></td>
+              <td style="font-weight:bold; width:120px; padding-left:20px;">Kelas</td><td style="width:10px;">:</td><td>${s.kelas}</td>
             </tr>
             <tr>
-              <td class="label">NIS / NISN</td><td class="colon">:</td><td class="val">${s.username} / ${s.nisn || '-'}</td>
-              <td class="label" style="padding-left:20px;">Fase / Semester</td><td class="colon">:</td><td class="val">${faseKelas} / ${semAktif}</td>
+              <td style="font-weight:bold;">NIS / NISN</td><td>:</td><td>${s.username} / ${s.nisn || '-'}</td>
+              <td style="font-weight:bold; padding-left:20px;">Fase / Semester</td><td>:</td><td>${faseKelas} / ${semAktif}</td>
             </tr>
             <tr>
-              <td class="label">Sekolah</td><td class="colon">:</td><td class="val">${namaSekolahResmi}</td>
-              <td class="label" style="padding-left:20px;">Tahun Ajaran</td><td class="colon">:</td><td class="val">${taAktif}</td>
+              <td style="font-weight:bold;">Sekolah</td><td>:</td><td>${namaSekolahResmi}</td>
+              <td style="font-weight:bold; padding-left:20px;">Tahun Ajaran</td><td>:</td><td>${taAktif}</td>
             </tr>
           </table>
 
-          <table style="width:100%; border-collapse:collapse; font-size:12px; margin-bottom:15px;">
+          <b style="display:block; margin-bottom:5px;">A. Capaian Pembelajaran Mata Pelajaran</b>
+          <table class="table-data">
             <thead>
-              <tr style="background:#f1f5f9;">
-                <th style="border:1px solid #000; padding:6px; width:30px;">No</th>
-                <th style="border:1px solid #000; padding:6px;">Muatan Pelajaran</th>
-                <th style="border:1px solid #000; padding:6px; width:60px;">Nilai</th>
-                <th style="border:1px solid #000; padding:6px;">Capaian Kompetensi</th>
+              <tr>
+                <th style="width:25px;">No</th>
+                <th>Muatan Pelajaran</th>
+                <th style="width:50px;">Nilai</th>
+                <th>Capaian Kompetensi</th>
               </tr>
             </thead>
             <tbody>${htmlNilai}</tbody>
           </table>
 
-          <div style="font-size:12px; margin-bottom:12px;">
-            <b>A. Ekstrakurikuler</b>
-            <table class="table-rapor-ekstra">
-              <tr><td style="width:30px; text-align:center;">1</td><td style="width:180px;">${wData.ekstra1_nama || '-'}</td><td>${wData.ekstra1_ket || '-'}</td></tr>
+          <div style="margin-bottom:12px;">
+            <b>B. Ekstrakurikuler</b>
+            <table class="table-data" style="margin-top:4px;">
+              <tr><th style="width:25px;">No</th><th style="width:160px;">Ekstrakurikuler</th><th>Keterangan</th></tr>
+              <tr><td style="text-align:center;">1</td><td>${wData.ekstra1_nama || '-'}</td><td>${wData.ekstra1_ket || '-'}</td></tr>
               <tr><td style="text-align:center;">2</td><td>${wData.ekstra2_nama || '-'}</td><td>${wData.ekstra2_ket || '-'}</td></tr>
             </table>
           </div>
 
-          <div style="display:grid; grid-template-columns: 1fr 1.2fr; gap:12px; margin-bottom:15px; font-size:12px;">
-            <div>
-              <b>B. Ketidakhadiran</b>
-              <table style="width:100%; border-collapse:collapse;">
-                <tr><td style="border:1px solid #000; padding:4px;">Sakit</td><td style="border:1px solid #000; padding:4px; text-align:center;">${wData.sakit || 0} Hari</td></tr>
-                <tr><td style="border:1px solid #000; padding:4px;">Izin</td><td style="border:1px solid #000; padding:4px; text-align:center;">${wData.izin || 0} Hari</td></tr>
-                <tr><td style="border:1px solid #000; padding:4px;">Tanpa Keterangan</td><td style="border:1px solid #000; padding:4px; text-align:center;">${wData.alpa || 0} Hari</td></tr>
-              </table>
-            </div>
-            <div>
-              <b>Catatan Wali Kelas</b>
-              <div style="border:1px solid #000; padding:6px; min-height:65px;">${wData.catatan || '-'}</div>
-            </div>
-          </div>
+          <table style="width:100%; border-collapse:collapse; margin-bottom:15px; font-size:11px;">
+            <tr>
+              <td style="width:48%; vertical-align:top; padding:0;">
+                <b>C. Ketidakhadiran</b>
+                <table class="table-data" style="margin-top:4px;">
+                  <tr><td>Sakit</td><td style="text-align:center; width:60px;">${wData.sakit || 0} Hari</td></tr>
+                  <tr><td>Izin</td><td style="text-align:center;">${wData.izin || 0} Hari</td></tr>
+                  <tr><td>Tanpa Keterangan</td><td style="text-align:center;">${wData.alpa || 0} Hari</td></tr>
+                </table>
+              </td>
+              <td style="width:4%;"></td>
+              <td style="width:48%; vertical-align:top; padding:0;">
+                <b>D. Catatan Wali Kelas</b>
+                <div style="border:1px solid #000; padding:6px; min-height:60px; margin-top:4px;">${wData.catatan || '-'}</div>
+              </td>
+            </tr>
+          </table>
 
           ${htmlKeputusan}
 
-          <div style="font-size:12px; margin-bottom:20px;">
-            <b>Tanggapan Orang Tua/Wali Murid</b>
-            <div class="box-tanggapan-ortu">${wData.tanggapan_ortu || ''}</div>
+          <div style="margin-bottom:20px;">
+            <b>E. Tanggapan Orang Tua/Wali Murid</b>
+            <div style="border:1px solid #000; padding:8px; min-height:50px; margin-top:4px;">${wData.tanggapan_ortu || ''}</div>
           </div>
 
-          <div style="font-size:11px;">
-            <div style="display:flex; justify-content:space-between; text-align:center; margin-bottom:20px;">
-              <div style="width: 40%;"><p>Orang Tua / Wali Murid,</p><br><br><p><b>( ......................................... )</b></p></div>
-              <div style="width: 40%;"><p>${tglRapor}</p><p>Wali Kelas,</p><br><br><p><b>${namaWaliResmi}</b></p></div>
-            </div>
-            <div style="text-align:center; width:100%;">
-              <p>Mengetahui, Kepala ${namaSekolahResmi}</p><br><br>
-              <p><u><b>${dataSekolahGlobal.nama_kepsek}</b></u></p>
-              <p>NIP. ${dataSekolahGlobal.nip_kepsek}</p>
-            </div>
-          </div>
-        </div>
+          <table style="width:100%; text-align:center; font-size:11px; margin-top:20px;">
+            <tr>
+              <td style="width:40%;">
+                Orang Tua / Wali Murid,<br><br><br><br>
+                <b>( ......................................... )</b>
+              </td>
+              <td style="width:20%;"></td>
+              <td style="width:40%;">
+                ${tglRapor}<br>Wali Kelas,<br><br><br><br>
+                <b>${namaWaliResmi}</b>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="3" style="padding-top:20px;">
+                Mengetahui, Kepala ${namaSekolahResmi}<br><br><br><br>
+                <u><b>${dataSekolahGlobal.nama_kepsek}</b></u><br>
+                NIP. ${dataSekolahGlobal.nip_kepsek}
+              </td>
+            </tr>
+          </table>
+        </body>
+        </html>
       `;
-
-      // BERI JEDA 200ms AGAR BROWSER SELESAI MEM-BUILD RENDER DOM
-      await new Promise(resolve => setTimeout(resolve, 200));
-
-      const opt = {
-        margin: [10, 10, 10, 10],
-        filename: 'rapor.pdf',
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true, logging: false },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-      };
-
-      const pdfWorker = html2pdf().set(opt).from(containerOffscreen).outputPdf('blob');
-      const blobPdf = await pdfWorker;
-      
-      // Bersihkan container
-      containerOffscreen.innerHTML = "";
-      return blobPdf;
     }
 
     /* SISWA MANDIRI & VALIDASI TANGGAL/JAM AKSES RAPOR */
