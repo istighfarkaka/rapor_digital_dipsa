@@ -8,6 +8,12 @@
   <!-- CDN SheetJS untuk Membaca & Membuat File Excel/CSV -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
+  <!-- CDN html2pdf.js untuk Konversi HTML Rapor ke PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <!-- CDN Google Identity Services (OAuth2) -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     body { background-color: #f0f2f5; height: 100vh; overflow: hidden; }
@@ -158,6 +164,66 @@
 
     .action-bar-flex { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 15px; background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; }
 
+    /* STYLING DESAIN KUNCI / LOCK SCREEN RAPOR SISWA */
+    .rapor-locked-box {
+      background: #fef2f2;
+      border: 2px dashed #ef4444;
+      border-radius: 12px;
+      padding: 40px 20px;
+      text-align: center;
+      margin-top: 15px;
+    }
+    .rapor-locked-icon {
+      font-size: 52px;
+      margin-bottom: 12px;
+      display: block;
+    }
+    .rapor-locked-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: #991b1b;
+      margin-bottom: 8px;
+    }
+    .rapor-locked-desc {
+      font-size: 13px;
+      color: #7f1d1d;
+      max-width: 500px;
+      margin: 0 auto 15px auto;
+      line-height: 1.6;
+    }
+    .badge-time-release {
+      display: inline-block;
+      background: #fee2e2;
+      color: #b91c1c;
+      font-weight: bold;
+      font-size: 14px;
+      padding: 8px 16px;
+      border-radius: 20px;
+      border: 1px solid #fca5a5;
+    }
+
+    /* STYLING DESAIN PANEL BACKUP DRIVE */
+    .progress-bar-container {
+      width: 100%;
+      background-color: #e2e8f0;
+      border-radius: 8px;
+      overflow: hidden;
+      height: 20px;
+      margin-top: 10px;
+      display: none;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background-color: #10b981;
+      width: 0%;
+      transition: width 0.3s ease;
+      text-align: center;
+      color: white;
+      font-size: 11px;
+      font-weight: bold;
+      line-height: 20px;
+    }
+
     /* LAYOUT PRINT RAPOR */
     .rapor-preview-container { background: #fff; padding: 30px; border-radius: 8px; max-width: 800px; margin: 0 auto; box-shadow: 0 4px 20px rgba(0,0,0,0.08); border: 1px solid #cbd5e1; }
     .rapor-header-sekolah { text-align: center; border-bottom: 3px double #000; padding-bottom: 12px; margin-bottom: 20px; }
@@ -197,6 +263,9 @@
   </style>
 </head>
 <body>
+
+  <!-- ELEMENT HTML TERSEMBUNYI UNTUK PROCESS GENERATE PDF BACKUP -->
+  <div id="container-pdf-offscreen" style="position: absolute; left: -9999px; top: -9999px; width: 800px; background: white;"></div>
 
   <!-- HALAMAN LOGIN DENGAN BACKGROUND GAMBAR -->
   <div class="screen active" id="screen-login">
@@ -336,10 +405,10 @@
             <div class="section-card" id="card-panduan-beranda">
               <div class="section-title" style="color:#1e293b; font-size:16px; margin-bottom:12px; font-weight:bold;">📌 Panduan & Fitur Rapor Digital</div>
               <ul style="padding-left: 20px; font-size: 13px; color: #475569; line-height: 1.8;">
-                <li><b>Waka Kurikulum:</b> Mengatur Semester Aktif, Tahun Ajaran, Tanggal Rapor, Kelas (beserta Fase masing-masing), Mapel, Penugasan Wali Kelas, Leger Nilai, dan Monitoring Guru.</li>
+                <li><b>Waka Kurikulum:</b> Mengatur Semester Aktif, Tahun Ajaran, Tanggal Rapor, Jadwal Buka Rapor Siswa, Kelas (beserta Fase masing-masing), Mapel, Penugasan Wali Kelas, Leger Nilai, Monitoring Guru, dan Backup Rapor PDF ke Google Drive.</li>
                 <li><b>Guru Mapel:</b> Menginput Tujuan Pembelajaran (TP) serta mengisi Nilai Rapor & Capaian TP.</li>
                 <li><b>Wali Kelas:</b> Menginput Absensi, Ekstrakurikuler, Catatan, Keputusan Kenaikan/Kelulusan (Genap), dan Cetak Rapor.</li>
-                <li><b>Siswa / Wali Murid:</b> Melihat rangkuman hasil belajar serta mencetak lembar Rapor Digital.</li>
+                <li><b>Siswa / Wali Murid:</b> Melihat rangkuman hasil belajar serta mencetak lembar Rapor Digital apabila sudah masuk jadwal rilis.</li>
               </ul>
             </div>
           </div>
@@ -347,13 +416,13 @@
           <!-- PANEL 1: DATA AKADEMIK & KELAS -->
           <div class="content-panel" id="panel-akademik">
             
-            <!-- 0) PENGATURAN SEMESTER, TAHUN AJARAN & TANGGAL RAPOR -->
+            <!-- PENGATURAN SEMESTER, TAHUN AJARAN & TANGGAL RAPOR -->
             <div class="section-card card-semester">
-              <div class="section-title">⚙️ Pengaturan Semester, Tahun Ajaran & Tanggal Penerbitan Rapor</div>
-              <p style="font-size:13px; color:#666; margin-bottom:15px;">Pengaturan ini akan langsung tercetak di Kop Rapor dan menentukan tanggal penerbitan rapor resmi.</p>
+              <div class="section-title">⚙️ Pengaturan Semester, Tahun Ajaran, Tanggal Penerbitan & Jadwal Buka Akses Rapor</div>
+              <p style="font-size:13px; color:#666; margin-bottom:15px;">Pengaturan ini akan langsung tercetak di Kop Rapor dan mengunci/membuka akses Rapor untuk akun Siswa & Wali Murid.</p>
               
               <form onsubmit="simpanPengaturanSemester(event)">
-                <div class="grid-3">
+                <div class="grid-2">
                   <div class="form-group">
                     <label>Semester Aktif</label>
                     <select id="setting-semester" class="form-control" required>
@@ -365,9 +434,15 @@
                     <label>Tahun Ajaran</label>
                     <input type="text" id="setting-tahun-ajaran" class="form-control" placeholder="Contoh: 2026/2027" required>
                   </div>
+                </div>
+                <div class="grid-2">
                   <div class="form-group">
                     <label>Tempat, Tanggal Penerbitan Rapor</label>
                     <input type="text" id="setting-tanggal-rapor" class="form-control" placeholder="Contoh: Purwokerto, 22 Oktober 2026" required>
+                  </div>
+                  <div class="form-group">
+                    <label>Tanggal & Jam Buka Akses Rapor Siswa (Rilis Online)</label>
+                    <input type="datetime-local" id="setting-waktu-akses-siswa" class="form-control" required>
                   </div>
                 </div>
                 <button type="submit" class="btn-submit" style="background-color: #9333ea; max-width: 280px;">💾 Simpan Pengaturan Rapor</button>
@@ -633,7 +708,7 @@
 
             <div class="user-group-card">
               <div class="user-card-header">
-                <div class="user-card-title">👨‍gsub Daftar Akun Wali Murid</div>
+                <div class="user-card-title">👨‍👩‍👧 Daftar Akun Wali Murid</div>
                 <button class="btn-danger" onclick="hapusMultipleUser('walimurid')">🗑️ Hapus Pilihan</button>
               </div>
               <div class="table-container">
@@ -697,6 +772,52 @@
                   </thead>
                   <tbody id="tabel-monitoring-body">
                     <tr><td colspan="6" style="text-align:center;">Memuat data monitoring...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- PANEL BACKUP DRIVE (WAKA / ADMIN) -->
+          <div class="content-panel" id="panel-backup-drive">
+            <div class="section-card" style="border-left: 4px solid #0284c7;">
+              <div class="section-title" style="color:#0284c7; font-size:16px; margin-bottom:8px;">📦 Backup Cetak Rapor Digital ke Google Drive (Per Kelas)</div>
+              <p style="font-size:13px; color:#475569; margin-bottom:20px;">
+                Fitur ini akan secara otomatis membuatkan <b>Sub-Folder per Kelas</b> di dalam Folder Google Drive Utama Anda, lalu mengonversi dan mengunggah seluruh Rapor Siswa dalam format PDF ke kelasnya masing-masing.
+              </p>
+
+              <div class="form-group">
+                <label style="color:#0f172a; font-weight:700;">📍 Tautkan Link / ID Folder Google Drive Tujuan Backup:</label>
+                <input type="text" id="input-backup-drive-url" class="form-control" placeholder="Contoh: https://drive.google.com/drive/folders/1ABC_XYZ123456789... ATAU tempel ID Folder-nya saja">
+                <small style="color:#64748b; font-size:11px; display:block; margin-top:4px;">
+                  Pastikan akun Google yang Anda gunakan saat login memiliki akses *Editor/Write* pada Folder Drive ini.
+                </small>
+              </div>
+
+              <div id="status-backup-progress" style="display:none; background:#f0fdf4; border:1px solid #bbf7d0; padding:12px; border-radius:8px; margin-bottom:15px;">
+                <div style="font-weight:bold; font-size:13px; color:#166534;" id="text-backup-status">Memproses...</div>
+                <div class="progress-bar-container" id="bar-backup-container" style="display:block;">
+                  <div class="progress-bar-fill" id="bar-backup-fill">0%</div>
+                </div>
+              </div>
+
+              <div style="font-size:14px; font-weight:700; color:#1e293b; margin-top:20px; margin-bottom:10px;">
+                📂 Daftar Kelas & Aksi Backup PDF
+              </div>
+
+              <div class="table-container">
+                <table>
+                  <thead>
+                    <tr>
+                      <th style="width:40px; text-align:center;">No</th>
+                      <th>Nama Kelas</th>
+                      <th>Fase</th>
+                      <th>Estimasi Siswa</th>
+                      <th style="width:220px; text-align:center;">Aksi Backup ke Drive</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tabel-backup-kelas-body">
+                    <tr><td colspan="5" style="text-align:center;">Memuat data kelas...</td></tr>
                   </tbody>
                 </table>
               </div>
@@ -857,44 +978,60 @@
             <div class="section-card">
               <div class="card-header-flex">
                 <div class="section-title" style="color:#10b981; font-size:16px;">🎓 Hasil Rapor Digital Siswa</div>
-                <button class="btn-success" style="width:auto; padding:8px 16px;" onclick="cetakRaporSiswaMandiri()">🖨️ Cetak Rapor Digital (PDF)</button>
+                <button class="btn-success" id="btn-cetak-rapor-mandiri" style="width:auto; padding:8px 16px;" onclick="cetakRaporSiswaMandiri()">🖨️ Cetak Rapor Digital (PDF)</button>
               </div>
 
-              <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:15px; margin-bottom:20px;">
-                <div class="grid-3" style="font-size:13px; row-gap:8px;">
-                  <div><b>Nama Siswa:</b> <span id="view-siswa-nama">-</span></div>
-                  <div><b>NIS / NISN:</b> <span id="view-siswa-nis">-</span></div>
-                  <div><b>Kelas:</b> <span id="view-siswa-kelas">-</span></div>
-                  <div><b>Sakit:</b> <span id="view-siswa-sakit">0 Hari</span></div>
-                  <div><b>Izin:</b> <span id="view-siswa-izin">0 Hari</span></div>
-                  <div><b>Alpa:</b> <span id="view-siswa-alpa">0 Hari</span></div>
+              <!-- TAMPILAN LOCK SCREEN JIKA AKSES BELUM DIBUKA -->
+              <div id="container-rapor-locked" class="rapor-locked-box" style="display:none;">
+                <span class="rapor-locked-icon">🔒</span>
+                <div class="rapor-locked-title">Akses Rapor Digital Belum Dibuka</div>
+                <div class="rapor-locked-desc">
+                  Mohon maaf, lembar hasil belajar dan cetak rapor digital belum dapat diakses. Pengumuman nilai rapor akan dibuka secara resmi oleh Pihak Sekolah pada:
                 </div>
-                <div style="margin-top:10px; font-size:13px; border-top:1px dashed #cbd5e1; padding-top:8px;">
-                  <b>Ekstrakurikuler:</b> <span id="view-siswa-ekstra">-</span>
-                </div>
-                <div style="margin-top:8px; font-size:13px;">
-                  <b>Catatan Wali Kelas:</b> <i id="view-siswa-catatan">-</i>
-                </div>
-                <div style="margin-top:8px; font-size:13px;">
-                  <b>Tanggapan Orang Tua:</b> <i id="view-siswa-tanggapan">-</i>
+                <div class="badge-time-release" id="text-jadwal-buka-rapor">
+                  📅 Tanggal Rilis Belum Ditentukan
                 </div>
               </div>
 
-              <div class="table-container">
-                <table>
-                  <thead>
-                    <tr style="background:#f1f5f9;">
-                      <th style="width:30px; text-align:center;">No</th>
-                      <th>Mata Pelajaran</th>
-                      <th style="width:90px; text-align:center;">Nilai Akhir</th>
-                      <th>Capaian Kompetensi</th>
-                    </tr>
-                  </thead>
-                  <tbody id="tabel-rapor-siswa-body">
-                    <tr><td colspan="4" style="text-align:center;">Memuat data nilai Anda...</td></tr>
-                  </tbody>
-                </table>
+              <!-- KONTEN RAPOR UTAMA JIKA SUDAH TERBUKA -->
+              <div id="container-rapor-unlocked">
+                <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:15px; margin-bottom:20px;">
+                  <div class="grid-3" style="font-size:13px; row-gap:8px;">
+                    <div><b>Nama Siswa:</b> <span id="view-siswa-nama">-</span></div>
+                    <div><b>NIS / NISN:</b> <span id="view-siswa-nis">-</span></div>
+                    <div><b>Kelas:</b> <span id="view-siswa-kelas">-</span></div>
+                    <div><b>Sakit:</b> <span id="view-siswa-sakit">0 Hari</span></div>
+                    <div><b>Izin:</b> <span id="view-siswa-izin">0 Hari</span></div>
+                    <div><b>Alpa:</b> <span id="view-siswa-alpa">0 Hari</span></div>
+                  </div>
+                  <div style="margin-top:10px; font-size:13px; border-top:1px dashed #cbd5e1; padding-top:8px;">
+                    <b>Ekstrakurikuler:</b> <span id="view-siswa-ekstra">-</span>
+                  </div>
+                  <div style="margin-top:8px; font-size:13px;">
+                    <b>Catatan Wali Kelas:</b> <i id="view-siswa-catatan">-</i>
+                  </div>
+                  <div style="margin-top:8px; font-size:13px;">
+                    <b>Tanggapan Orang Tua:</b> <i id="view-siswa-tanggapan">-</i>
+                  </div>
+                </div>
+
+                <div class="table-container">
+                  <table>
+                    <thead>
+                      <tr style="background:#f1f5f9;">
+                        <th style="width:30px; text-align:center;">No</th>
+                        <th>Mata Pelajaran</th>
+                        <th style="width:90px; text-align:center;">Nilai Akhir</th>
+                        <th>Capaian Kompetensi</th>
+                      </tr>
+                    </thead>
+                    <tbody id="tabel-rapor-siswa-body">
+                      <tr><td colspan="4" style="text-align:center;">Memuat data nilai Anda...</td></tr>
+                    </tbody>
+                  </table>
+                </div>
               </div>
+
             </div>
           </div>
 
@@ -904,7 +1041,7 @@
     </div>
   </div>
 
-  <!-- MODAL EDIT CATATAN WALI (DILENGKAPI EKSTRAKURIKULER, KEPUTUSAN & TANGGAPAN ORTU) -->
+  <!-- MODAL EDIT CATATAN WALI -->
   <div class="modal-overlay" id="modal-edit-catatan-wali">
     <div class="modal-box modal-box-small">
       <div class="modal-header">
@@ -1312,6 +1449,7 @@
     let cacheListSiswaWaliClass = [];
     let kelasBinaanAktif = "";
     let cacheSiswaMandiriData = null;
+    let googleDriveAccessToken = null;
 
     let dataSekolahGlobal = {
       nama_sekolah: "SMK Diponegoro 1 Purwokerto",
@@ -1320,7 +1458,9 @@
       nip_kepsek: "19750812 200003 1 002",
       semester_aktif: "Ganjil",
       tahun_ajaran: "2026/2027",
-      tanggal_rapor: "Purwokerto, 22 Oktober 2026"
+      tanggal_rapor: "Purwokerto, 22 Oktober 2026",
+      waktu_akses_siswa: "",
+      drive_backup_url: ""
     };
 
     function urutkanDaftarKelas(arrKelas) {
@@ -1349,6 +1489,28 @@
       return parts.join(" ");
     }
 
+    function formatWaktuIndo(isoString) {
+      if (!isoString) return "Belum Ditentukan";
+      try {
+        const d = new Date(isoString);
+        const hari = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"][d.getDay()];
+        const bulan = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"][d.getMonth()];
+        const jam = String(d.getHours()).padStart(2, '0');
+        const menit = String(d.getMinutes()).padStart(2, '0');
+        return `${hari}, ${d.getDate()} ${bulan} ${d.getFullYear()} Pukul ${jam}:${menit} WIB`;
+      } catch(e) { return isoString; }
+    }
+
+    function ekstraksiFolderIdDrive(str) {
+      if (!str) return "";
+      str = str.trim();
+      if (str.includes("drive.google.com")) {
+        const match = str.match(/folders\/([a-zA-Z0-9_-]+)/);
+        if (match && match[1]) return match[1];
+      }
+      return str;
+    }
+
     window.toggleSidebar = function() {
       document.getElementById("sidebar-nav").classList.toggle("collapsed");
     };
@@ -1363,6 +1525,7 @@
       if (panelId === 'panel-monitoring') muatMonitoringProgressRealtime();
       if (panelId === 'panel-walikelas') muatTabelWaliKelasSiswa();
       if (panelId === 'panel-rapor-siswa') muatTabelRaporSiswaMandiri();
+      if (panelId === 'panel-backup-drive') muatTabelBackupKelas();
     };
 
     window.togglePasswordVisibility = function() {
@@ -1435,6 +1598,10 @@
           document.getElementById("setting-semester").value = dataSekolahGlobal.semester_aktif || "Ganjil";
           document.getElementById("setting-tahun-ajaran").value = dataSekolahGlobal.tahun_ajaran || "2026/2027";
           document.getElementById("setting-tanggal-rapor").value = dataSekolahGlobal.tanggal_rapor || "Purwokerto, 22 Oktober 2026";
+          document.getElementById("setting-waktu-akses-siswa").value = dataSekolahGlobal.waktu_akses_siswa || "";
+
+          const inpDrive = document.getElementById("input-backup-drive-url");
+          if(inpDrive) inpDrive.value = dataSekolahGlobal.drive_backup_url || "";
 
           document.getElementById("dash-app-brand").innerText = (dataSekolahGlobal.nama_sekolah || "").toUpperCase();
           document.getElementById("dash-info-semester").innerText = `Semester ${dataSekolahGlobal.semester_aktif || 'Ganjil'} | TP ${dataSekolahGlobal.tahun_ajaran || '2026/2027'}`;
@@ -1460,14 +1627,16 @@
       const sem = document.getElementById("setting-semester").value;
       const ta = document.getElementById("setting-tahun-ajaran").value.trim();
       const tglRapor = document.getElementById("setting-tanggal-rapor").value.trim();
+      const waktuAkses = document.getElementById("setting-waktu-akses-siswa").value;
 
       try {
         await setDoc(doc(db, "pengaturan_sekolah", "identitas"), {
           semester_aktif: sem,
           tahun_ajaran: ta,
-          tanggal_rapor: tglRapor
+          tanggal_rapor: tglRapor,
+          waktu_akses_siswa: waktuAkses
         }, { merge: true });
-        alert(`Pengaturan Rapor (Semester ${sem}) berhasil diperbarui!`);
+        alert(`Pengaturan Rapor & Jadwal Akses Siswa berhasil diperbarui!`);
         muatTabelWaliKelasSiswa();
       } catch (err) { alert("Gagal menyimpan pengaturan: " + err.message); }
     };
@@ -1573,7 +1742,8 @@
           <li><a onclick="bukaPanel('panel-tp', this)"><span class="menu-icon">🎯</span><span class="menu-text">Tujuan Pembelajaran</span></a></li>
           <li><a onclick="bukaPanel('panel-nilai', this)"><span class="menu-icon">📝</span><span class="menu-text">Input Nilai Siswa</span></a></li>
           <li><a onclick="bukaPanel('panel-walikelas', this)"><span class="menu-icon">🏫</span><span class="menu-text" id="sidebar-menu-wali-text">Wali Kelas</span></a></li>
-          <div class="sidebar-section-title">Akun</div>
+          <div class="sidebar-section-title">Aplikasi & Akun</div>
+          <li><a onclick="bukaPanel('panel-backup-drive', this)"><span class="menu-icon">📦</span><span class="menu-text">Backup Rapor Drive</span></a></li>
           <li><a onclick="logout()" style="color: #fca5a5;"><span class="menu-icon">🚪</span><span class="menu-text">Keluar (Logout)</span></a></li>
         `;
         menuList.innerHTML = htmlMenu;
@@ -1633,10 +1803,376 @@
       }
     }
 
-    /* SISWA MANDIRI */
+    /* BACKUP GOOGLE DRIVE PER KELAS */
+    async function muatTabelBackupKelas() {
+      const tbody = document.getElementById("tabel-backup-kelas-body");
+      if(!tbody) return;
+
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Memuat data kelas...</td></tr>';
+
+      const snapSiswa = await getDocs(query(collection(db, "users"), where("role", "==", "siswa")));
+      const countPerKelas = {};
+      snapSiswa.forEach(d => {
+        const k = d.data().kelas;
+        if(k) countPerKelas[k] = (countPerKelas[k] || 0) + 1;
+      });
+
+      tbody.innerHTML = "";
+      let no = 1;
+
+      daftarKelasGlobal.forEach(namaKelas => {
+        const count = countPerKelas[namaKelas] || 0;
+        const faseUnit = mapFaseKelasGlobal[namaKelas] || "F";
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td style="text-align:center;">${no++}</td>
+          <td><b>${namaKelas}</b></td>
+          <td><span class="badge-role" style="background:#e0e7ff; color:#3730a3;">Fase ${faseUnit}</span></td>
+          <td><b>${count}</b> Siswa Terdaftar</td>
+          <td style="text-align:center;">
+            <button class="btn-success btn-execute-backup" style="padding:6px 12px; font-size:12px; width:auto;">
+              📤 Backup PDF Kelas Ini
+            </button>
+          </td>
+        `;
+
+        tr.querySelector('.btn-execute-backup').addEventListener('click', () => eksekusiBackupKelasKeDrive(namaKelas));
+        tbody.appendChild(tr);
+      });
+
+      if(no === 1) tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Belum ada kelas terdaftar.</td></tr>';
+    }
+
+    function dapatkanGoogleAccessToken(callback) {
+      if (googleDriveAccessToken) {
+        callback(googleDriveAccessToken);
+        return;
+      }
+
+      const client = google.accounts.oauth2.initTokenClient({
+        client_id: '1059367167032-p0q8453g7k967923724.apps.googleusercontent.com', // Client ID Publik / OAuth Standard
+        scope: 'https://www.googleapis.com/auth/drive.file',
+        callback: (response) => {
+          if (response.access_token) {
+            googleDriveAccessToken = response.access_token;
+            callback(googleDriveAccessToken);
+          } else {
+            alert("Gagal mengotentikasi Google Drive. Izin ditolak.");
+          }
+        },
+      });
+      client.requestAccessToken();
+    }
+
+    async function cariAtauBuatSubFolder(parentFolderId, folderName, token) {
+      const q = `name = '${folderName}' and '${parentFolderId}' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false`;
+      const searchUrl = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}`;
+      
+      const resSearch = await fetch(searchUrl, {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      const dataSearch = await resSearch.json();
+
+      if (dataSearch.files && dataSearch.files.length > 0) {
+        return dataSearch.files[0].id;
+      }
+
+      // Buat baru jika belum ada
+      const createUrl = 'https://www.googleapis.com/drive/v3/files';
+      const metadata = {
+        name: folderName,
+        mimeType: 'application/vnd.google-apps.folder',
+        parents: [parentFolderId]
+      };
+
+      const resCreate = await fetch(createUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + token,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(metadata)
+      });
+      const dataCreate = await resCreate.json();
+      return dataCreate.id;
+    }
+
+    async function uploadFilePdfKeDrive(folderId, fileName, blobPdf, token) {
+      const metadata = {
+        name: fileName,
+        parents: [folderId]
+      };
+
+      const form = new FormData();
+      form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+      form.append('file', blobPdf);
+
+      const res = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + token },
+        body: form
+      });
+      return await res.json();
+    }
+
+    async function eksekusiBackupKelasKeDrive(namaKelas) {
+      const rawUrlDrive = document.getElementById("input-backup-drive-url").value.trim();
+      const parentFolderId = ekstraksiFolderIdDrive(rawUrlDrive);
+
+      if (!parentFolderId) {
+        alert("Silakan isi Link atau ID Folder Google Drive Utama pada kolom pengisian terlebih dahulu!");
+        return;
+      }
+
+      // Simpan URL Drive ke Firestore
+      await setDoc(doc(db, "pengaturan_sekolah", "identitas"), { drive_backup_url: rawUrlDrive }, { merge: true });
+
+      dapatkanGoogleAccessToken(async (token) => {
+        const boxStatus = document.getElementById("status-backup-progress");
+        const txtStatus = document.getElementById("text-backup-status");
+        const barFill = document.getElementById("bar-backup-fill");
+
+        boxStatus.style.display = "block";
+        txtStatus.innerText = `🔍 Menguji akses Google Drive & membuat Sub-Folder "${namaKelas}"...`;
+        barFill.style.width = `5%`;
+        barFill.innerText = `5%`;
+
+        try {
+          const classFolderId = await cariAtauBuatSubFolder(parentFolderId, namaKelas, token);
+
+          // Ambil Siswa di Kelas Ini
+          const qSiswa = query(collection(db, "users"), where("role", "==", "siswa"), where("kelas", "==", namaKelas));
+          const snapSiswa = await getDocs(qSiswa);
+          
+          let listSiswa = [];
+          snapSiswa.forEach(d => listSiswa.push(d.data()));
+          listSiswa.sort((a,b) => a.nama.localeCompare(b.nama, undefined, { sensitivity: 'base' }));
+
+          if(listSiswa.length === 0) {
+            alert(`Tidak ada siswa terdaftar pada kelas ${namaKelas}`);
+            boxStatus.style.display = "none";
+            return;
+          }
+
+          txtStatus.innerText = `📦 Mulai memproses ${listSiswa.length} Rapor Siswa Kelas ${namaKelas}...`;
+
+          let total = listSiswa.length;
+          let completed = 0;
+
+          for (let s of listSiswa) {
+            completed++;
+            const pct = Math.round((completed / total) * 100);
+            txtStatus.innerText = `⚙️ Converting & Uploading Rapor (${completed}/${total}): ${s.nama}...`;
+            barFill.style.width = `${pct}%`;
+            barFill.innerText = `${pct}%`;
+
+            const blobPdf = await generateRaporPdfBlobSiswa(s);
+            const safeNama = s.nama.replace(/[^a-zA-Z0-9 ]/g, "").replace(/\s+/g, "_");
+            const fileName = `Rapor_${namaKelas.replace(/\s+/g, "_")}_${safeNama}.pdf`;
+
+            await uploadFilePdfKeDrive(classFolderId, fileName, blobPdf, token);
+          }
+
+          txtStatus.innerText = `✅ SUKSES! Seluruh Rapor Kelas ${namaKelas} (${total} PDF) berhasil di-backup ke Drive!`;
+          alert(`Backup Kelas ${namaKelas} Selesai! Semua Rapor tersimpan di folder Google Drive.`);
+        } catch (err) {
+          alert("Terjadi kesalahan saat memproses backup: " + err.message);
+          txtStatus.innerText = "❌ Backup gagal: " + err.message;
+        }
+      });
+    }
+
+    async function generateRaporPdfBlobSiswa(s) {
+      const containerOffscreen = document.getElementById("container-pdf-offscreen");
+      
+      // Load data pendukung Rapor
+      const semAktif = dataSekolahGlobal.semester_aktif || "Ganjil";
+      const taAktif = dataSekolahGlobal.tahun_ajaran || "2026/2027";
+      const tglRapor = dataSekolahGlobal.tanggal_rapor || "Purwokerto, 22 Oktober 2026";
+      const namaSekolahResmi = dataSekolahGlobal.nama_sekolah || "SMK DIPONEGORO 1 PURWOKERTO";
+
+      let faseKelas = mapFaseKelasGlobal[s.kelas] || (s.kelas.startsWith("X ") ? "E" : "F");
+
+      const snapDocWali = await getDocs(query(collection(db, "walikelas_catatan"), where("kelas", "==", s.kelas), where("nama_siswa", "==", s.nama)));
+      let wData = { sakit: 0, izin: 0, alpa: 0, catatan: "-", ekstra1_nama: "-", ekstra1_ket: "-", ekstra2_nama: "-", ekstra2_ket: "-", tanggapan_ortu: "", keputusan: "" };
+      if (!snapDocWali.empty) {
+        snapDocWali.forEach(d => { wData = { ...wData, ...d.data() }; });
+      }
+
+      const snapWaliResmi = await getDocs(query(collection(db, "plotting_walikelas"), where("kelas", "==", s.kelas)));
+      let namaWaliResmi = "Wali Kelas";
+      snapWaliResmi.forEach(d => { namaWaliResmi = d.data().nama_walikelas; });
+
+      const snapNilai = await getDocs(query(collection(db, "nilai_mapel"), where("kelas", "==", s.kelas), where("nama_siswa", "==", s.nama)));
+      let htmlNilai = "";
+      let noMapel = 1;
+
+      snapNilai.forEach(d => {
+        const n = d.data();
+        let strTinggi = n.tp_tinggi ? `${s.nama} menunjukkan pemahaman dalam ${n.tp_tinggi}` : "";
+        let strRendah = n.tp_rendah ? `${s.nama} membutuhkan bimbingan dalam ${n.tp_rendah}` : "";
+
+        htmlNilai += `
+          <tr>
+            <td style="border:1px solid #000; padding:6px; text-align:center; vertical-align:middle;">${noMapel++}</td>
+            <td style="border:1px solid #000; padding:6px; vertical-align:middle;"><b>${n.mapel}</b></td>
+            <td style="border:1px solid #000; padding:6px; text-align:center; font-weight:bold; vertical-align:middle;">${n.nilai}</td>
+            <td style="border:1px solid #000; padding:0; font-size:11px; vertical-align:top;">
+              <div style="border-bottom:1px solid #000; padding:6px;">${strTinggi || '-'}</div>
+              <div style="padding:6px;">${strRendah || '-'}</div>
+            </td>
+          </tr>
+        `;
+      });
+
+      if(noMapel === 1) htmlNilai = '<tr><td colspan="4" style="text-align:center; padding:10px;">Belum ada nilai terinput.</td></tr>';
+
+      let htmlKeputusan = "";
+      if (semAktif.toLowerCase() === "genap") {
+        const kep = wData.keputusan;
+        const isKelas12 = s.kelas.toUpperCase().startsWith("XII");
+        let txt = "";
+
+        if (isKelas12) {
+          txt = kep === "lulus" ? `Berdasarkan hasil pengamatan dan penilaian perkembangan, maka siswa <b>${s.nama}</b> dinyatakan <b>LULUS</b>.` : `Berdasarkan hasil pengamatan dan penilaian perkembangan, maka siswa <b>${s.nama}</b> dinyatakan <b>TIDAK LULUS</b>.`;
+        } else {
+          txt = kep === "naik" ? `Berdasarkan hasil pengamatan dan penilaian perkembangan, maka siswa <b>${s.nama}</b> dinyatakan <b>NAIK KE KELAS ${hitungKelasTujuan(s.kelas)}</b>.` : `Berdasarkan hasil pengamatan dan penilaian perkembangan, maka siswa <b>${s.nama}</b> dinyatakan <b>TINGGAL DI KELAS ${s.kelas}</b>.`;
+        }
+        htmlKeputusan = `<div class="box-keputusan-rapor"><b>Keputusan:</b><p style="margin-top:5px;">${txt}</p></div>`;
+      }
+
+      containerOffscreen.innerHTML = `
+        <div class="rapor-preview-container" style="box-shadow:none; border:none; padding:20px;">
+          <div class="rapor-header-sekolah">
+            <h3>LAPORAN HASIL BELAJAR (RAPOR)</h3>
+            <h3>${namaSekolahResmi.toUpperCase()}</h3>
+            <p>${dataSekolahGlobal.alamat_sekolah}</p>
+          </div>
+
+          <table class="rapor-meta-table">
+            <tr>
+              <td class="label">Nama Peserta Didik</td><td class="colon">:</td><td class="val"><b>${s.nama}</b></td>
+              <td class="label" style="padding-left:20px;">Kelas</td><td class="colon">:</td><td class="val">${s.kelas}</td>
+            </tr>
+            <tr>
+              <td class="label">NIS / NISN</td><td class="colon">:</td><td class="val">${s.username} / ${s.nisn || '-'}</td>
+              <td class="label" style="padding-left:20px;">Fase / Semester</td><td class="colon">:</td><td class="val">${faseKelas} / ${semAktif}</td>
+            </tr>
+            <tr>
+              <td class="label">Sekolah</td><td class="colon">:</td><td class="val">${namaSekolahResmi}</td>
+              <td class="label" style="padding-left:20px;">Tahun Ajaran</td><td class="colon">:</td><td class="val">${taAktif}</td>
+            </tr>
+          </table>
+
+          <table style="width:100%; border-collapse:collapse; font-size:12px; margin-bottom:15px;">
+            <thead>
+              <tr style="background:#f1f5f9;">
+                <th style="border:1px solid #000; padding:6px; width:30px;">No</th>
+                <th style="border:1px solid #000; padding:6px;">Muatan Pelajaran</th>
+                <th style="border:1px solid #000; padding:6px; width:60px;">Nilai</th>
+                <th style="border:1px solid #000; padding:6px;">Capaian Kompetensi</th>
+              </tr>
+            </thead>
+            <tbody>${htmlNilai}</tbody>
+          </table>
+
+          <div style="font-size:12px; margin-bottom:12px;">
+            <b>A. Ekstrakurikuler</b>
+            <table class="table-rapor-ekstra">
+              <tr><td style="width:30px; text-align:center;">1</td><td style="width:180px;">${wData.ekstra1_nama || '-'}</td><td>${wData.ekstra1_ket || '-'}</td></tr>
+              <tr><td style="text-align:center;">2</td><td>${wData.ekstra2_nama || '-'}</td><td>${wData.ekstra2_ket || '-'}</td></tr>
+            </table>
+          </div>
+
+          <div style="display:grid; grid-template-columns: 1fr 1.2fr; gap:12px; margin-bottom:15px; font-size:12px;">
+            <div>
+              <b>B. Ketidakhadiran</b>
+              <table style="width:100%; border-collapse:collapse;">
+                <tr><td style="border:1px solid #000; padding:4px;">Sakit</td><td style="border:1px solid #000; padding:4px; text-align:center;">${wData.sakit || 0} Hari</td></tr>
+                <tr><td style="border:1px solid #000; padding:4px;">Izin</td><td style="border:1px solid #000; padding:4px; text-align:center;">${wData.izin || 0} Hari</td></tr>
+                <tr><td style="border:1px solid #000; padding:4px;">Tanpa Keterangan</td><td style="border:1px solid #000; padding:4px; text-align:center;">${wData.alpa || 0} Hari</td></tr>
+              </table>
+            </div>
+            <div>
+              <b>Catatan Wali Kelas</b>
+              <div style="border:1px solid #000; padding:6px; min-height:65px;">${wData.catatan || '-'}</div>
+            </div>
+          </div>
+
+          ${htmlKeputusan}
+
+          <div style="font-size:12px; margin-bottom:20px;">
+            <b>Tanggapan Orang Tua/Wali Murid</b>
+            <div class="box-tanggapan-ortu">${wData.tanggapan_ortu || ''}</div>
+          </div>
+
+          <div style="font-size:11px;">
+            <div style="display:flex; justify-content:space-between; text-align:center; margin-bottom:20px;">
+              <div style="width: 40%;"><p>Orang Tua / Wali Murid,</p><br><br><p><b>( ......................................... )</b></p></div>
+              <div style="width: 40%;"><p>${tglRapor}</p><p>Wali Kelas,</p><br><br><p><b>${namaWaliResmi}</b></p></div>
+            </div>
+            <div style="text-align:center; width:100%;">
+              <p>Mengetahui, Kepala ${namaSekolahResmi}</p><br><br>
+              <p><u><b>${dataSekolahGlobal.nama_kepsek}</b></u></p>
+              <p>NIP. ${dataSekolahGlobal.nip_kepsek}</p>
+            </div>
+          </div>
+        </div>
+      `;
+
+      const opt = {
+        margin: [10, 10, 10, 10],
+        filename: 'rapor.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+
+      const pdfWorker = html2pdf().set(opt).from(containerOffscreen).outputPdf('blob');
+      const blobPdf = await pdfWorker;
+      containerOffscreen.innerHTML = "";
+      return blobPdf;
+    }
+
+    /* SISWA MANDIRI & VALIDASI TANGGAL/JAM AKSES RAPOR */
     async function muatTabelRaporSiswaMandiri() {
       const tbody = document.getElementById("tabel-rapor-siswa-body");
+      const boxLocked = document.getElementById("container-rapor-locked");
+      const boxUnlocked = document.getElementById("container-rapor-unlocked");
+      const btnCetak = document.getElementById("btn-cetak-rapor-mandiri");
+
       if (!tbody || !currentUser) return;
+
+      const waktuTargetStr = dataSekolahGlobal.waktu_akses_siswa;
+      const roleUser = (currentUser.role || '').toLowerCase();
+      
+      let isUnlocked = true;
+      if (roleUser === "siswa" || roleUser === "walimurid") {
+        if (!waktuTargetStr) {
+          isUnlocked = false;
+        } else {
+          const waktuSekarang = new Date();
+          const waktuRilis = new Date(waktuTargetStr);
+          if (waktuSekarang < waktuRilis) {
+            isUnlocked = false;
+          }
+        }
+      }
+
+      if (!isUnlocked) {
+        if(boxLocked) boxLocked.style.display = "block";
+        if(boxUnlocked) boxUnlocked.style.display = "none";
+        if(btnCetak) btnCetak.style.display = "none";
+        
+        const txtJadwal = document.getElementById("text-jadwal-buka-rapor");
+        if(txtJadwal) txtJadwal.innerText = `📅 ${formatWaktuIndo(waktuTargetStr)}`;
+        return;
+      }
+
+      if(boxLocked) boxLocked.style.display = "none";
+      if(boxUnlocked) boxUnlocked.style.display = "block";
+      if(btnCetak) btnCetak.style.display = "inline-block";
 
       tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Memuat data nilai Anda...</td></tr>';
 
@@ -2270,7 +2806,6 @@
       const taAktif = dataSekolahGlobal.tahun_ajaran || "2026/2027";
       const tglRapor = dataSekolahGlobal.tanggal_rapor || "Purwokerto, 22 Oktober 2026";
 
-      // Mengambil Fase khusus per kelas
       let faseKelas = mapFaseKelasGlobal[dataSiswa.kelas];
       if (!faseKelas) {
         if (dataSiswa.kelas.startsWith("X ")) faseKelas = "E";
@@ -2281,7 +2816,6 @@
       document.getElementById("rp-tp-siswa").innerText = taAktif;
       document.getElementById("rp-tanggal-penerbitan").innerText = tglRapor;
       
-      // Mengambil data Wali Kelas Catatan realtime terkini dari Firestore
       const snapDocWali = await getDocs(query(collection(db, "walikelas_catatan"), where("kelas", "==", dataSiswa.kelas), where("nama_siswa", "==", dataSiswa.nama)));
       let liveDataWali = dataSiswa;
       if (!snapDocWali.empty) {
@@ -2301,7 +2835,6 @@
 
       document.getElementById("rp-tanggapan-ortu").innerText = liveDataWali.tanggapan_ortu || "";
 
-      // GENERATE KEPUTUSAN SEMESTER GENAP
       const boxKep = document.getElementById("rp-container-keputusan");
       const txtKep = document.getElementById("rp-teks-keputusan");
 
