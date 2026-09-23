@@ -276,8 +276,8 @@
 </head>
 <body>
 
-  <!-- ELEMENT HTML TERSEMBUNYI UNTUK PROCESS GENERATE PDF BACKUP -->
-  <div id="container-pdf-offscreen" style="position: absolute; left: -9999px; top: -9999px; width: 800px; background: white;"></div>
+  <!-- ELEMENT HTML UNTUK PROCESS GENERATE PDF BACKUP (Latar belakang aman agar tidak blank) -->
+  <div id="container-pdf-offscreen" style="position: fixed; top: 0; left: 0; width: 800px; z-index: -9999; opacity: 0; pointer-events: none; background: white;"></div>
 
   <!-- HALAMAN LOGIN DENGAN BACKGROUND GAMBAR -->
   <div class="screen active" id="screen-login">
@@ -2129,8 +2129,9 @@
         htmlKeputusan = `<div class="box-keputusan-rapor"><b>Keputusan:</b><p style="margin-top:5px;">${txt}</p></div>`;
       }
 
+      // Isi HTML Rapor ke container
       containerOffscreen.innerHTML = `
-        <div class="rapor-preview-container" style="box-shadow:none; border:none; padding:20px;">
+        <div class="rapor-preview-container" style="box-shadow:none; border:none; padding:20px; background:#ffffff;">
           <div class="rapor-header-sekolah">
             <h3>LAPORAN HASIL BELAJAR (RAPOR)</h3>
             <h3>${namaSekolahResmi.toUpperCase()}</h3>
@@ -2208,16 +2209,21 @@
         </div>
       `;
 
+      // BERI JEDA 200ms AGAR BROWSER SELESAI MEM-BUILD RENDER DOM
+      await new Promise(resolve => setTimeout(resolve, 200));
+
       const opt = {
         margin: [10, 10, 10, 10],
         filename: 'rapor.pdf',
         image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
+        html2canvas: { scale: 2, useCORS: true, logging: false },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
       };
 
       const pdfWorker = html2pdf().set(opt).from(containerOffscreen).outputPdf('blob');
       const blobPdf = await pdfWorker;
+      
+      // Bersihkan container
       containerOffscreen.innerHTML = "";
       return blobPdf;
     }
